@@ -57,4 +57,4 @@ pairwiseSum'' :: Num c => [c] -> [c] -> [c]
 pairwiseSum'' xs ys = map (uncurry (+))  $ zip xs ys
 
 pairwiseSum''' :: Num c => [c] -> [c] -> [c]
-pairwiseSum''' = zipWith (+) 
+pairwiseSum''' = zipWith (+)
