@@ -28,6 +28,7 @@ library
       ComposeFunc
       ConditionalBRanch
       CustomOperators
+      DestructureValues
       FoldFunctions
       FoodBudget
       GreetingFunction
