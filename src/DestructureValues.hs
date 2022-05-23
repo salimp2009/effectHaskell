@@ -1,4 +1,5 @@
 module DestructureValues where
+import GHC.Num (integerFromInt)
 
 customGreeting :: String -> String
 customGreeting "Salitos" = "Hello Salitos!"
@@ -48,5 +49,16 @@ fibs' n
 fibs :: [Integer]
 fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
 
+printFibonacci :: Int -> String
+printFibonacci n =
+    let fibonNum = show $ fibs' (integerFromInt n)
+        fibonList = show $ take n fibs
+    in "finonacci number is : " <> fibonNum <> " and the list is : " <> fibonList
+
+modifyPair :: (String, String) -> String
+modifyPair p@(a, b)
+        | a == "Hello" = "this is a salute : " <> a
+        | b == "George" || b== "Salim" = "this is a message to " <> b
+        | otherwise = "I don't know what " <> show p <> "is!! "
 
 

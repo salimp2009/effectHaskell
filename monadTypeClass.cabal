@@ -37,6 +37,7 @@ library
       Lib
       ListComprehend
       ListCreate
+      PatternMatch
       TestCode
   other-modules:
       Paths_monadTypeClass
