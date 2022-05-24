@@ -6,9 +6,10 @@ customGreeting "Salitos" = "Hello Salitos!"
 customGreeting name = "Goodmorning " <> name
 
 -- | this is to show 2nd version with "Salitos" will never be used
+-- warnings because for redundant pattern matching; 2nd case will never be accessed
 customGreeting' :: String -> String
 customGreeting' name = "Goodmorning " <> name
-customGreeting' "Salitos" = "Hello Salitos!"
+-- customGreeting' "Salitos" = "Hello Salitos!"
 
 matchNum :: (Eq a, Num a, Show a) => a -> String
 matchNum 0 = "zero"
@@ -32,8 +33,9 @@ matchBool'::Bool -> String
 matchBool' True = "this is so True :)"
 matchBool' False = "so wrong => Falseee:)"
 
-addValues :: Num a => [a] -> a
-addValues = foldr (+) 0
+-- | warnings recommends to use sum instead of foldr
+-- addValues :: Num a => [a] -> a
+-- addValues = foldr (+) 0
 
 addValues'::(Foldable t, Num a) => t a -> a
 addValues' = sum

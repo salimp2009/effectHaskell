@@ -17,6 +17,10 @@ applytoThruple = (<*>) [myFst, mySnd, myThrd]
 applytoThruple' :: (b, b, b) -> [b]
 applytoThruple' as = map ($ as) [myFst, mySnd, myThrd]
 
+-- | usage: e.g: applytoThruple' (1,2,3) -> [1,2,3]
+applytoThruple'' :: (b, b, b) -> [b]
+applytoThruple'' as = ($ as) <$> [myFst, mySnd, myThrd]
+
 -- | _tail is used to communicate _tail will not be used
 printHead ::  Show a =>  [a] -> String
 printHead [] = "empty!"
