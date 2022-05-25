@@ -29,6 +29,7 @@ library
       ConditionalBRanch
       CustomOperators
       DestructureValues
+      FibsLazy
       FoldFunctions
       FoodBudget
       GreetingFunction

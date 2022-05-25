@@ -1,5 +1,7 @@
 module ProgramEval where
 
+import FoldFunctions (myFoldr)
+
 numbersStartingAt :: Num t => t -> [t]
 numbersStartingAt n =
             n: numbersStartingAt (n+1)
@@ -25,3 +27,17 @@ moreEpicCycle :: Semigroup t => t -> t
 moreEpicCycle inputList =
      inputList <> moreEpicCycle inputList
 
+findFirst :: (a -> Bool) -> [a] -> [a]
+findFirst predicate =
+    myFoldr findHelper []
+    where
+        findHelper listElement maybeFound
+            | predicate listElement = [listElement]
+            | otherwise = maybeFound
+
+
+findFirst' :: (a -> Bool) -> [a] -> [a]
+findFirst' predicate lst
+        | null lst = []
+        | predicate (head lst) = [head lst]
+        | otherwise = findFirst' predicate (tail lst)
