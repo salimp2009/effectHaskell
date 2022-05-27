@@ -15,3 +15,31 @@ fibs = fib <$> [0..]
 -- smallFibs 100 -> [0,1,1,2,3,5,8,13,21,34,55,89]
 smallFibs :: Integer -> [Integer]
 smallFibs n = takeWhile (< n) fibs
+
+-- | just to show steps but inefficient; dont use
+-- if used ; e.g:  take 10 $ fibsLazy 0 1 -> [0,1,1,2,3,5,8,13,21,34]
+fibsLazy :: Num t => t -> t -> [t]
+fibsLazy firstFib secondFib = 
+    let nextFib = firstFib + secondFib
+    in firstFib : fibsLazy secondFib nextFib 
+
+-- | just to show steps but inefficient; dont use
+-- if used; same above
+fibsLazy' :: Num a => a -> a -> [a]
+fibsLazy' first' second' = first' : fibsLazy' second' (first' + second')
+
+
+-- | more efficient lazy stream; 
+-- usage : take 10 fibsRev -> [0,1,1,2,3,5,8,13,21,34]
+fibsRev :: [Integer]
+fibsRev = 0 : 1 : helper fibsRev (tail fibsRev)
+    where
+        helper [] _ = []
+        helper as [] = as 
+        helper (a:as) (b:bs) =
+            a + b : helper as bs
+
+-- ^ fibs = 0 : 1 : helper (0 : 1 : <thunk>) (1 : <thunk>)
+-- where
+-- helper (0 : 1 : <thunk>) (1 : <thunk>) =
+--    0 + 1 : helper (1 : <thunk>) <thunk>

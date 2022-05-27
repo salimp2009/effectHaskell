@@ -9,7 +9,7 @@ myReverse = foldl (flip (:)) []
 -- | not efficient because of constant concatenate
 myReverse' :: [a] -> [a]
 myReverse' [] = []
-myReverse' (x:xs) = myReverse xs <> [x]
+myReverse' (x:xs) = myReverse' xs <> [x]
 
 myReverse'' :: [a] -> [a]
 myReverse'' list = 
