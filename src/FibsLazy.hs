@@ -43,3 +43,10 @@ fibsRev = 0 : 1 : helper fibsRev (tail fibsRev)
 -- where
 -- helper (0 : 1 : <thunk>) (1 : <thunk>) =
 --    0 + 1 : helper (1 : <thunk>) <thunk>
+
+myzipWith :: (t1 -> t2 -> a) -> [t1] -> [t2] -> [a]
+myzipWith f = go
+    where 
+        go [] _ = []
+        go _ [] = []
+        go (x:xs) (y: ys) = f x y : go xs ys

@@ -48,13 +48,13 @@ fibs' n
 
 -- | this infinite list use with take
 -- e.g take 5 fibs = [1,1,2,3,5]
-fibs :: [Integer]
-fibs = 1 : 1 : zipWith (+) fibs (tail fibs)
+fibs'' :: [Integer]
+fibs'' = 1 : 1 : zipWith (+) fibs'' (tail fibs'')
 
 printFibonacci :: Int -> String
 printFibonacci n =
     let fibonNum = show $ fibs' (integerFromInt n)
-        fibonList = show $ take n fibs
+        fibonList = show $ take n fibs''
     in "finonacci number is : " <> fibonNum <> " and the list is : " <> fibonList
 
 -- | p@(a,b) means p is a tuple as single variable; 

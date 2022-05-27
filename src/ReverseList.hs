@@ -21,7 +21,7 @@ myReverse'' list =
 -- | Stackoverflow solns; 
 myReverse''' :: [a] -> [a]
 myReverse''' [] = []
-myReverse''' list= foldr (\x fId empty-> fId (x:empty)) id list []
+myReverse''' list= foldr (\x fId -> fId.(x:)) id list []
 
 moreReverse :: Foldable t => t a -> [a]
 moreReverse xs = foldr funct id xs []
