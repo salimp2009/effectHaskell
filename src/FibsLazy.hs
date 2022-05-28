@@ -50,3 +50,20 @@ myzipWith f = go
         go [] _ = []
         go _ [] = []
         go (x:xs) (y: ys) = f x y : go xs ys
+
+myzip2 :: Foldable t => t a -> [b] -> [(a, b)]
+myzip2 xs ys = foldr f (const []) xs ys
+    where 
+        f x r [] = []
+        f x r (y:ys) = (x,y) :r ys
+
+-- | this does not work yet :)        
+-- myzip3 xs ys = foldl f xs ys
+--     where 
+--         f _ [] = []
+--         f [] _ = []
+--         f (x:xs) (y:ys) = (x, y) : f  xs ys
+   
+
+
+
