@@ -52,18 +52,23 @@ myzipWith f = go
         go (x:xs) (y: ys) = f x y : go xs ys
 
 myzip2 :: Foldable t => t a -> [b] -> [(a, b)]
-myzip2 xs ys = foldr f (const []) xs ys
+myzip2 xs ys = foldr f mempty xs ys
     where 
+--      f :: a -> ([b] -> [(a, b)]) -> [b] -> [(a, b)]
         f x r [] = []
-        f x r (y:ys) = (x,y) :r ys
+        f x r (y:ys) = (x,y) : r ys
 
--- | this does not work yet :)        
--- myzip3 xs ys = foldl f xs ys
---     where 
---         f _ [] = []
---         f [] _ = []
---         f (x:xs) (y:ys) = (x, y) : f  xs ys
-   
+-- | the function r is just to consume ys which is not used by foldl
+-- but it is an argument to function f as id
+-- it is also an argument for f' to consume ys
+-- need to figure how this works :)      
+myzip3 :: Foldable t => t a -> [b] -> [(a, b)]
+myzip3 xs ys = foldl f id xs mempty ys
+    where 
+        f r x a = r (f' x a)                    -- ^ a refers to empty and r refers to id
+            where 
+                f' _ _ [] = []
+                f' x r (y:ys) = (x, y) : r ys
 
 
 
