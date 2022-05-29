@@ -71,4 +71,25 @@ myzip3 xs ys = foldl f id xs mempty ys
                 f' x r (y:ys) = (x, y) : r ys
 
 
+myzip4 :: Foldable t => t a -> [b] -> [(a, b)]
+myzip4 xs ys = foldl (\r x a -> r(f x a)) id xs mempty ys
+    where
+        f _ _ [] = []
+        f x r' (y:ys) = (x , y) : r' ys
+
+myFilter :: Foldable t => (a -> Bool) -> t a -> [a]
+myFilter p = foldr filterHelper []
+        where 
+            filterHelper x ys 
+                        | p x = x : ys
+                        | otherwise = ys
+
+
+myFilter' :: (a -> Bool) -> [a] -> [a]
+myFilter' _ [] = []
+myFilter' pred (x:xs) 
+            | pred x  =  x : myFilter' pred xs
+            | otherwise = myFilter' pred xs
+
+
 
