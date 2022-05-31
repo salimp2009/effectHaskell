@@ -81,4 +81,13 @@ incrementAndShow n formatter = formatter (n+1)
 -- incrementAndShow' 2 incrementAndShow -> "4"
 incrementAndShow' :: Int -> (Int -> (Int ->String)->String) ->String
 incrementAndShow' n f = f  (n+1) show 
-        
+
+pointful :: [Int] -> Int -> Int
+pointful xs n = sum xs * n
+
+etaReducedSum :: [Int] -> (Int -> Int)
+etaReducedSum xs = (*) (sum xs)
+
+pointFreeSum :: [Int] -> Int -> Int
+pointFreeSum = (*) . sum 
+

@@ -14,14 +14,17 @@ myzip2 xs ys = foldr f mempty xs ys
         f x r [] = []
         f x r (y:ys) = (x,y) : r ys
 
--- | the function r is just to consume ys which is not used by foldl
--- but it is an argument to function f as id
--- it is also an argument for f' to consume ys
--- need to figure how this works :)      
+-- | the argument r in => f r x is the accumulate
+-- the initial value for is id so => id. f' x1
+-- so we have id.f' x1 . f' x2 . ... .f' xn $ mempty 
+--  r' has type [b] -> [(a, b)] ; it consumes ys
+-- so accumulate r becomes (x1, y1) : r y1s
+-- it continues either of the list consumed
+-- => (x1, y1) : (x2, y2) : .... : (xn, yn) : mempty
 myzip3 :: Foldable t => t a -> [b] -> [(a, b)]
 myzip3 xs ys = foldl f id xs mempty ys
     where
-        f r x a = r (f' x a)                    -- ^ a refers to empty and r refers to id
+        f r x  = r . f' x                    
             where
                 f' _ _ [] = []
                 f' x r (y:ys) = (x, y) : r ys
