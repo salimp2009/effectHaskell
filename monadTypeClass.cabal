@@ -44,6 +44,7 @@ library
       ProgramEval
       ReverseList
       TestCode
+      UsingUnDefined
   other-modules:
       Paths_monadTypeClass
   hs-source-dirs:

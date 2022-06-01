@@ -91,8 +91,9 @@ etaReducedSum xs = (*) (sum xs)
 pointFreeSum :: [Int] -> Int -> Int
 pointFreeSum = (*) . sum
 
+-- | eta reduced original apply' f val = f val
 apply' :: (a -> b) -> a -> b
-apply' f val = f val
+apply' f = f
 
 incrementInt :: Int -> Int
 incrementInt n = n + 1
@@ -100,7 +101,7 @@ incrementInt n = n + 1
 incrementInted :: Int
 incrementInted = apply' incrementInt 1
 
-    
+
 
 
 
