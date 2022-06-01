@@ -68,8 +68,8 @@ worksToo f a =
                  applymore ::  a -> b
                  applymore a' = f' a'
              in applymore
-    in apply f a  
-    
+    in apply f a
+
  -- | use case;  incrementAndShow 2 show -> "3" 
 incrementAndShow :: Int -> (Int -> String) -> String
 incrementAndShow n formatter = formatter (n+1)
@@ -80,7 +80,7 @@ incrementAndShow n formatter = formatter (n+1)
 -- | use case ; 
 -- incrementAndShow' 2 incrementAndShow -> "4"
 incrementAndShow' :: Int -> (Int -> (Int ->String)->String) ->String
-incrementAndShow' n f = f  (n+1) show 
+incrementAndShow' n f = f  (n+1) show
 
 pointful :: [Int] -> Int -> Int
 pointful xs n = sum xs * n
@@ -89,5 +89,18 @@ etaReducedSum :: [Int] -> (Int -> Int)
 etaReducedSum xs = (*) (sum xs)
 
 pointFreeSum :: [Int] -> Int -> Int
-pointFreeSum = (*) . sum 
+pointFreeSum = (*) . sum
+
+apply' :: (a -> b) -> a -> b
+apply' f val = f val
+
+incrementInt :: Int -> Int
+incrementInt n = n + 1
+
+incrementInted :: Int
+incrementInted = apply' incrementInt 1
+
+    
+
+
 
