@@ -1,5 +1,9 @@
 module UsingUnDefined where
 
+
+-- | Example use case how to use undefined during 
+-- intermediate steps of implementation to test the types
+-- it compiles but needs to implement the undefined functions
 allNums :: [[a]]
 allNums = undefined
 
@@ -21,7 +25,7 @@ allBiggests = map getBiggests allNums
 allSmallests :: [[Int]] 
 allSmallests = map getSmallests allNums
     where
-        getSmallests = maximum
+        getSmallests = minimum
 
 sizePairs:: [([Int], [Int])]
 sizePairs = zip allBiggests allSmallests

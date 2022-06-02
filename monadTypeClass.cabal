@@ -44,6 +44,7 @@ library
       ProgramEval
       ReverseList
       TestCode
+      TypeHoleUses
       UsingUnDefined
   other-modules:
       Paths_monadTypeClass
