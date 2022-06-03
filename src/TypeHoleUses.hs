@@ -27,3 +27,16 @@ showFields =
               mergeFirstTwo e joinFields
             )
 
+showStringPair::(String, String) -> String
+showStringPair (a,b) = "fst: " <> a <> ", snd: " <> b
+
+doubleField :: a -> (a, a)
+doubleField a = (a,a)
+
+showValues::String
+showValues = unlines $ map (showStringPair . doubleField . show) [1..10]
+
+-- | Using type hole to determine the type; original doubleField accepts
+-- any type since it is Num, Enum it will not work showStringPair
+-- when used with the type hole compiler show exact problem and how to fix it
+-- showValues = unlines $ map (showStringPair . _doubleField ) [1..10]
