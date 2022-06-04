@@ -65,8 +65,9 @@ mapApply toApply =
 
 
 example::[Int] -> String
-example = map lookupLetter <$> mapApply offsets  -- or map lookupLetter. mapApply offsets
-           --  mapApply _(lookupLetter $ offsets)
+example = mapApply $ (lookupLetter .) <$> offsets
+          -- mapApply $ map (lookupLetter .) offsets
+          --((lookupLetter .) <$> offsets <*>) 
         where
           letters :: [Char]
           letters = ['a'..'z']
