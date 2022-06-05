@@ -63,11 +63,18 @@ mapApply :: [a -> b] -> [a] -> [b]
 mapApply toApply =
     concatMap (\input -> map ($ input) toApply)
 
+-- | use case ; example [5..15] -> "spftqgurhvsuwtjxukyblzcmadnbeacfp"
+-- | all option composes a list of function from [Int -> Int] 
+-- with a function Int -> Char and gives a list of functions [Int -> Char]
+-- then we apply each in the given list of functions of a given list of numbers
+-- using mapApply; the last alternatives uses functor and applicative functions
+-- (<$>); which is pretty much same as fmap; (a->b)  -> f a -> fb
+-- (<*>); f (a->b)  -> f a -> fb 
 
 example::[Int] -> String
 example = mapApply $ (lookupLetter .) <$> offsets
           -- mapApply $ map (lookupLetter .) offsets
-          --((lookupLetter .) <$> offsets <*>) 
+          -- ((lookupLetter .) <$> offsets <*>) 
         where
           letters :: [Char]
           letters = ['a'..'z']

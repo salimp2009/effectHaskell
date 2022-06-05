@@ -43,6 +43,7 @@ library
       ListCreate
       PatternMatch
       ProgramEval
+      RecordSyntax
       ReverseList
       TestCode
       TypeHoleUses
