@@ -25,7 +25,8 @@ showCustomer (CustomerInfo'' first last count balance) =
                 balance' = "balance: " <> show balance
             in  name <> " " <> count' <> " " <> balance'
 
--- | not an efficient way of doing the updates or changes; better create functions or lenses
+-- | not an efficient way of doing the updates or changes; 
+-- better create functions or records and/orlenses
 applyDiscount :: CustomerInfo'' -> CustomerInfo''
 applyDiscount customer =
     case customer of 

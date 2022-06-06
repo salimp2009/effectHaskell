@@ -1,6 +1,12 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module RecordSyntax where
 
 -- | name fields are functions in record syntax
+-- added 'c' at the beginning of the record fields
+-- since we used the same name in another module
+-- as a free function for CustomerInfo''
+-- this problem can be solved with Generics in GHC
 data CustomerInfoR = CustomerInfoR
     { cfirstName   :: String
     , clastName    :: String
@@ -21,3 +27,32 @@ customerDidos = CustomerInfoR
                 , cfirstName = "Didemos"
                 , cwidgetCount = 20
                 }
+-- | no partial application of the field names when creating; all of them needs to be set  
+customerFactory :: String -> String -> CustomerInfoR
+customerFactory fname lname = CustomerInfoR
+                            { cbalance = 0
+                            , cwidgetCount = 10
+                            , cfirstName = fname
+                            , clastName = lname
+                            }
+-- record field constructor are composable 
+-- since they are ordinary functions
+totalWidgetCount :: [CustomerInfoR] -> Int
+totalWidgetCount = sum . map cwidgetCount
+
+-- updating an existing record can be done
+-- by applying only the updated record fields only
+-- but updating does not change existing record 
+-- it creates a new one and original stays the same
+emptyCart :: CustomerInfoR -> CustomerInfoR
+emptyCart customer = customer { cbalance = 0
+                              , cwidgetCount = 0
+                              }
+-- | using RecordWildCard extension 
+-- this enables us to use record fields as record variables
+-- it can also be used for creating new records
+showCustomerR :: CustomerInfoR -> String
+showCustomerR CustomerInfoR{..} =
+    cfirstName <> " " <> clastName <>" " <>
+    show cwidgetCount <> " " <> show cbalance
+    
