@@ -20,6 +20,7 @@ data CustomerInfoR = CustomerInfoR
 
 -- | when creating values you use value constructor
 -- and use each field name in any order but they must be complete
+-- see below a simpler method using WildCards
 customerDidos :: CustomerInfoR
 customerDidos = CustomerInfoR 
                 { cbalance = 100
@@ -55,4 +56,22 @@ showCustomerR :: CustomerInfoR -> String
 showCustomerR CustomerInfoR{..} =
     cfirstName <> " " <> clastName <>" " <>
     show cwidgetCount <> " " <> show cbalance
-    
+
+-- | creating new value of record using using RecordWildCard extension
+-- using field constructors as local variable to set value
+-- note the local variable name has to match
+customerSemo :: CustomerInfoR
+customerSemo = 
+    let cfirstName  = "Semokitos"
+        clastName   = "TokitosMutos"
+        cwidgetCount = 10
+        cbalance = 2200
+    in CustomerInfoR {..}
+
+-- | function parameters can be use record field constructor as 
+-- long as the names match
+customerFactory' :: String -> String -> CustomerInfoR
+customerFactory' cfirstName clastName =
+    let  cwidgetCount = 10
+         cbalance = 0
+    in CustomerInfoR {..}
