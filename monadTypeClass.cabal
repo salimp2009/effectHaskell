@@ -45,6 +45,7 @@ library
       ProgramEval
       RecordSyntax
       ReverseList
+      SumTypes
       TermsTypesKinds
       TestCode
       TypeHoleUses
