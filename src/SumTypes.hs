@@ -23,7 +23,7 @@ confirmContact contact = case contact of
         Email emailaddres   -> "an email sent to you, please confirm: " <> emailaddres
         Text phoneNo        -> "a message has been sent, please confir" <> phoneNo
         Mail streetcity country zip -> 
-            "your book will be shipped to" 
+            "your book will be shipped to " 
             <> streetcity <> "\n"
             <> country <> "\n"
             <> show zip <> "\n"
@@ -43,4 +43,77 @@ contactForUser username = case username of
         "Didemos" -> Text "90 111 222 333"
         "Demiros" -> Mail "Route 66" "Suite 777 CA" 90025
         name -> Email $ name <> "@someexample.com"
+
+data StringOrNumber = S String | N Int deriving Show
+
+stringAndNumbers ::  [StringOrNumber]
+stringAndNumbers = [ S "this is a tricky list"
+                   , N 2
+                   , S "different type pf value"     
+                   ]
+-- | example Sum Products
+-- Dont use this because potential runtime error
+-- if trying to access record field that does exist one of the types
+-- e.g salary (Customer{..})
+data Person = Customer 
+        { name    :: String
+        , pbalance :: Int
+        }                   
+        | Employee
+        { name        :: String
+        , managerName :: String
+        , salary      :: Int
+        }
+
+salitos :: Person
+salitos = Employee { name = "Salim"
+                   , managerName = "Semos"
+                   , salary = 100
+                   }
+
+didemoss :: Person
+didemoss = Customer { name = "Didoss" 
+                    , pbalance = 20 
+                    }   
+                    
+-- | if Sum Products needed ; create each Product type seperately
+-- then use it in a Sum type as a type 
+-- but there is still potential error if any of access fields are not
+-- defined for any of the constructors then we will Exception error again !!
+-- best way to return a Maybe so if there is no access field 
+-- return 'Nothing' otherwise return 'Just value'
+
+data CustomerInfor = CustomerInfor
+        { customerName    :: String
+        , customerBalance :: Int
+        } deriving Show 
+
+data EmployeeInfor = EmployeeInfor
+        { employeeName    :: String
+        , employeeManager :: String
+        , employeeSalary  :: Int
+        } deriving Show
+
+data Person' = Customer' CustomerInfor | Employee' EmployeeInfor  deriving Show
+
+semoki :: Person'
+semoki = Customer' $ CustomerInfor 
+                 { customerName = "Semoki" 
+                 , customerBalance = 10
+                 }  
+
+-- | to access the underlying record fields we need to write 
+-- functions to extract 
+demiross :: Person'
+demiross = Employee' $ EmployeeInfor
+                       { employeeName    = "Demiros"
+                       , employeeManager = "Didokis"
+                       , employeeSalary  = 1000
+                       } 
+
+getPersonName :: Person' -> String
+getPersonName person = 
+        case person of 
+                Customer' customer -> customerName customer
+                Employee' employee -> employeeName employee
 
