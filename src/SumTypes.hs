@@ -107,7 +107,7 @@ semoki = Customer' $ CustomerInfor
 demiross :: Person'
 demiross = Employee' $ EmployeeInfor
                        { employeeName    = "Demiros"
-                       , employeeManager = "Didokis"
+                       , employeeManager = "DidokiBoss"
                        , employeeSalary  = 1000
                        } 
 
@@ -117,3 +117,30 @@ getPersonName person =
                 Customer' customer -> customerName customer
                 Employee' employee -> employeeName employee
 
+-- | since there is employeeManager for a customer we have a problem of Exception again
+-- better soln to return a Maybe so we can return Nothing in those cases
+getPersonManager :: Person' -> String
+getPersonManager person =
+        case person of
+                Employee' employee -> employeeManager employee
+                Customer' customer -> undefined
+
+-- | this is safer if the record field does not apply to one of the types
+-- in the Sum type it returns Nothing other Just @String
+getPersonManager' :: Person' -> Maybe String
+getPersonManager' person =
+        case person of
+                Employee' employee -> Just $ employeeManager employee
+                Customer' customer -> Nothing 
+
+getPersonBalance' :: Person' -> Maybe Int
+getPersonBalance' person =
+        case person of
+                Employee' employee -> Nothing
+                Customer' customer -> Just $ customerBalance customer
+
+getPersonSalary' :: Person' -> Maybe Int
+getPersonSalary' person =
+        case person of
+                Employee' employee -> Just $ employeeSalary employee
+                Customer' customer -> Nothing
