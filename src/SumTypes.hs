@@ -142,5 +142,5 @@ getPersonBalance' person =
 getPersonSalary' :: Person' -> Maybe Int
 getPersonSalary' person =
         case person of
-                Employee' employee -> Just $ employeeSalary employee
+                Employee'  employee -> Just $ employeeSalary employee
                 Customer' customer -> Nothing

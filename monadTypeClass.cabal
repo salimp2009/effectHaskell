@@ -29,6 +29,7 @@ library
       ComposeFunc
       ConditionalBRanch
       CustomOperators
+      DataKindsExample
       DataTypesRecords
       DestructureValues
       FibsLazy
