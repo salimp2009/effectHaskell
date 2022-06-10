@@ -1,5 +1,4 @@
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeApplications #-}
 
 module SumTypes where
 
@@ -164,3 +163,5 @@ handleMissingRight  e =
                 Left err -> Left err
                 Right Nothing    -> Left "Missing right value"
                 Right (Just val) -> Right val
+
+

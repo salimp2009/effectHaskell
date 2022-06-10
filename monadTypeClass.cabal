@@ -38,6 +38,7 @@ library
       FunctsWithFolds
       GreetingFunction
       HigherKindTypes
+      InductiveDataStructs
       LetBindings
       Lib
       ListComprehend
@@ -49,6 +50,7 @@ library
       SumTypes
       TermsTypesKinds
       TestCode
+      Type_Operators
       TypeHoleUses
       UsingUnDefined
   other-modules:
