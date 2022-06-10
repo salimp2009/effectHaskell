@@ -1,6 +1,7 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+--{-# LANGUAGE RankNTypes #-}
 --{-# LANGUAGE ScopedTypeVariables #-}
 
 module DataKindsExample where
@@ -25,5 +26,3 @@ absoluteZero' = -273.15
 fahrenToCelcius :: Tempr F' -> Tempr C'
 fahrenToCelcius (Tempr f) = Tempr ((f-32) * 5/9)
 
-valx :: Maybe Int
-valx = Just 20

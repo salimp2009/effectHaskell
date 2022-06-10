@@ -1,3 +1,6 @@
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeApplications #-}
+
 module SumTypes where
 
 -- | using Sum types as Enums
@@ -136,11 +139,28 @@ getPersonManager' person =
 getPersonBalance' :: Person' -> Maybe Int
 getPersonBalance' person =
         case person of
-                Employee' employee -> Nothing
                 Customer' customer -> Just $ customerBalance customer
+                Employee' employee -> Nothing
 
 getPersonSalary' :: Person' -> Maybe Int
 getPersonSalary' person =
         case person of
                 Employee'  employee -> Just $ employeeSalary employee
-                Customer' customer -> Nothing
+                Customer' customer  -> Nothing
+
+mymaybeToList :: Maybe a -> [a]               
+mymaybeToList Nothing    = []
+mymaybeToList (Just val) = [val]
+
+myEitherToMaybe :: Either b a -> Maybe a
+myEitherToMaybe e =
+        case e of 
+                Left  _   -> Nothing
+                Right val -> Just val
+
+handleMissingRight :: forall a. Either String (Maybe a) -> Either String a
+handleMissingRight  e =
+        case e of
+                Left err -> Left err
+                Right Nothing    -> Left "Missing right value"
+                Right (Just val) -> Right val
