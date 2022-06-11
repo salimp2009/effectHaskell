@@ -45,4 +45,23 @@ myPeano2 = MS (MS Z)
 addPeanos :: Peano -> Peano -> Peano
 addPeanos Z b = b
 addPeanos (MS a) b = addPeanos a (MS b)
-            
+
+
+data MList a = Empty | Cons a (MList a)
+    deriving Show
+
+toMList :: [a] -> MList a
+toMList = foldr Cons Empty
+
+fromMList :: MList a -> [a]
+fromMList Empty = []
+fromMList (Cons x xs) = x : fromMList xs
+
+fromMList' :: MList a -> [a]
+fromMList'  = listfoldr (:) []
+
+listfoldr :: (a -> b -> b) -> b -> MList a -> b
+listfoldr _ b Empty = b
+listfoldr f b (Cons x xs) = 
+        f x $ listfoldr f b xs
+
