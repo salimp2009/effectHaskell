@@ -1,5 +1,6 @@
 -- {-# LANGUAGE RankNTypes #-}
 -- {-# LANGUAGE TypeApplications #-}
+-- testing git shortcut
 
 module Calculator where
 
