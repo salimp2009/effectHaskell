@@ -47,21 +47,45 @@ addPeanos Z b = b
 addPeanos (MS a) b = addPeanos a (MS b)
 
 
-data MList a = Empty | Cons a (MList a)
+data MList a = MEmpty | Cons a (MList a)
     deriving Show
 
 toMList :: [a] -> MList a
-toMList = foldr Cons Empty
+toMList = foldr Cons MEmpty
 
 fromMList :: MList a -> [a]
-fromMList Empty = []
+fromMList MEmpty = []
 fromMList (Cons x xs) = x : fromMList xs
 
 fromMList' :: MList a -> [a]
 fromMList'  = listfoldr (:) []
 
 listfoldr :: (a -> b -> b) -> b -> MList a -> b
-listfoldr _ b Empty = b
+listfoldr _ b MEmpty = b
 listfoldr f b (Cons x xs) = 
         f x $ listfoldr f b xs
+
+listfoldl :: (b -> a -> b) -> b -> MList a -> b
+listfoldl _ b MEmpty = b
+listfoldl f b (Cons x xs) = 
+        let intermediateVal = f b x
+        in listfoldl f intermediateVal xs
+
+listHead :: MList a -> Maybe a
+listHead MEmpty = Nothing
+listHead (Cons x xs) = Just x
+
+listTail :: MList a -> MList a
+listTail MEmpty = MEmpty
+listTail (Cons _ xs) = xs
+
+fromlistReverse :: MList a -> [a]
+fromlistReverse = listfoldl (flip (:)) []
+
+
+
+
+
+
+
 
