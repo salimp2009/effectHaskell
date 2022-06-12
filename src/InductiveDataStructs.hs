@@ -2,6 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE DataKinds #-}
+
 module InductiveDataStructs where
 
 data Peano = Z | MS Peano 
@@ -23,7 +24,6 @@ fromPeano (MS p) = succ (fromPeano  p)
 -- | if any of the values; 
 --    (Z, MS _) -> False
 -- or (MS _, Z) -> False
-
 eqPeano :: Peano -> Peano -> Bool
 eqPeano  p p' =
     case (p, p') of
@@ -71,17 +71,46 @@ listfoldl f b (Cons x xs) =
         let intermediateVal = f b x
         in listfoldl f intermediateVal xs
 
+-- use case; 
+-- listHead myMList -> Just 1       
 listHead :: MList a -> Maybe a
 listHead MEmpty = Nothing
 listHead (Cons x xs) = Just x
 
+-- use case; 
+-- listTail myMList -> Cons 2 (Cons 3 (Cons 4 (Cons 5 MEmpty)))
 listTail :: MList a -> MList a
 listTail MEmpty = MEmpty
 listTail (Cons _ xs) = xs
 
+-- | use case;
+-- fromlistReverse myMList -> [5,4,3,2,1]
 fromlistReverse :: MList a -> [a]
 fromlistReverse = listfoldl (flip (:)) []
 
+-- use case ;
+-- listReverse myMList -> Cons 5 (Cons 4 (Cons 3 (Cons 2 (Cons 1 MEmpty))))
+listReverse :: MList a -> MList a
+listReverse = listfoldl (flip Cons) MEmpty
+
+-- | use case ; 
+-- listMap' (*20) myMList -> 
+--  Cons 20 (Cons 40 (Cons 60 (Cons 80 (Cons 100 MEmpty))))
+listMap :: (a -> b) -> MList a -> MList b
+listMap _ MEmpty = MEmpty
+listMap f (Cons x xs) = Cons (f x) (listMap f xs)
+
+-- | use case ; 
+-- listMap' (*20) myMList -> 
+--  Cons 20 (Cons 40 (Cons 60 (Cons 80 (Cons 100 MEmpty))))
+listMap' :: (a -> b) -> MList a -> MList b
+listMap' f = listfoldr g MEmpty
+    where 
+        g x   = Cons (f x)
+
+-- | test data for MList a
+myMList :: MList Integer
+myMList = toMList [1..5]
 
 
 
