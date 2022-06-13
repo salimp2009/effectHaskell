@@ -4,6 +4,8 @@
 
 module Calculator where
 
+import Text.Read (readEither)
+
 -- | Lit Int -> Literal integer
 data Expr = Lit Int
           | Add Expr Expr
@@ -39,7 +41,7 @@ eval expr =
             eval' operator arg1 arg2 =
                 operator (eval arg1)  (eval arg2)
 
-  -- ^ value constructor are normal function and can be used as infix function
+  -- ^ value constructors are normal functions and can be used as infix function
   
 parse :: String -> Either String Expr
 parse str =
@@ -49,7 +51,20 @@ parse str =
       Right (_, rest)  -> Left $ "Found extra tokens: " <> unwords rest
 
 parse' :: [String] -> Either String (Expr, [String])
-parse' = undefined
+parse' [] = Left "unexpected end of epxression"
+parse' (token : rest) = 
+    case token of
+      "+" -> parseBinary Add rest
+      "-" -> parseBinary Sub rest
+      "*" -> parseBinary Mul rest
+      "/" -> parseBinary Div rest
+      lit ->
+        case readEither  lit of
+            Left err    -> Left err
+            Right lit'  -> Right (Lit lit', rest)
+      where
+        parseBinary = undefined
+
 
 
 
