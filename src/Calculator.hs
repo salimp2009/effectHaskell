@@ -59,11 +59,34 @@ parse' (token : rest) =
       "*" -> parseBinary Mul rest
       "/" -> parseBinary Div rest
       lit ->
-        case readEither  lit of
+        case readEither lit of
             Left err    -> Left err
             Right lit'  -> Right (Lit lit', rest)
       where
-        parseBinary = undefined
+        parseBinary exprConstructor args =
+          case parse' args of 
+            Left err -> Left err
+            Right (firstArg, rest') ->
+              case parse' rest' of
+                Left err -> Left err
+                Right (secondArg, rest'') ->
+                  Right (exprConstructor firstArg secondArg , rest'') 
+
+  -- | use cases ; 
+--  run " + 3 5"      -> "The Answer is : 8"
+--  run " + 3 - 8 5"  -> "The Answer is : 6"
+--  run "-10 5"       -> "Found extra tokens: 5"
+--  run "- -10 5"     -> "The Answer is : -15"
+--  run "- 15 + 1 * 2 / 8 4" -> "The Answer is : 10"
+run :: String -> String
+run expr =
+  case parse expr of
+    Left err -> err
+    Right expr' -> 
+        let answer = show $ eval expr'
+        in "The Answer is : " <> answer
+        
+
 
 
 
