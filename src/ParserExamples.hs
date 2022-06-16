@@ -77,6 +77,9 @@ getNextWord' = runStringParser.StringParser $ \someString ->
             (nextWord, "")   -> (nextWord, "")
             (nextWord, rest) -> (nextWord, tail rest)
 
+-- | use case with other helper functions
+-- thirdWord = combineParsers getNextWord $ combineParsers getNextWord getNextWord
+-- parseString thirdWord "sdfsd dfsfd 3rdword dsfsdf dfsgsfgsd" -> "3rdword"
 combineParsers :: StringParser -> StringParser -> StringParser
 combineParsers fstParser sndParser = StringParser $ \someString ->
         let (_firstPart, firstResult) = runStringParser fstParser someString
@@ -95,6 +98,8 @@ getResultCombinedParsers = runStringParser combinedParsers
 getNextWordAfterTenLetters :: StringParser
 getNextWordAfterTenLetters =  combineParsers (takeCharactersR 10) getNextWord
 
+-- | use case with ParseString
+-- parseString tenLettersAfterTheFirstWord  "abcdefgyta 012345Haskell" -> "012345Hask"
 tenLettersAfterTheFirstWord :: StringParser
 tenLettersAfterTheFirstWord = combineParsers getNextWord (takeCharactersR 10)
 
@@ -103,8 +108,4 @@ tenLettersAfterTheFirstWord = combineParsers getNextWord (takeCharactersR 10)
 -- parseString (takeCharactersR 5) "hello, haskell" -> "hello,"
 parseString :: StringParser -> String -> String
 parseString parser inputString =
-    fst $ runStringParser parser inputString
-
-
-
-               
+    fst $ runStringParser parser inputString              
