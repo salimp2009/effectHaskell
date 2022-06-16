@@ -40,7 +40,6 @@ eval expr =
         where
             eval' operator arg1 arg2 =
                 operator (eval arg1)  (eval arg2)
-
   -- ^ value constructors are normal functions and can be used as infix function
   
 parse :: String -> Either String Expr
@@ -51,7 +50,7 @@ parse str =
       Right (_, rest)  -> Left $ "Found extra tokens: " <> unwords rest
 
 parse' :: [String] -> Either String (Expr, [String])
-parse' [] = Left "unexpected end of epxression"
+parse' [] = Left "unexpected end of expression"
 parse' (token : rest) = 
     case token of
       "+" -> parseBinary Add rest
@@ -63,6 +62,7 @@ parse' (token : rest) =
             Left err    -> Left err
             Right lit'  -> Right (Lit lit', rest)
       where
+        parseBinary :: (Expr -> Expr -> Expr) -> [String] -> Either String (Expr, [String])
         parseBinary exprConstructor args =
           case parse' args of 
             Left err -> Left err
