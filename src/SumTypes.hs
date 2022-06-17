@@ -133,13 +133,13 @@ getPersonManager' :: Person' -> Maybe String
 getPersonManager' person =
         case person of
                 Employee' employee -> Just $ employeeManager employee
-                Customer' customer -> Nothing 
+                Customer' _customer -> Nothing 
 
 getPersonBalance' :: Person' -> Maybe Int
 getPersonBalance' person =
         case person of
                 Customer' customer -> Just $ customerBalance customer
-                Employee' employee -> Nothing
+                Employee' _employee -> Nothing
 
 getPersonSalary' :: Person' -> Maybe Int
 getPersonSalary' person =
@@ -148,8 +148,8 @@ getPersonSalary' person =
                 Customer' customer  -> Nothing
 
 mymaybeToList :: Maybe a -> [a]               
-mymaybeToList Nothing    = []
-mymaybeToList (Just val) = [val]
+mymaybeToList Nothing    =  []
+mymaybeToList (Just val) =  [val]
 
 myEitherToMaybe :: Either b a -> Maybe a
 myEitherToMaybe e =
