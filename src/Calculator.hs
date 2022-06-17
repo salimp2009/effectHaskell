@@ -85,6 +85,14 @@ run expr =
     Right expr' -> 
         let answer = show $ eval expr'
         in "The Answer is : " <> answer
+
+-- | testing for exercise Pretty print
+-- use case;
+-- myPrettyprint
+-- -> return 5
+-- -> salitos
+myPrettyprint :: IO ()
+myPrettyprint = putStr $ "return " ++ show 5 ++ "\n" ++ "salitos" ++ "\n"        
         
 
 
