@@ -118,12 +118,16 @@ data BinaryTree a = Leaf | Branch (BinaryTree a) a (BinaryTree a)
 binaryTree1 :: Num a => BinaryTree a
 binaryTree1 = Branch (Branch Leaf 2 (Branch Leaf 6 Leaf) ) 1 (Branch (Branch Leaf 4 Leaf) 3 (Branch Leaf 5 Leaf) )
 
-indent :: [String] -> [String]
-indent = map ("  "<>)
+-- indent :: [String] -> [String]
+-- indent = map ("  "<>)
 
 showStringTree :: Show a => BinaryTree a -> [String]
 showStringTree Leaf =  []
-showStringTree (Branch ls m rs) = indent (showStringTree ls) <> [show m] <> indent (showStringTree rs)
+showStringTree (Branch ls m rs) = indent' (showStringTree ls) <> [show m] <> indent' (showStringTree rs)
+        -- | added later Test this if it works
+        where 
+            indent' :: [String] -> [String]
+            indent' = map ("  "<>)
 
 prettyTree :: Show a => BinaryTree a -> String
 prettyTree = unlines . showStringTree

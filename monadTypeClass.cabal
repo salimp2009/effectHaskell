@@ -55,6 +55,7 @@ library
       Type_Operators
       TypeAliases
       TypeHoleUses
+      TypeLevelLiterals
       UsingUnDefined
   other-modules:
       Paths_monadTypeClass
