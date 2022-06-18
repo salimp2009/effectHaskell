@@ -127,3 +127,15 @@ showStringTree (Branch ls m rs) = indent (showStringTree ls) <> [show m] <> inde
 
 prettyTree :: Show a => BinaryTree a -> String
 prettyTree = unlines . showStringTree
+
+numberofLeaves :: forall a. BinaryTree a -> Int
+numberofLeaves Leaf  = 1
+numberofLeaves (Branch ls m rs) = numberofLeaves ls + numberofLeaves rs
+
+addInttoTree :: Int -> BinaryTree Int -> BinaryTree Int
+addInttoTree number Leaf = Branch Leaf number Leaf
+addInttoTree number tree@(Branch ls m rs) 
+    | number < m = Branch (addInttoTree number ls) m rs
+    | number > m = Branch ls m (addInttoTree number rs)
+    | otherwise = tree
+
