@@ -49,6 +49,7 @@ library
       ProgramEval
       RecordSyntax
       ReverseList
+      StateContext
       SumTypes
       TermsTypesKinds
       TestCode

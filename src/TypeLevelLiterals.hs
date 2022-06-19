@@ -3,12 +3,15 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
+
 module TypeLevelLiterals where
 import GHC.TypeLits 
                 ( Nat 
                 , KnownNat
                 , Symbol
-                , natVal   
+                , KnownSymbol
+                , natVal 
+                , symbolVal  
                 )
 import Data.Proxy (Proxy(..))
 
@@ -54,3 +57,34 @@ maybePointer p
         | otherwise = Nothing
     where 
         (quotient , remainder) = divMod p $ natVal (Proxy::Proxy align)
+
+
+newtype SuffixedString (suffix :: Symbol) = SS String
+                deriving Show
+
+suffixed :: String -> SuffixedString suffix                
+suffixed = SS
+
+-- | use case 
+-- >>> asString personId1
+-- "Salitos@pamukcu"
+--
+-- >>> asString personId2
+-- "Didokitos@pamukcu"
+asString :: forall suffix. KnownSymbol suffix => SuffixedString suffix -> String
+asString (SS str) = str <> "@" <> symbolVal (Proxy::Proxy suffix)
+
+personId1 :: SuffixedString "pamukcu"
+personId1 = suffixed "Salitos"
+
+personId2 :: SuffixedString "pamukcu"
+personId2 = suffixed "Didokitos" 
+
+-- | the type can be directly applied to variable too
+personId3 :: SuffixedString "pamukcu"
+personId3 = suffixed "Semokitos" :: SuffixedString "pamukcu"
+
+
+
+
+
