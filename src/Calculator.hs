@@ -92,7 +92,25 @@ run expr =
 -- -> return 5
 -- -> salitos
 myPrettyprint :: IO ()
-myPrettyprint = putStr $ "return " ++ show 5 ++ "\n" ++ "salitos" ++ "\n"        
+myPrettyprint = putStr $ "return " ++ show 5 ++ "\n" ++ "salitos" ++ "\n" 
+
+-- | use case;
+-- >>> safeEval $ Lit 10 `Div` Lit 0
+-- WAS Left "error"
+-- NOW Left "error: Division by Zero"
+safeEval :: Expr -> Either String Int
+safeEval expr = 
+    case expr of
+        Lit num -> Right num
+        Add x y -> Right $ eval' (+) x y
+        Sub x y -> Right $ eval' (-) x y
+        Mul x y -> Right $ eval' (*) x y
+        Div x y -> case y of
+                  Lit 0 -> Left "error: Division by Zero"
+                  _     -> Right $ eval' div x y
+        where
+            eval' operator arg1 arg2 =
+                operator (eval arg1)  (eval arg2)
         
 
 
