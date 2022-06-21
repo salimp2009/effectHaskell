@@ -1,5 +1,4 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-{-# HLINT ignore "[Replace {rtype = Expr, pos = SrcSpan {startLine = 34, startCol = 28, endLine = 35, endCol = 50}, subts = [("a",SrcSpan {startLine = 35, startCol = 17, endLine = 35, endCol = 38})], orig = "a"}]" #-}
+
 module ParserExamples where
 
 import Data.List (splitAt)

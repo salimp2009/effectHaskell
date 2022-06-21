@@ -51,3 +51,14 @@ relabel (Node l r) = relabel l `next` \l' ->
                      relabel r `next` \r' ->
                      pure' (Node l' r')
 
+type State s a = s -> (a , s)
+
+pureS :: a -> State s a
+pureS x s = (x, s)
+
+nextS :: State s a -> (a -> State s b) -> State s b
+f `nextS` g = \s -> let (a, s') = f s in g a s'
+
+appendLists :: [a] -> [a] -> [a]
+appendLists [] ys = ys
+appendLists (x : xs) ys = x : xs ++ ys

@@ -143,3 +143,9 @@ addInttoTree number tree@(Branch ls m rs)
     | number > m = Branch ls m (addInttoTree number rs)
     | otherwise = tree
 
+doesIntExist :: BinaryTree Int -> Int -> Bool
+doesIntExist Leaf num = False
+doesIntExist (Branch ls m rs) num 
+                        | m == num = True
+                        | m /= num = doesIntExist ls num || doesIntExist rs num 
+                        | otherwise = False
