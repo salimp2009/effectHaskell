@@ -4,6 +4,8 @@
 
 module StateContext where
 
+import Data.Char (isAlphaNum)
+
 data Tree a = Leaf a | Node (Tree a) (Tree a)
         deriving Show
 
@@ -62,3 +64,59 @@ f `nextS` g = \s -> let (a, s') = f s in g a s'
 appendLists :: [a] -> [a] -> [a]
 appendLists [] ys = ys
 appendLists (x : xs) ys = x : xs ++ ys
+
+type Name = String
+
+data Person = Person
+             { name :: Name
+             , age  :: Int
+             } deriving Show
+
+validateName :: String -> Maybe Name
+validateName name
+                | all isAlphaNum name = Just name
+                | otherwise = Nothing
+
+validateAge :: Int -> Maybe Int
+validateAge age
+                | age >= 0 = Just age
+                | otherwise = Nothing
+-- | this solution does not scale if there are
+-- are additional validation requirements to be added
+validatePerson :: String -> Int -> Maybe Person
+validatePerson name age =
+        case validateName name of
+          Nothing -> Nothing
+          Just name' -> case validateAge age of
+                          Nothing -> Nothing
+                          Just age' -> Just (Person name' age')
+
+-- | this is equivalent to v >>= g in Monad functions
+then_ :: Maybe a -> (a -> Maybe b) -> Maybe b
+then_ v g = case v of
+                Nothing -> Nothing
+                Just v' -> g v'
+
+
+-- | using monad like functions to chain
+validatePerson' :: String -> Int -> Maybe Person
+validatePerson' name age =
+        validateName name `then_` \name' ->
+        validateAge age  `then_`  \age'  ->
+        Just (Person name' age')         
+-- | use case;
+-- >>> flatten (Just (Just 4))        
+-- Just 4
+flatten :: Maybe (Maybe c) -> Maybe c
+flatten oo = then_ oo id
+
+-- | just expanded prev one to prove then_ does the work
+-- use case;
+-- >>> flatten' (Just (Just 4)) 
+-- Just 4
+flatten' :: Maybe (Maybe c) -> Maybe c
+flatten' oo = case  oo of
+                 Nothing -> Nothing
+                 Just o' -> id o'
+
+
