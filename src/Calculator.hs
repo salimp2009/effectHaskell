@@ -111,20 +111,19 @@ safeEval expr =
         where
             eval' operator arg1 arg2 =
                 operator (eval arg1)  (eval arg2)
-        
 
+prettyPrintC:: Expr -> String                
+prettyPrintC expr =
+    case expr of
+      arg1 `Add` arg2 -> prettyPrintC arg1 <> " + " <> prettyPrintC' arg2
+      arg1 `Sub` arg2 -> prettyPrintC arg1 <> " - " <> prettyPrintC' arg2
+      arg1 `Mul` arg2 -> prettyPrintC arg1 <> " x " <> prettyPrintC' arg2
+      arg1 `Div` arg2 -> prettyPrintC arg1 <> " / " <> prettyPrintC' arg2
+      Lit x             -> show x
+      where 
+        prettyPrintC' arg = case arg of
+          Lit x -> show x <> " = "  <> show (eval expr)
+          arg'     -> " ( " <> prettyPrintC arg' <> " )" 
 
-
-
-
-
-    
-
-                
-
-
-
-
-
-
-
+prettyPrint:: Expr -> String   
+prettyPrint expr = prettyPrintC expr <> " = " <> show (eval expr)
