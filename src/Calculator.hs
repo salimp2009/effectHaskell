@@ -86,14 +86,6 @@ run expr =
         let answer = show $ eval expr'
         in "The Answer is : " <> answer
 
--- | testing for exercise Pretty print
--- use case;
--- myPrettyprint
--- -> return 5
--- -> salitos
-myPrettyprint :: IO ()
-myPrettyprint = putStr $ "return " ++ show 5 ++ "\n" ++ "salitos" ++ "\n" 
-
 -- | use case;
 -- >>> safeEval $ Lit 10 `Div` Lit 0
 -- WAS Left "error"
@@ -112,6 +104,7 @@ safeEval expr =
             eval' operator arg1 arg2 =
                 operator (eval arg1)  (eval arg2)
 
+-- | helper function for prettyPrint
 prettyPrintC:: Expr -> String                
 prettyPrintC expr =
     case expr of
@@ -125,5 +118,8 @@ prettyPrintC expr =
           Lit x -> show x <> " = "  <> show (eval expr)
           arg'     -> " ( " <> prettyPrintC arg' <> " )" 
 
+-- | use case;
+-- >>> prettyPrint $ Lit 14 `Mul` (Lit 5 `Add` (Lit 10 `Div` Lit 2))
+-- "14 x  ( 5 +  ( 10 / 2 = 5 ) ) = 140"
 prettyPrint:: Expr -> String   
 prettyPrint expr = prettyPrintC expr <> " = " <> show (eval expr)
