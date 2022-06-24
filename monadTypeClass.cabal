@@ -33,6 +33,7 @@ library
       DataKindsExample
       DataTypesRecords
       DestructureValues
+      DoNotation
       FibsLazy
       FoldFunctions
       FoodBudget

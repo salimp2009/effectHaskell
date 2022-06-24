@@ -1,5 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+-- {-# LANGUAGE DeriveAnyClass #-}
+-- {-# LANGUAGE DeriveFunctor #-}
 
 
 module StateContext where
@@ -7,7 +9,7 @@ module StateContext where
 import Data.Char (isAlphaNum)
 
 data Tree a = Leaf a | Node (Tree a) (Tree a)
-        deriving Show
+        deriving (Show)
 
 myTreeData1 :: Tree Char
 myTreeData1=  Node (Node (Leaf 'x') (Leaf 'y')) (Leaf 'z')
@@ -118,5 +120,12 @@ flatten' :: Maybe (Maybe c) -> Maybe c
 flatten' oo = case  oo of
                  Nothing -> Nothing
                  Just o' -> id o'
+
+-- rewriting flatten for State s a in terms of then_
+-- unwrapping the first State reveal @a which is another State
+-- r is the inner State s a                  
+flatten'' :: State s (State s a) -> State s a 
+flatten'' ss = \i -> let (r , i') = ss i in id r i'
+-- ^           \i -> let (r, i) = ss i in r i      -- << same as above           
 
 
