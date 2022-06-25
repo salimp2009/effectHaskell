@@ -1,3 +1,4 @@
+{-# LANGUAGE BlockArguments #-}
 module DoNotation where
 
 import StateContext ( WithCounter 
@@ -6,6 +7,7 @@ import StateContext ( WithCounter
                     , validateName
                     , validateAge
                     , Person(..) 
+                    , Name
                     )
 
 -- | Monadic interface for the Tree
@@ -28,5 +30,48 @@ validatePersonR :: String -> Int -> Maybe Person
 validatePersonR name age 
     = validateName name >>= \name' ->
       validateAge age   >>= \age'  ->
-      return (Person name' age')    
+      return (Person name' age')   
+  
+-- >>> validatePersonR2 "Salitos" 25  
+-- Just (Person {name = "Salitos", age = 25})
+validatePersonR2 :: String -> Int -> Maybe Person
+validatePersonR2 name age 
+   = do name'  <- validateName name
+        age'   <- validateAge age
+        return (Person name' age') 
+-- >>> validatePersonR3 "Salitos" 26  
+-- Just (Person {name = "Salitos", age = 26})
+validatePersonR3 :: String -> Int -> Maybe Person
+validatePersonR3 name age 
+   =  validateName name >>= \name' ->
+      do 
+        age' <- validateAge age
+        return (Person name' age') 
 
+data PersonR = PersonR
+  { name :: Name
+  , age  :: Int
+  , underage :: Bool
+  } deriving Show
+
+-- >>> validatePersonR4 "Salitos" 26 
+-- Just (PersonR {name = "Salitos", age = 26, underage = False})
+validatePersonR4 :: String -> Int -> Maybe PersonR
+validatePersonR4 name age        
+  = validateAge age >>= \age' ->
+    let uAge = age < 18
+     in validateName name >>= \name' ->
+       return (PersonR name' age' uAge)
+
+-- | final version of do block with let expression inside
+--  Notice in.. is not used to avoid another do block
+-- other option is uAge = return (age <18)
+-- use case;
+-- >>> validatePersonR5 "Salitos" 26 
+-- Just (PersonR {name = "Salitos", age = 26, underage = False})
+validatePersonR5 :: String -> Int -> Maybe PersonR
+validatePersonR5 name age        
+  = do age' <- validateAge age
+       let uAge = age < 18
+       name' <- validateName name 
+       return (PersonR name' age' uAge)       
