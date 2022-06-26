@@ -57,6 +57,7 @@ library
       TestCode
       Type_Operators
       TypeAliases
+      TypeFamilies
       TypeHoleUses
       TypeLevelLiterals
       UsingUnDefined

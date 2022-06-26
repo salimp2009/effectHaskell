@@ -80,7 +80,7 @@ personId1 = suffixed "Salitos"
 personId2 :: SuffixedString "pamukcu"
 personId2 = suffixed "Didokitos" 
 
--- | the type can be directly applied to variable too
+-- | the type can be directly applied to the value too
 personId3 :: SuffixedString "pamukcu"
 personId3 = suffixed "Semokitos" :: SuffixedString "pamukcu"
 
