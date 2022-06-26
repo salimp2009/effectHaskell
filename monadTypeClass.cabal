@@ -43,6 +43,7 @@ library
       InductiveDataStructs
       LetBindings
       Lib
+      LiftingPureFunctions
       ListComprehend
       ListCreate
       ParserExamples
