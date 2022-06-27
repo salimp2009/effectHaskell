@@ -45,7 +45,7 @@ fmap' f   = ap' (pure f)
 -- which means we use the same implementation with ZipList
 -- since the underlying types are same 
 newtype ZipListF a = ZipListF { getZipListF :: [a]}
-        deriving Show
+        deriving stock Show
         deriving (Functor, Applicative) via ZipList
 
 -- | regular List to create a tuple

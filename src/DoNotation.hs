@@ -1,6 +1,3 @@
---{-# LANGUAGE BlockArguments #-}
-
-
 module DoNotation where
 
 import StateContext ( WithCounter

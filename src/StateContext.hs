@@ -1,4 +1,3 @@
-{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 -- {-# LANGUAGE DeriveAnyClass #-}
 -- {-# LANGUAGE DeriveFunctor #-}
