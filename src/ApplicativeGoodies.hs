@@ -47,10 +47,12 @@ parser = string "hello yow " *> munch1 isAlpha <* eof
 parsertoState :: [(String, String)]
 parsertoState = readP_to_S parser "hello yow Salitos"
 
-class Functor f => MyMonoidal f where
-
-unit :: Applicative f => f ()
-unit = pure ()
-
-
-
+-- | this is just for exercise purpose to define
+-- '(**)' and 'unit' using Applicative 'pure' and applicative
+-- '<*>' and fmap (<$>)
+class (Functor f, Applicative f) => MyMonoidal f where
+    unit ::  f ()
+    unit = pure ()
+    
+    (**) :: f a -> f b -> f(a,b)
+    (**) mx my =  (,) <$> mx <*> my
