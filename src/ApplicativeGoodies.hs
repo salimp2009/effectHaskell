@@ -1,3 +1,5 @@
+{-# LANGUAGE RankNTypes #-}
+
 module ApplicativeGoodies where
 
 import StateContext ( WithCounter
@@ -44,3 +46,11 @@ parser = string "hello yow " *> munch1 isAlpha <* eof
 
 parsertoState :: [(String, String)]
 parsertoState = readP_to_S parser "hello yow Salitos"
+
+class Functor f => MyMonoidal f where
+
+unit :: Applicative f => f ()
+unit = pure ()
+
+
+
