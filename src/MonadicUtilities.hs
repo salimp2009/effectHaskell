@@ -1,7 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
--- {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE TypeApplications #-}
 module MonadicUtilities where
 
 import Control.Monad (forM)
