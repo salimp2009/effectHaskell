@@ -50,9 +50,18 @@ parsertoState = readP_to_S parser "hello yow Salitos"
 -- | this is just for exercise purpose to define
 -- '(**)' and 'unit' using Applicative 'pure' and applicative
 -- '<*>' and fmap (<$>)
-class (Functor f, Applicative f) => MyMonoidal f where
+class (Functor f) => MyMonoidal f where
     unit ::  f ()
-    unit = pure ()
-    
     (**) :: f a -> f b -> f(a,b)
-    (**) mx my =  (,) <$> mx <*> my
+-- ^ in GHC this is shown as >*< @Control.Invertible.Monoidal@
+
+-- | just to show they can be implemented via Applicative 
+-- need to alter the name  ;typically you would make an instance of a type 
+-- and define unit    
+unit' :: Applicative f => f ()    
+unit' = pure ()
+
+-- | just to show they can be implemented via Applicative 
+-- similar to '(**)' or '(>*<)' in @Control.Invertible.Monoidal@
+(>**<) :: Applicative f => f a1 -> f a2 -> f (a1, a2)
+(>**<) mx my =  (,) <$> mx <*> my
