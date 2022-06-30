@@ -3,6 +3,7 @@
 module MonadicUtilities where
 
 import Control.Monad (forM, filterM)
+import Control.Applicative
 
 -- |orginal mapM similar to map
 -- instead the result is Monad List
@@ -18,12 +19,12 @@ myMapM f (x:xs) = do r  <- f x
                      rs <- myMapM f xs
                      return (r:rs)
 
-mymapM :: Monad m => (a -> m b) -> [a] -> m [b]                     
+mymapM :: Monad m => (a -> m b) -> [a] -> m [b]
 mymapM f  = foldr k (return [])
     where
         k a r = do x  <- f a
-                   xs <- r 
-                   return (x : xs) 
+                   xs <- r
+                   return (x : xs)
 -- | use case;
 -- >>> mymapM'  (\name -> (Just ("Hello, " ++ name))) ["Salitos", "didokitos"]
 -- Just ["Hello, Salitos","Hello, didokitos"]
@@ -51,7 +52,7 @@ mysequence :: Monad m => [m a] -> m [a]
 mysequence [] = return []
 mysequence (x : xs) = do  x' <- x
                           rs <- mysequence xs
-                          return (x' : rs) 
+                          return (x' : rs)
 
 -- | same as above but using Applicative style 
 -- can be writen with foldr as mapM                         
@@ -63,9 +64,15 @@ mysequence' (x:xs) = (:) <$> x <*> mysequence' xs
 mapM' :: Monad m => (a1 -> m a2) -> [a1] -> m [a2]
 mapM' f = mysequence . map f
 
+-- | use case;
+-- >>> myfilterM (Just . even) [1..10]
+-- Just [2,4,6,8,10]
 myfilterM :: Monad m => (a -> m Bool) -> [a] -> m [a]
-myfilterM = filterM
-                             
-myzipWithM :: Monad m => (a -> b -> m c) -> [a] -> [b] -> m [c]                             
+myfilterM f [ ] = pure []
+myfilterM f (x : xs) = do r <- f x
+                          let x' = if r then (x:) else id
+                          rs <- myfilterM f xs
+                          return (x' rs)
+
+myzipWithM :: Monad m => (a -> b -> m c) -> [a] -> [b] -> m [c]
 myzipWithM f xs ys = sequence $ zipWith f xs ys
-                           
