@@ -2,7 +2,7 @@
 {-# LANGUAGE KindSignatures #-}
 module MonadicUtilities where
 
-import Control.Monad (forM)
+import Control.Monad (forM, filterM)
 
 -- |orginal mapM similar to map
 -- instead the result is Monad List
@@ -37,8 +37,11 @@ mymapM' f (a:as) = (:) <$> f a <*> mymapM' f as
 -- reverseMapM ["Salitos", "didokitos"]  ->
 -- >> Hello, "Salitos"
 -- >> Hello, "didokitos"
--- >> [(),()]   
-reverseMapM :: forall (t :: * -> *) a. (Traversable t, Show a) => t [a] -> IO (t ())
+-- >> [(),()] 
+-- _ :: forall (t :: * -> *) (m :: * -> *) a b.
+-- (Traversable t, Monad m) =>
+-- t a -> (a -> m b) -> m (t b)  
+reverseMapM :: forall (t :: * -> *) a. (Traversable t, Show a) => t a -> IO (t ())
 reverseMapM xs= forM xs  $ \name -> putStrLn ("Hello, " ++ show name)
 
 -- | similar sequence in GHC
@@ -59,3 +62,10 @@ mysequence' (x:xs) = (:) <$> x <*> mysequence' xs
 -- | writing mapM in terms of sequence
 mapM' :: Monad m => (a1 -> m a2) -> [a1] -> m [a2]
 mapM' f = mysequence . map f
+
+myfilterM :: Monad m => (a -> m Bool) -> [a] -> m [a]
+myfilterM = filterM
+                             
+myzipWithM :: Monad m => (a -> b -> m c) -> [a] -> [b] -> m [c]                             
+myzipWithM f xs ys = sequence $ zipWith f xs ys
+                           
