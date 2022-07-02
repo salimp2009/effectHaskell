@@ -61,7 +61,7 @@ instance Functor (MFunction a) where
 -- (<*>) :: (a->b->c) -> (a -> b) -> (a -> c)  
 instance Applicative (MFunction a) where
  pure a = MFunction $ const a
- MFunction f <*> MFunction g = MFunction $ \a -> f a $ runFunction (MFunction g) a
+ MFunction f <*> MFunction g = MFunction $ \a -> f a (g a) 
 
 -- | as an example of the case MFunction
 -- zipWith has a type signature 
@@ -72,16 +72,20 @@ instance Applicative (MFunction a) where
 fibsApplic :: [Integer]
 fibsApplic = 0 : 1 : (zipWith (+) <*> tail) fibsApplic
 
--- | example case how to use MFunction
-myMFunct1 :: MFunction Integer (Integer -> Integer)
-myMFunct1 = MFunction (+)
-myMFunct2 :: MFunction Integer Integer
-myMFunct2 = MFunction (*2)
-
--- | this did not work as I expected in the original implementation of the book
--- it only applies the second function but not the first
--- my understanding the value from second function needs to
--- therefore I revised the implementation
-
+-- | it applies given value to the function on the right
+-- and also it applies the given value to the right and result 
+-- from left side is also applied
+-- the function on the right side is a binary function
+--use case ;
+-- >>> myval 10
+-- 200
 myval :: Integer -> Integer
-myval = runFunction $ MFunction (+) <*> MFunction (*2)
+myval = runFunction $ MFunction (*) <*> MFunction (*2)
+
+-- | pure applies Applicative to a given value
+-- in this case pure 5 gives us a Function that returns 5  '(_ -> 5)'
+-- use case;
+-- >>> myval2 30
+-- 150
+myval2 :: Integer -> Integer
+myval2 = runFunction $ MFunction (*) <*> pure 5

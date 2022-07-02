@@ -48,6 +48,7 @@ library
       LiftingPureFunctions
       ListComprehend
       ListCreate
+      MonadBasics
       MonadicUtilities
       ParserExamples
       PatternMatch
