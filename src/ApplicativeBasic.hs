@@ -1,8 +1,9 @@
 {-# LANGUAGE DerivingStrategies #-}
 {-# LANGUAGE TypeApplications #-}
+
 module ApplicativeBasic where
 
-data List a = Empty |  List a (List a) deriving (Show)
+data List a = Empty |  List a (List a)
 toList:: [a] -> List a
 toList = foldr List Empty
 -- toList (a:as) = List a (toList as)
@@ -11,6 +12,9 @@ toList = foldr List Empty
 fromList :: List a -> [a]
 fromList Empty = []
 fromList (List a as) = a : fromList as
+
+instance Show a => Show (List a) where
+        show = show . fromList 
 
 instance Functor List where
   fmap _ Empty = Empty
@@ -36,7 +40,7 @@ newtype ReverseEither a b = ReverseEither (Either b a)
         deriving (Show)
     
     -- | fmap will pass variable b and that is applied to Left of Either
-    -- normally you would right Either a b and apply b to Righ side;
+    -- normally you would right Either a b and apply b to Right side;
 instance Functor (ReverseEither a) where
         fmap f (ReverseEither (Left b))  = ReverseEither (Left (f b))
         fmap f (ReverseEither (Right a)) = ReverseEither (Right a)
