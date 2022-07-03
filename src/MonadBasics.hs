@@ -72,3 +72,22 @@ instance Monad List where
 -- listChar :: List Char
 instance IsString (List Char) where
         fromString = toList
+
+replicateL :: Int -> a -> List a
+replicateL 0 _ = Empty
+replicateL n val = 
+        let tail = replicateL (pred @Int n) val
+        in List val tail
+
+type StringL = List Char
+
+-- | use case;
+-- >>> wordsL ("hello haskell")
+-- ["hello","haskell"]
+-- >>> wordsL ("hello haskell" :: StringL)
+-- ["hello","haskell"]
+wordsL :: StringL -> List StringL
+wordsL = toList . (toList <$>) . words . fromList
+
+unwordsL :: List StringL -> StringL
+unwordsL = toList . unwords . fromList . (fromList <$>)
