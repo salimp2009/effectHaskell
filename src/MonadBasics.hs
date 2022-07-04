@@ -91,3 +91,51 @@ wordsL = toList . (toList <$>) . words . fromList
 
 unwordsL :: List StringL -> StringL
 unwordsL = toList . unwords . fromList . (fromList <$>)
+
+-- | creating List nested List of nums; each num is a List
+-- use case;
+-- >>> nestedListnums 
+-- [[1],[2],[3],[4],[5]]
+-- >>> nestedListnums >>= id
+-- [1,2,3,4,5]
+nestedListnums :: (Num a, Enum a) => List (List a)
+nestedListnums = toList $ map (return @List) [1..5] 
+
+-- | use case;
+-- >>> nestedLists ["sal", "id", "haskel"] 
+-- [["sal"],["id"],["haskel"]]
+-- >>>:t it
+-- it :: IsString a => List (List a)
+-- >>> it >>=id
+-- ["sal","id","haskel"]
+
+-- >>> nestedLists ["sal", "id", "haskel"] :: List (List (List Char)) 
+-- [["sal"],["id"],["haskel"]]
+-- >>> it >>=id >>= id
+-- "salidhaskel"
+-- >>>:t it
+-- it :: List Char
+nestedLists :: [a] -> List (List a)
+nestedLists= toList . map (return @List)
+
+-- | this is actually join in Monads
+myconcatM :: Monad m => m (m a) -> m a
+myconcatM x = x >>= id
+
+-- >>> pure "hello haskell" >>= wordsL 
+-- ["hello","haskell"]
+
+-- >>> pure "hello haskell" >>= wordsL >>= replicateL 3
+-- ["hello","hello","hello","haskell","haskell","haskell"]
+
+-- >>> pure "hello haskell" >>= wordsL >>= replicateL 3 >>= id
+-- "hellohellohellohaskellhaskellhaskell"
+
+-- >>> unwordsL $ pure "hello haskell" >>= wordsL
+-- "hello haskell"
+
+-- >>> pure "hello haskell" >>= wordsL >>= unwordsL
+
+
+-- >>> unwordsL $ pure "hello haskell" >>= wordsL >>= const Empty
+-- ""
