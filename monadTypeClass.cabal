@@ -34,12 +34,14 @@ library
       CustomOperators
       DataKindsExample
       DataTypesRecords
+      DerivingStrategyBasics
       DestructureValues
       DoNotation
       FibsLazy
       FoldFunctions
       FoodBudget
       FunctsWithFolds
+      GenericDataTypeBasics
       GreetingFunction
       HigherKindTypes
       InductiveDataStructs

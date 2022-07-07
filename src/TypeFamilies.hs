@@ -1,7 +1,6 @@
 {-# LANGUAGE TypeFamilies #-}
 -- {-# LANGUAGE TypeSynonymInstances #-}
 {-# LANGUAGE FlexibleInstances #-}
-
 module TypeFamilies where
 
 -- | Type synonym family ; open 
