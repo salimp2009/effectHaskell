@@ -17,7 +17,7 @@ data Status = OK | Err
 
 -- | Definition of Generic Class    
 -- class Generic a where
---     type Rep a = Type -> Type
+--     type Rep a :: Type -> Type
 --     from :: a -> Rep a x
 --     to   :: Rep a x -> a 
 
@@ -46,4 +46,27 @@ errVal2 = Err
 -- >>> from Err
 -- M1 {unM1 = R1 (M1 {unM1 = U1})}
 
+-- | Generic Representation of a product type
+-- runtime values are represented with K1 data constructor
+-- there is also Generic1 type class with DeriveGeneric
+-- which represents type constructors of k -> Type kinds
+-- >>> from (Request "sal" 1)
+-- M1 {unM1 = M1 {unM1 = M1 {unM1 = K1 {unK1 = "sal"}} :*: M1 {unM1 = K1 {unK1 = 1}}}}
 
+data Request = Request String Int
+    deriving Generic
+
+-- >>>:kind! Rep Request
+-- Rep Request :: * -> *
+-- = D1
+--     ('MetaData "Request" "GenericDataTypeBasics" "main" 'False)
+--     (C1
+--        ('MetaCons "Request" 'PrefixI 'False)
+--        (S1
+--           ('MetaSel
+--              'Nothing 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
+--           (Rec0 String)
+--         :*: S1
+--               ('MetaSel
+--                  'Nothing 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
+--               (Rec0 Int)))

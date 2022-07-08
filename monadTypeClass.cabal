@@ -42,6 +42,8 @@ library
       FoodBudget
       FunctsWithFolds
       GenericDataTypeBasics
+      GenericEquality
+      GenericRepresentations
       GreetingFunction
       HigherKindTypes
       InductiveDataStructs
