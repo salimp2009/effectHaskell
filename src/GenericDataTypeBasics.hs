@@ -70,3 +70,9 @@ data Request = Request String Int
 --               ('MetaSel
 --                  'Nothing 'NoSourceUnpackedness 'NoSourceStrictness 'DecidedLazy)
 --               (Rec0 Int)))
+
+-- >>>:t M1 
+-- M1 :: f p -> M1 i c f p
+
+-- >>>:k S1
+-- S1 :: Meta -> (k -> *) -> k -> *

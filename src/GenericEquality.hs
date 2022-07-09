@@ -20,12 +20,15 @@ import GHC.Generics
 class GEq a where
     geq :: a x -> a x -> Bool
 
+
+
 -- | Write Generic instances starting from inner to out
 -- constructors U1, V1, K1
 -- U1 is constructor with no value which is equal to ()
 instance GEq U1 where
     geq U1 U1 = True
 
+  
 -- | V1 is the type thast cannot be constructed
 -- V1 is generic rep of Void ; which has no inhabitants
 -- since it cant be constructed, it cant be tested therefore 
@@ -35,7 +38,7 @@ instance GEq V1 where
 
 -- | concrete types inside the data const such as (Maybe a)
 -- are represented with K1
-instance Eq a => GEq (K1 _1 a) where
+instance Eq a => GEq (K1 _1 a ) where
     geq (K1 a) (K1 b) = a == b    
     
 -- | lifting base cases to create instance for sum types 
@@ -45,6 +48,39 @@ instance (GEq a, GEq b) => GEq (a :+: b) where
     geq (L1 a1) (L1 a2) = geq a1 a2  
     geq (R1 b1) (R1 b2) = geq b1 b2
     geq _ _             = False   
+
+instance (GEq a, GEq b) => GEq (a :*: b ) where
+    geq (a1 :*: b1) (a2 :*: b2) = geq a1 a2 && geq b1 b2
+    
+instance GEq a => GEq (M1 _x _y a) where
+    geq (M1 a1) (M1 a2) = geq a1 a2 
+
+-- | use cases ;
+-- >>> genericEq "ghc.generics" "ghc.generic" 
+-- False
+-- >>> genericEq "ghc.generics" "ghc.generics" 
+-- True
+-- >>> genericEq (Just 2) (Just 4)
+-- False
+genericEq :: (Generic a, GEq (Rep a)) => a -> a -> Bool
+genericEq a b = geq (from a)  (from b)
+
+data Foo a b c=  F0 
+          | F1 a
+          | F2 b c 
+          deriving (Generic)
+
+-- |use cases;
+-- >>> (F1 2) == (F1 3)
+-- False
+-- >>> (F1 2) == (F2 2 4 )
+-- False
+-- >>> (F2 2 4) == (F2 2 4 )
+-- True
+instance (Eq a, Eq b, Eq c) => Eq (Foo a b c) where
+    (==) = genericEq
+
+
 
 -- >>>:kind! Rep (Maybe Int)    
 -- Rep (Maybe Int) :: * -> *
@@ -69,9 +105,16 @@ instance (GEq a, GEq b) => GEq (a :+: b) where
 -- NB: ‘Rep’ is a non-injective type family
 -- The type variable ‘a0’ is ambiguous
 
--- >>>:t K1
--- K1 :: c -> K1 i c p
--- >>>:t U1
--- U1 :: U1 p
+-- >>>:k K1
+-- K1 :: * -> * -> k -> *
+-- >>>:k U1
+-- U1 :: k -> *
 -- >>>:k V1
 -- V1 :: k -> *
+
+-- >>>:k M1
+-- M1 :: * -> Meta -> (k -> *) -> k -> *
+
+-- >>>:t M1
+-- M1 :: f p -> M1 i c f p
+

@@ -43,6 +43,7 @@ library
       FunctsWithFolds
       GenericDataTypeBasics
       GenericEquality
+      GenericOrdering
       GenericRepresentations
       GreetingFunction
       HigherKindTypes
