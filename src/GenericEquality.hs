@@ -1,9 +1,9 @@
-{-# LANGUAGE DefaultSignatures #-}
-{-# LANGUAGE DeriveAnyClass #-}
+-- {-# LANGUAGE DefaultSignatures #-}
+-- {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE StandaloneDeriving #-}
+-- {-# LANGUAGE StandaloneDeriving #-}
 {-# LANGUAGE TypeOperators #-}
 
 module GenericEquality where
@@ -117,4 +117,3 @@ instance (Eq a, Eq b, Eq c) => Eq (Foo a b c) where
 
 -- >>>:t M1
 -- M1 :: f p -> M1 i c f p
-
