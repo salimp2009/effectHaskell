@@ -65,6 +65,7 @@ library
       TermsTypesKinds
       TestCode
       Type_Operators
+      TypeAlgebras
       TypeAliases
       TypeFamilies
       TypeHoleUses

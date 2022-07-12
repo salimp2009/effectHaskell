@@ -28,6 +28,16 @@ customerDidos = CustomerInfoR
                 , cfirstName = "Didemos"
                 , cwidgetCount = 20
                 }
+-- | Alternative way to construct but no preferred
+-- this may lead to apply wrong value to wrong record field
+-- prefer to use record selectors to be explicit
+customerDidos2 :: CustomerInfoR
+customerDidos2 = CustomerInfoR 
+        "Creatos" -- ^ firstname
+        "Didemos" -- ^ lastname
+        100       -- ^ widgetCount  
+        20        -- ^ balance  
+                     
 -- | no partial application of the field names when creating; all of them needs to be set  
 customerFactory :: String -> String -> CustomerInfoR
 customerFactory fname lname = CustomerInfoR

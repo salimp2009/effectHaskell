@@ -11,7 +11,8 @@ module DataKindsExample where
 -- import Data.Kind (Type)
 
 -- | with DataKinds extension TempUnits is promoted to kind
--- F' and C' are promoted to types
+-- F' and C' are promoted data constructors in the same namespace types 
+-- F' and C' can only be used at type level (cannot used in the runtime)
 data TempUnits = F' | C'
 
 -- | need to have {-# LANGUAGE DataKinds #-} extension

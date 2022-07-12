@@ -1,4 +1,5 @@
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeApplications #-}
 
 module SumTypes where
 
