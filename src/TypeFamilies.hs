@@ -45,3 +45,26 @@ instance Simplifier Char where
 -- "True"
 instance Simplifier Bool where
     simplify =  show
+
+
+-- | Closed type family example
+type family Widen a where
+    Widen Bool  = Int
+    Widen Int   = Integer
+    Widen Char  = String
+    Widen t     = String  -- << this is the catch all other case      
+
+-- | helper type class to use the type family
+-- at     
+class Widener a where
+    widen :: a -> Widen a
+    
+instance Widener Bool where
+    widen True  = 1
+    widen False = 0
+
+instance Widener Int where
+    widen = fromIntegral   
+    
+instance Widener Char where
+    widen c = [c]
