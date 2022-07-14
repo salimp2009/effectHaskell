@@ -34,6 +34,7 @@ library
       CurryHowardIsomorphism
       CustomOperators
       DataKindsExample
+      DataKindsProxy
       DataTypesRecords
       DerivingStrategyBasics
       DestructureValues

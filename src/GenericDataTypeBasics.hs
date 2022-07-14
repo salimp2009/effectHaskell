@@ -1,6 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DerivingStrategies #-}
 module GenericDataTypeBasics where
 
 import GHC.Generics 
@@ -21,6 +22,14 @@ data Status = OK | Err
 --     from :: a -> Rep a x
 --     to   :: Rep a x -> a 
 
+data Status2 s = OKK | Er s
+    deriving (Show, Generic)
+
+-- >>>from OKK
+-- M1 {unM1 = L1 (M1 {unM1 = U1})}
+
+-- >>>from (Er (Just 5))
+-- M1 {unM1 = R1 (M1 {unM1 = M1 {unM1 = K1 {unK1 = Just 5}}})}
 
 -- >>> to errVal::Status
 -- Err

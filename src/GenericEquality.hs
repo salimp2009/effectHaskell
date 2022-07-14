@@ -70,6 +70,11 @@ data Foo a b c=  F0
           | F2 b c 
           deriving (Generic)
 
+-- >>>:t F2 2 4          
+-- F2 2 4 :: (Num b, Num c) => Foo a b c
+-- >>>from (F2 2 4)
+-- M1 {unM1 = R1 (R1 (M1 {unM1 = M1 {unM1 = K1 {unK1 = 2}} :*: M1 {unM1 = K1 {unK1 = 4}}}))}
+
 -- |use cases;
 -- >>> (F1 2) == (F1 3)
 -- False
@@ -80,7 +85,8 @@ data Foo a b c=  F0
 instance (Eq a, Eq b, Eq c) => Eq (Foo a b c) where
     (==) = genericEq
 
-
+-- >>>from F0
+-- M1 {unM1 = L1 (M1 {unM1 = U1})}
 
 -- >>>:kind! Rep (Maybe Int)    
 -- Rep (Maybe Int) :: * -> *
