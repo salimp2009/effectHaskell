@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE NoStarIsType #-}
 
-module Type_Operators where
+module Type_Operators() where
 
 -- | (+) operator on type level indicates it is a sum type
 data a + b = Inl a | Inr b
@@ -36,4 +36,3 @@ type Point a = a + a *a +  a*a*a
 
 zero2D :: Point Int
 zero2D = Inl (Inr (0 :*: 0))
-

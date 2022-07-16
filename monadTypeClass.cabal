@@ -71,6 +71,7 @@ library
       TypeAliases
       TypeFamilies
       TypeHoleUses
+      TypeLevelFunctions
       TypeLevelLiterals
       UsingUnDefined
   other-modules:

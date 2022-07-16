@@ -59,9 +59,10 @@ myAdminfunct user = case userAdminToken user of
 -- >>>:kind 5085555
 -- 5085555 :: Nat
 
--- >>>:kind! (1 + 17)
--- (1 + 17) :: Nat
--- = 18
+-- >>>:kind! (1 + 17) * 2
+-- (1 + 17) * 2 :: Nat
+-- = 36
+
 
 -- >>>:kind! (128 `Div ` 8) ^ 2
 -- (128 `Div ` 8) ^ 2 :: Nat
