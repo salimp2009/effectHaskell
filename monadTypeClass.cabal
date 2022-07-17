@@ -73,6 +73,7 @@ library
       TypeHoleUses
       TypeLevelFunctions
       TypeLevelLiterals
+      TypeScopingApplications
       UsingUnDefined
   other-modules:
       Paths_monadTypeClass
