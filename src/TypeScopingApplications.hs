@@ -1,7 +1,10 @@
 --{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 module TypeScopingApplications where
+import Data.Typeable (Typeable, typeRep)
+import Data.Data (Proxy(..))
 
 -- | example to show that the type b at top level
 -- and the type in the apply function top annotation
@@ -59,10 +62,70 @@ showLeftRight s
 
 -- | use case;
 --  >>> useshowLeftRight "1234534"   
--- WAS Left 1234534.0
--- NOW Left 1234534.0
+-- Left 1234534.0
+
 -- >>> useshowLeftRight "123"
 -- Right 123
 useshowLeftRight :: String -> Either Float Int
-useshowLeftRight = showLeftRight @Float @Int   
+useshowLeftRight = showLeftRight @Float @Int 
 
+-- | use of forall; universal quantification referred as explicit forall
+-- use cases; different type can be used for val and the type will be inferred by GHC
+-- >>> adheresToReadShowContract 23.4656
+adheresToReadShowContract :: forall a. (Read a, Show a) => a -> Bool
+adheresToReadShowContract val =
+    let a = show . read @a . show $ val
+        b = show val
+    in a == b      
+    
+
+-- | there are two types GHC uses; inferred and specified
+-- when we have an input value and there is no type annotation
+-- GHC infers those
+-- there is also specified types which we specify via TypeApplication
+-- if a type is inferred type application is not allowed
+convertViaInt :: forall a b. (Integral a, Num b) => a -> b
+convertViaInt input = fromIntegral $ fromIntegral @_ @Int input    
+
+-- | this version does not work since we have no top level annotation
+-- GHC infers the type of a and b
+-- when we try to specify then it 
+
+-- >>> converttoInt @Int 5
+-- Cannot apply expression of type ‘w0 -> b0’
+-- to a visible type argument ‘Int’
+
+-- >>>:set -fprint-explicit-foralls
+-- >>>:t converttoInt
+-- converttoInt :: forall {w} {b}. (Integral w, Num b) => w -> b
+
+-- | {w} {b} ; the brackets around w and b indicates those types are inferred
+converttoInt a = fromIntegral $ fromIntegral @_ @Int a
+
+-- | we can specify explicitly which types will be inferred and specified
+-- use cases;
+-- >>>convertViaInt2 @Double 5
+-- 5.0
+
+-- >>> convertViaInt2 @Int 5
+-- 5
+
+-- >>> convertViaInt2 @Int @Double 5
+-- Cannot apply expression of type ‘a0 -> Int’
+-- to a visible type argument ‘Double’
+-- ^ we can not specify type for a type we explictly set to be inferred; {a}
+convertViaInt2 :: forall {a} b. (Integral a, Num b) => a -> b
+convertViaInt2 input = fromIntegral $ fromIntegral @_ @Int input
+
+-- | type parameter a is not use from right side of the type annotation
+-- therefore need to use {-# LANGUAGE AllowAmbiguousTypes #-}
+-- we use type application for Proxy which is used by typeRep; only to determine the type
+-- we could also write Proxy :: Proxy Int
+-- use case;
+-- >>> typename @Double
+-- "Double"
+
+-- >>> typename @Int
+-- "Int"
+typename :: forall a. Typeable a =>String
+typename = show . typeRep  $ Proxy @a
