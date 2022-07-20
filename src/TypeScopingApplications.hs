@@ -2,6 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE TypeFamilies #-}
 module TypeScopingApplications where
 import Data.Typeable (Typeable, typeRep)
 import Data.Data (Proxy(..))
@@ -18,7 +19,7 @@ import Data.Data (Proxy(..))
 
 workingNew :: forall a b. (a -> b) -> a -> b
 workingNew f a = apply
-    where 
+    where
         apply :: b
         apply = f a
 
@@ -67,7 +68,7 @@ showLeftRight s
 -- >>> useshowLeftRight "123"
 -- Right 123
 useshowLeftRight :: String -> Either Float Int
-useshowLeftRight = showLeftRight @Float @Int 
+useshowLeftRight = showLeftRight @Float @Int
 
 -- | use of forall; universal quantification referred as explicit forall
 -- use cases; different type can be used for val and the type will be inferred by GHC
@@ -76,8 +77,8 @@ adheresToReadShowContract :: forall a. (Read a, Show a) => a -> Bool
 adheresToReadShowContract val =
     let a = show . read @a . show $ val
         b = show val
-    in a == b      
-    
+    in a == b
+
 
 -- | there are two types GHC uses; inferred and specified
 -- when we have an input value and there is no type annotation
@@ -85,7 +86,7 @@ adheresToReadShowContract val =
 -- there is also specified types which we specify via TypeApplication
 -- if a type is inferred type application is not allowed
 convertViaInt :: forall a b. (Integral a, Num b) => a -> b
-convertViaInt input = fromIntegral $ fromIntegral @_ @Int input    
+convertViaInt input = fromIntegral $ fromIntegral @_ @Int input
 
 -- | this version does not work since we have no top level annotation
 -- GHC infers the type of a and b
@@ -117,8 +118,8 @@ converttoInt a = fromIntegral $ fromIntegral @_ @Int a
 convertViaInt2 :: forall {a} b. (Integral a, Num b) => a -> b
 convertViaInt2 input = fromIntegral $ fromIntegral @_ @Int input
 
--- | type parameter a is not use from right side of the type annotation
--- therefore need to use {-# LANGUAGE AllowAmbiguousTypes #-}
+-- | type parameter a is not used on the right side of (=>) the type annotation
+-- therefore we need to use {-# LANGUAGE AllowAmbiguousTypes #-}
 -- we use type application for Proxy which is used by typeRep; only to determine the type
 -- we could also write Proxy :: Proxy Int
 -- use case;
@@ -127,5 +128,31 @@ convertViaInt2 input = fromIntegral $ fromIntegral @_ @Int input
 
 -- >>> typename @Int
 -- "Int"
-typename :: forall a. Typeable a =>String
+
+-- >>> typename @(Maybe [Int])  
+-- "Maybe [Int]"
+typename :: forall a. Typeable a => String
 typename = show . typeRep  $ Proxy @a
+
+-- | example for Ambigous types
+type family AlwaysUnit a where
+    AlwaysUnit a = ()
+
+-- | Which one is ambigous ?    
+undefined1 :: AlwaysUnit a -> a
+undefined1 = undefined
+
+undefined2 :: b -> AlwaysUnit a -> a
+undefined2 = undefined
+
+-- | Ambigous because type parameter a can be 
+-- any given type and Show can not determine 
+-- which type instance to apply
+-- Always unit is non-injective because given AlwaysUnit a
+-- we can not determine the type of a
+undefined3 :: Show a => AlwaysUnit a -> String
+undefined3 = undefined
+
+-- | Ambigous because Show 
+undefined4 :: forall a. Show a => AlwaysUnit a -> String
+undefined4 = show

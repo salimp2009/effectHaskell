@@ -31,6 +31,7 @@ library
       Calculator
       ComposeFunc
       ConditionalBRanch
+      ConstraintsGADTS
       CurryHowardIsomorphism
       CustomOperators
       DataKindsExample
