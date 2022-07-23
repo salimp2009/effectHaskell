@@ -62,6 +62,7 @@ library
       ParserExamples
       PatternMatch
       ProgramEval
+      RankNTypeExamples
       RecordSyntax
       ReverseList
       StateContext
