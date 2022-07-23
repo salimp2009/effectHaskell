@@ -80,8 +80,8 @@ myAdminfunct user = case userAdminToken user of
 -- >>>:k '[ 'True ]
 -- '[ 'True ] :: [Bool]
 
--- >>>:k '['True ]
--- parse error on input ‘'’
+-- >>>:k '[ 'True ]
+-- '[ 'True ] :: [Bool]
 
 -- | Tuples are promoted as well
 -- >>>:k '(2, "tupilotos")

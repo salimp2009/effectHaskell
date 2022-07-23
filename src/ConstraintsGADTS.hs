@@ -10,6 +10,7 @@ module ConstraintsGADTS where
 fiveplus :: (a ~ Int ) => a -> a
 fiveplus = (+1)
 
+-- | typical GADT
 data ExprN a where
     LitInt  :: Int  -> ExprN Int
     LitBool :: Bool -> ExprN Bool
@@ -38,3 +39,13 @@ evalExprN (If b x y) =
             if evalExprN b 
                 then evalExprN x 
                 else evalExprN y 
+                
+-- | GADT is sugarized version class data type with Type Equalities
+data Expr_ a 
+    = (a ~ Int ) => LitInt_ Int
+    | (a ~ Bool) => LitBool_ Bool
+    | (a ~ Int ) => Add_ (Expr_ Int) (Expr_ Int)
+    | (a ~ Bool) => Not_ (Expr_ Bool)
+    | If_ (Expr_ Bool)  (Expr_ a) (Expr_ a)
+
+

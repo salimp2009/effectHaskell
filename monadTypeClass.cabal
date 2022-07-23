@@ -49,6 +49,7 @@ library
       GenericOrdering
       GenericRepresentations
       GreetingFunction
+      HeterogeneousLists
       HigherKindTypes
       InductiveDataStructs
       LetBindings
