@@ -50,3 +50,30 @@ rankTest2 f g = undefined
 -- | rank 3; there are 3 arrows after the deeper forall; forall x...
 rankTest3 :: ((forall x. m x -> b (z m x)) -> b(z m a)) -> m a
 rankTest3 f = undefined
+
+-- | a and (forall r. (a -> r) -> r) are isomorphic
+-- Identity a and a are isomorphic
+-- since isomorphism is transistive 
+-- Identity a and (forall r. (a -> r) -> r) is isomorphic
+-- (forall r. (a -> r) -> r) known as CPS (Continuation-Passing Style)
+-- Identity a is Monad so we expect CPS to be a Monad as well
+cont :: a -> (forall r. (a -> r) -> r)
+cont a = \callback -> callback a
+
+runCont :: forall a. (forall r. (a -> r) -> r) -> a
+runCont f =
+    let
+        callback = id
+    in f callback
+
+newtype Cont a = Cont
+    { unCont :: forall r. (a -> r) -> r }  
+
+instance Functor Cont where
+    fmap f (Cont c) = Cont $ \c' -> c (c' . f)    
+
+instance Applicative Cont where
+    pure x = Cont $ \c -> c x
+    (Cont f) <*>  (Cont a) = Cont $ \br -> 
+                                f $ \ab -> 
+                                a $ br . ab 
