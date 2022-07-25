@@ -70,10 +70,17 @@ newtype Cont a = Cont
     { unCont :: forall r. (a -> r) -> r }  
 
 instance Functor Cont where
-    fmap f (Cont c) = Cont $ \c' -> c (c' . f)    
+    fmap f (Cont c) = Cont $ \c' -> c (c' . f)  
+    --fmap f (Cont c) = Cont $ \c' -> let r' = c'.f in c r'  
 
 instance Applicative Cont where
     pure x = Cont $ \c -> c x
     (Cont f) <*>  (Cont a) = Cont $ \br -> 
                                 f $ \ab -> 
                                 a $ br . ab 
+
+instance Monad Cont where
+    --(>>=)       :: forall a b. m a -> (a -> m b) -> m b                                
+    (Cont m) >>= k = Cont $ \c ->
+                        m $ \a ->
+                            unCont (k a) c
