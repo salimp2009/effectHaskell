@@ -40,6 +40,7 @@ library
       DerivingStrategyBasics
       DestructureValues
       DoNotation
+      ExistentialTypes
       FibsLazy
       FoldFunctions
       FoodBudget
