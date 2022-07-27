@@ -1,9 +1,12 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
---{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+
 module ExistentialTypes where
 
-import Type.Reflection (Typeable)
+import Type.Reflection (Typeable(..))
+import Data.Typeable(cast)
 
 data Any where
   Any :: Show a => a -> Any
@@ -35,7 +38,28 @@ instance Show HasShow where
 elimHasShow :: (forall a. Show a => a -> r) -> HasShow -> r
 elimHasShow f (HasShow x) = f x
 
+-- | similar to regular Show instance but using the eliminator as an exercise
 -- instance Show HasShow where
 --     show x  = "HasShow " <> elimHasShow show x
 
+-- | attemp to create Python 
+data Dynamic where
+  Dynamic :: Typeable t => t -> Dynamic
+  
+elimDynamic :: (forall a. Typeable a => a -> r) -> Dynamic -> r
+elimDynamic f (Dynamic a )  = f a
 
+-- | getting existential value out of Dynamic
+-- cast is from Data.Typeable and signature
+-- cast :: forall a b. (Typeable a, Typeable b) => a -> Maybe b
+-- we pass cast into elimDynamic so it passes the value inside Dynamic type constructor
+fromDynamic2 :: Typeable a => Dynamic -> Maybe a
+fromDynamic2  = elimDynamic cast
+
+-- | lift is used to pass a binary operation on runtime values like Python style
+liftDyn2 :: forall a b r.(Typeable a, Typeable b, Typeable r) 
+            => Dynamic -> Dynamic -> ( a -> b -> r) -> Maybe Dynamic
+liftDyn2 d1 d2 f= fmap Dynamic . f <$> fromDynamic2 @a d1 <*> fromDynamic2 @b d2
+
+pyPlus :: Dynamic -> Dynamic -> Dynamic
+pyPlus = undefined
