@@ -7,6 +7,8 @@ module ExistentialTypes where
 
 import Type.Reflection (Typeable(..))
 import Data.Typeable(cast)
+import Data.Maybe(fromMaybe)
+import Data.Foldable (asum)
 
 data Any where
   Any :: Show a => a -> Any
@@ -61,5 +63,21 @@ liftDyn2 :: forall a b r.(Typeable a, Typeable b, Typeable r)
             => Dynamic -> Dynamic -> ( a -> b -> r) -> Maybe Dynamic
 liftDyn2 d1 d2 f= fmap Dynamic . f <$> fromDynamic2 @a d1 <*> fromDynamic2 @b d2
 
+-- | use case;
+-- >>>default (Int)
+-- >>>fromDynamic2 @Int (pyPlus (Dynamic 1) (Dynamic 2))
+-- Just 3
+
+-- >>> fromDynamic2 @String (pyPlus (Dynamic (1::Int)) (Dynamic "sal"))
+-- Just "1 sal"
+
+-- >>> fromDynamic2 @String (pyPlus (Dynamic (1::Int)) (Dynamic "sal")) 
+-- Just "1 sal"
+
 pyPlus :: Dynamic -> Dynamic -> Dynamic
-pyPlus = undefined
+pyPlus a b = fromMaybe (error "bad types forPyPlus") $ asum
+  [ liftDyn2 @String @String a b (++)
+  , liftDyn2 @Int @Int a b (+)  
+  , liftDyn2 @String @Int a b $ \strA intB -> strA <>" " <> show intB
+  , liftDyn2 @Int @String a b $ \intA strB -> show intA <> " " <> strB
+  ] 
