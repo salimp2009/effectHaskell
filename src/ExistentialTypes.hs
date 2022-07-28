@@ -73,7 +73,6 @@ liftDyn2 d1 d2 f= fmap Dynamic . f <$> fromDynamic2 @a d1 <*> fromDynamic2 @b d2
 
 -- >>> fromDynamic2 @String (pyPlus (Dynamic (1::Int)) (Dynamic "sal")) 
 -- Just "1 sal"
-
 pyPlus :: Dynamic -> Dynamic -> Dynamic
 pyPlus a b = fromMaybe (error "bad types forPyPlus") $ asum
   [ liftDyn2 @String @String a b (++)

@@ -45,6 +45,7 @@ library
       FoldFunctions
       FoodBudget
       FunctsWithFolds
+      GeneralConstraintKindExistentials
       GenericDataTypeBasics
       GenericEquality
       GenericOrdering
