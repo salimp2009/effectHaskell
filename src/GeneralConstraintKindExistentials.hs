@@ -6,6 +6,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE DataKinds #-}
 
 module GeneralConstraintKindExistentials where
 
@@ -32,17 +33,21 @@ type Dynamic3 = Has Typeable
 isMempty :: (Monoid a, Eq a) => a -> Bool
 isMempty a = a == mempty
 
+funct :: (Num a, Ord a) => a -> Bool
+funct a = a > 5
+
 -- | using multiple constraints to create Has instance
 -- dont work this way
--- >>>:t Has [True] :: Has MonoidAndEq
+-- Type synonyms must always be fully saturated
+-- >>>:t Has [True] :: Has (MonoidAndEq)
 -- The type synonym ‘MonoidAndEq’ should have 1 argument, but has been given none
-
+-- there is a solution for Constraint synonyms; 
+-- creating a new class with super class constraint and an instance; see blow
 -- >>>:t Has [True] :: Has Show
 -- Has [True] :: Has Show :: Has Show
 type MonoidAndEq a = (Monoid a, Eq a)
 
 -- | solution for constraint synonyms ; 
--- (Not sure if this is the best way); 
 -- new class with superclass constraint
 -- with a polymorphic instance ; known a constraint synonym
 -- type synonmys cannot be partiall applied classes has no such
@@ -67,7 +72,20 @@ type MonoidAndEq a = (Monoid a, Eq a)
 -- >>>elimHas isMempty foo4
 -- True
 
+-- | the result of funct is displayed e.g : a > 5
+-- but the constraint check to Num a, Ord a is satisfied otherwise it would give error
+-- >>>let foo5 = Has (6::Int) :: Has NumOrd
+-- >>>elimHas funct foo5
+-- True
+
+-- >>>let foo6 = Has (4::Int) :: Has NumOrd
+-- >>>elimHas funct foo6
+-- False
+
 -- >>>:t Has [ True ] :: Has MonoidEq
 -- Has [ True ] :: Has MonoidEq :: Has MonoidEq
 class (Monoid a, Eq a) => MonoidEq a
 instance (Monoid a, Eq a) => MonoidEq a
+
+class (Num a, Ord a) => NumOrd a
+instance (Num a, Ord a) => NumOrd a
