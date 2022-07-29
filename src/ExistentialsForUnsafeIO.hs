@@ -1,10 +1,14 @@
+{-# LANGUAGE RankNTypes, ScopedTypeVariables #-}
+{-# LANGUAGE DerivingVia #-}
+--{-# LANGUAGE TypeApplications #-}
+
 module ExistentialsForUnsafeIO where
 
-import Data.IORef
+import Data.IORef ( newIORef, readIORef, writeIORef, IORef(..) )
 import System.IO.Unsafe (unsafePerformIO)
 
 newtype ST s a = ST 
-  { unsafeRunST :: a}
+  {  unsafeRunST :: a}
 
 instance Functor (ST s) where
   fmap f (ST a) = seq a . ST $ f a
@@ -18,7 +22,7 @@ instance Monad (ST s) where
 
 newtype STRef s a = STRef
   { unSTRef :: IORef a} 
-  
+
 -- | creating new STRef;
 -- newIORef    :: a -> IO (IORef a)
 -- unsafePerformIO :: IO (IORef a) -> IORef a
@@ -42,3 +46,43 @@ readSTRef = pure . unsafePerformIO . readIORef . unSTRef
 -- pure :: () -> ST s ()
 writeSTRef :: STRef s a -> a -> ST s ()
 writeSTRef ref =  pure. unsafePerformIO . writeIORef (unSTRef ref)
+
+modifySTRef :: STRef s a -> (a -> a) -> ST s ()
+modifySTRef ref f = do
+    a <- readSTRef ref
+    writeSTRef ref (f a)
+
+-- | original implementation; 
+--  runST = unsafeRun does not work
+-- because runST can only work ST a due to (forall s . ST s a)
+-- parameter s is hidden for runST and unsafeRunST expects ST s a
+-- GHC calls type s as rigid skolem type variable
+-- Rigid variables are those that are constrained by a type signature written
+-- by a programmer—in other words, they are not allowed
+-- to be type inferred.
+
+-- use case;
+-- >>> runST safeExample
+-- "hello safeIO"
+
+-- >>> runST (newSTRef "does not work")
+-- Couldn't match type ‘a’ with ‘STRef s String’
+-- Expected: ST s a
+--   Actual: ST s (STRef s String)
+--   because type variable ‘s’ would escape its scope
+-- This (rigid, skolem) type variable is bound by
+--   a type expected by the context:
+--     forall s. ST s a
+--   at C:\developer\haskell\effectiveHaskellbook\chapter9Monads\monadTypeClass\src\ExistentialsForUnsafeIO.hs:63:8-33
+runST ::forall a.  (forall s . ST s a) -> a      
+runST (ST a) = a  
+
+-- | incomplete; shown only for the problems above
+runST2 ::(forall s . ST s (STRef s Bool )) -> STRef s Bool
+runST2 x = undefined
+
+safeExample :: ST s String
+safeExample = do
+  ref <- newSTRef "hello"
+  modifySTRef ref (++ " safeIO")
+  readSTRef ref
