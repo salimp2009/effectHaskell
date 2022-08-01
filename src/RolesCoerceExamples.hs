@@ -79,4 +79,7 @@ instance Ord a => Ord (Reverse a) where
 -- Couldn't match type ‘Char’ with ‘Reverse Char’
 --   arising from a use of ‘coerce’
 
+-- >>>:t M.singleton
+-- M.singleton :: k -> a -> Map k a
+
 

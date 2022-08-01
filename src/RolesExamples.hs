@@ -1,3 +1,7 @@
+{-# LANGUAGE TypeFamilies #-}
+--{-# LANGUAGE TypeApplications #-}
+--{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE RoleAnnotations #-}
 module RolesExamples where
 
 -- |  the role system ensures coercions are safe
@@ -45,3 +49,23 @@ to one another.
 -- since Either has (-> constructor) 
 -- Either a b should have 2 representational roles
 
+type family IntToBool a where
+  IntToBool Int = Bool
+  IntToBool a   = a
+
+-- | it is possible to strengthen an inferred role to a less
+-- permissive one by using extension RoleAnnotations
+-- example Binary Search Trees;
+-- BSTs have memory dependencies on their Ord instance
+data BST v  
+       = Empty
+       | Branch (BST v) v (BST v)
+
+-- | the type v is inferred by default as representational
+-- by applying a less weeker role by type role 
+-- the syntax is ; 
+-- type role TypeConst role1 role2 ...
+-- define a role for each type parameter in the same order defined
+-- type role cant be used for weaking ; 
+-- eg from representational to phantom wont compile
+type role BST nominal       
