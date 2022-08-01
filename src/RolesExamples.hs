@@ -3,6 +3,8 @@
 --{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE RoleAnnotations #-}
 module RolesExamples where
+import Data.Coerce (coerce)
+import Data.Kind(Type(..))
 
 -- |  the role system ensures coercions are safe
 --    type system ensures types are used correctly 
@@ -68,4 +70,38 @@ data BST v
 -- define a role for each type parameter in the same order defined
 -- type role cant be used for weaking ; 
 -- eg from representational to phantom wont compile
-type role BST nominal       
+type role BST nominal      
+
+newtype Age = Age Int
+  deriving Show
+
+toAges :: [Int] -> [Age]  
+toAges = coerce
+
+-- | example to show type families 
+-- can not be coerced ; 
+-- HLS error msg ; 
+-- • Couldn't match representation of 
+  -- type ‘Int’ with that of ‘Bool’
+-- toIntToBool :: Int -> IntToBool Int
+-- toIntToBool = coerce
+
+data Student ageType = Student String ageType
+
+check :: Student Int -> Student Age
+check = coerce
+
+data Student1 ageType = Student1 String (Maybe ageType)
+
+check2 :: Student1 Int -> Student1 Age
+check2 = coerce
+
+data Student2 m ageType = Student2 String (m ageType)
+
+-- | this wont compile
+-- because ageType has nominal role
+-- HLS show the error; 
+--  "Couldn't match type ‘Int’ with ‘Age’
+--  arising from a use of ‘coerce’ "
+-- check3 :: Student2 Maybe Int -> Student2 Maybe Age
+-- check3 = coerce 
