@@ -5,6 +5,7 @@
 module RolesExamples where
 import Data.Coerce (coerce)
 import Data.Kind(Type(..))
+import Unsafe.Coerce ( unsafeCoerce )
 
 -- |  the role system ensures coercions are safe
 --    type system ensures types are used correctly 
@@ -51,6 +52,7 @@ to one another.
 -- since Either has (-> constructor) 
 -- Either a b should have 2 representational roles
 
+-- | close type family
 type family IntToBool a where
   IntToBool Int = Bool
   IntToBool a   = a
@@ -105,3 +107,31 @@ data Student2 m ageType = Student2 String (m ageType)
 --  arising from a use of ‘coerce’ "
 -- check3 :: Student2 Maybe Int -> Student2 Maybe Age
 -- check3 = coerce 
+
+-- | open type family
+type family Id t 
+type instance Id t = t
+
+data Student3 ageType = Student3 String (Id ageType)
+  deriving Show
+
+-- | this wont compile
+-- because type families are given (~) therefore has nominal roles on types
+-- so ageType for type family has a nominal role
+-- therefore it wont work for Int -> Age;
+-- only works for Int -> Int
+-- or by using unsafecoerce if we are sure they have same representation in memory
+-- check3:: Student3 Int -> Student3 Age
+-- check3 = coerce
+
+-- | use case ;
+-- >>>check3' (Student3 "Salitos" (42::Id Int))
+-- Student3 "Salitos" (Age 42)
+
+-- >>>check3' (Student3 "Salitos" (42::Int))
+-- Student3 "Salitos" (Age 42)
+
+-- >>>check3' (Student3 "Salitos" 42)
+-- Student3 "Salitos" (Age 42)
+check3' :: Student3 Int -> Student3 Age
+check3' = unsafeCoerce

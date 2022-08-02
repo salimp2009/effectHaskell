@@ -1,6 +1,6 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeApplications #-}
+--{-# LANGUAGE TypeApplications #-}
 module ConstraintsGADTS where
 
 -- | just stupid example to type equality 

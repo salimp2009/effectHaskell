@@ -82,6 +82,7 @@ library
       TypeLevelFunctions
       TypeLevelLiterals
       TypeScopingApplications
+      TypesFromSchema
       UsingUnDefined
   other-modules:
       Paths_monadTypeClass
