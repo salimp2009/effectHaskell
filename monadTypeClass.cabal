@@ -37,6 +37,7 @@ library
       DataKindsExample
       DataKindsProxy
       DataTypesRecords
+      Defunctionalization
       DerivingStrategyBasics
       DestructureValues
       DoNotation
