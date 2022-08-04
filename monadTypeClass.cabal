@@ -80,6 +80,7 @@ library
       TypeAliases
       TypeFamilies
       TypeHoleUses
+      TypeLevelDefunctionalization
       TypeLevelFunctions
       TypeLevelLiterals
       TypeScopingApplications
