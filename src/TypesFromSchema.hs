@@ -18,7 +18,7 @@ module TypesFromSchema where
 import Data.Kind(Type)
 import Data.Monoid((<>))
 import Data.Proxy(Proxy(..))
-import GHC.TypeLits
+import GHC.TypeLits ( KnownSymbol, Symbol, symbolVal )
 
 -- | the (:<<) has no special meanning in Haskell
 -- >>>:set -XNoStarIsType 
