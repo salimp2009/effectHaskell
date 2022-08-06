@@ -44,6 +44,7 @@ library
       ExistentialsForUnsafeIO
       ExistentialTypes
       FibsLazy
+      FirstClassFamilies
       FoldFunctions
       FoodBudget
       FunctsWithFolds
