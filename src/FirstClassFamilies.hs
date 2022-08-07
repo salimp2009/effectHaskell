@@ -9,10 +9,9 @@
 
 module FirstClassFamilies where
 
-import TypeLevelDefunctionalization (Exp, Evaltf, Snd, FromMaybe)
+import TypeLevelDefunctionalization (Exp, Evaltf, Snd, FromMaybe, MapListt)
 import Data.Kind (Type, Constraint)
 import GHC.TypeLits (type (+), Nat)
-import TypeLevelDefunctionalization (MapListt)
 -- import Data.Type.Equality (type (==))
 -- import Data.Type.Bool (type (&&))
 
@@ -62,9 +61,14 @@ type family TyEqImpl (a::k) (b::k) :: Bool where
   TyEqImpl a a = 'True
   TyEqImpl a b = 'False
 
+  -- | use case of Alltf to apply a given Constraint to all types in a type List
+  -- it returns a tuple Constraints
+-- >>>:kind! Evaltf (Alltf Eq '[Int, Bool] )  
+-- Evaltf (Alltf Eq '[Int, Bool] ) :: Constraint
+-- = (Eq Int, (Eq Bool, () :: Constraint))
 data Collapse :: [Constraint]  -> Exp Constraint
 type instance Evaltf (Collapse '[]) = (()::Constraint)
-type instance Evaltf (Collapse (a ': as)) = (a, Evaltf (Collapse as))
+type instance Evaltf (Collapse ( a ': as)) = (a, Evaltf (Collapse as))
  
 -- | data MapListt :: (a -> Exp b) -> [a] -> Exp [b]
 -- Pure1 applies given function to given input return result as Exp

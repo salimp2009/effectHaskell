@@ -45,6 +45,7 @@ library
       ExistentialTypes
       FibsLazy
       FirstClassFamilies
+      FirstClassFamilyAdHOCPolymorphism
       FoldFunctions
       FoodBudget
       FunctsWithFolds
