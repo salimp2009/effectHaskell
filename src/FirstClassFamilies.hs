@@ -6,8 +6,15 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE RankNTypes #-}
+
 module FirstClassFamilies where
+
 import TypeLevelDefunctionalization (Exp, Evaltf, Snd, FromMaybe)
+import Data.Kind (Type, Constraint)
+import GHC.TypeLits (type (+), Nat)
+import TypeLevelDefunctionalization (MapListt)
+-- import Data.Type.Equality (type (==))
+-- import Data.Type.Bool (type (&&))
 
 -- | First Class families form a monad a t type level
 
@@ -46,3 +53,28 @@ type Snd2 = Snd <=< Snd
 data (<=<) :: (b -> Exp c) -> (a -> Exp b) -> a -> Exp c
 infixr 1 <=<
 type instance Evaltf ((f <=< g) x) = Evaltf (f (Evaltf (g x)))
+
+
+data TypeEq :: a -> a -> Exp Bool
+type instance Evaltf (TypeEq x y) = TyEqImpl x y
+
+type family TyEqImpl (a::k) (b::k) :: Bool where
+  TyEqImpl a a = 'True
+  TyEqImpl a b = 'False
+
+data Collapse :: [Constraint]  -> Exp Constraint
+type instance Evaltf (Collapse '[]) = (()::Constraint)
+type instance Evaltf (Collapse (a ': as)) = (a, Evaltf (Collapse as))
+ 
+-- | data MapListt :: (a -> Exp b) -> [a] -> Exp [b]
+-- Pure1 applies given function to given input return result as Exp
+-- MapLisst takes a function and applies the function all elems returns
+-- Exp [b]
+-- =<< take a Exp (the result of MapListt) and passes the
+-- list [b] inside the Exp [b] to given to given function 
+-- Collapse which takes a list return us a tuple of Constraints
+type Alltf (c:: k -> Constraint) (ts::[k]) = 
+    Collapse =<< MapListt (Pure1 c) ts
+
+data Pure1 :: (a -> b) -> a -> Exp b
+type instance Evaltf (Pure1 f x) = f x       
