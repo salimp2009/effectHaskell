@@ -8,7 +8,7 @@
 {-# LANGUAGE RankNTypes #-}
 module FirstClassFamilyAdHOCPolymorphism where
 
-import TypeLevelDefunctionalization (Exp, Evaltf, Snd)
+import TypeLevelDefunctionalization (Exp, Evaltf, Snd, Sum)
 import Data.Kind (Type, Constraint)
 import GHC.TypeLits (type (+), Nat)
 
@@ -38,13 +38,20 @@ import GHC.TypeLits (type (+), Nat)
 -- >>>:kind! Evaltf (Mapt Snd ('Right '( 'False, 'True)))
 -- Evaltf (Mapt Snd ('Right '( 'False, 'True))) :: Either a Bool
 -- = 'Right 'True
-
+-- | promoted functor (Mapt) instance of []
 data Mapt :: (a -> Exp b) -> f a -> Exp (f b)
 type instance Evaltf (Mapt f '[]) = '[]
 type instance Evaltf (Mapt f (a ': as)) = Evaltf (f a) ': Evaltf (Mapt f as)
 
+-- | promoted functor (Mapt) instance of Maybe a
 type instance Evaltf (Mapt f 'Nothing)  = 'Nothing 
 type instance Evaltf (Mapt f ('Just a)) = 'Just (Evaltf ( f a))
 
 type instance Evaltf (Mapt f ('Left a) )  = 'Left a
 type instance Evaltf (Mapt f ('Right b) ) = 'Right (Evaltf (f b))
+
+-- | promoted functor (Mapt)instance  of Tuple
+-- >>>:kind! Evaltf (Mapt (Sum 1) '(1, 2))
+-- Evaltf (Mapt (Sum 1) '(1, 2)) :: (Nat, Nat)
+-- = '(1, 3)
+type instance Evaltf (Mapt f '(a , b)) = '(a, Evaltf (f b))

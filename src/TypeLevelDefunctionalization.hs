@@ -72,7 +72,6 @@ type instance Evaltf (ListToMaybe '[] )      = 'Nothing
 
 
 data MapListt :: (a -> Exp b) -> [a] -> Exp [b]
-
 -- >>>:kind! Evaltf (MapListt (FromMaybe 0) '[ ( 'Just 1) ,  'Nothing])
 -- Evaltf (MapListt (FromMaybe 0) '[ ( 'Just 1) ,  'Nothing]) :: [Nat]
 -- = '[1, 0]
