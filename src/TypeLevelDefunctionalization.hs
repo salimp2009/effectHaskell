@@ -52,7 +52,6 @@ data FromMaybe :: a -> Maybe a -> Exp a
 -- Evaltf (FromMaybe "nada" ('Just "just right")) :: Symbol
 -- = "just right"
 
-
 -- >>>:kind! Evaltf (FromMaybe "nada" 'Nothing)
 -- Evaltf (FromMaybe "nada" 'Nothing) :: Symbol
 -- = "nada"
