@@ -65,6 +65,7 @@ library
       ListCreate
       MonadBasics
       MonadicUtilities
+      OpenSums
       ParserExamples
       PatternMatch
       ProgramEval
@@ -96,6 +97,7 @@ library
       aeson
     , base >=4.7 && <5
     , containers
+    , first-class-families
     , lens
     , lens-aeson
     , mtl
@@ -113,6 +115,7 @@ executable monadTypeClass-exe
       aeson
     , base >=4.7 && <5
     , containers
+    , first-class-families
     , lens
     , lens-aeson
     , monadTypeClass
@@ -132,6 +135,7 @@ test-suite monadTypeClass-test
       aeson
     , base >=4.7 && <5
     , containers
+    , first-class-families
     , hspec
     , lens
     , lens-aeson

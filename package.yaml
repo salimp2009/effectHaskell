@@ -27,6 +27,7 @@ dependencies:
 - lens-aeson
 - mtl
 - text
+- first-class-families
 
 library:
   source-dirs: src

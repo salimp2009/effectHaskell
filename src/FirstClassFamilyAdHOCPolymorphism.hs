@@ -56,6 +56,7 @@ type instance Evaltf (Mapt f ('Right b) ) = 'Right (Evaltf (f b))
 -- >>>:kind! Evaltf (Mapt (Sum 1) '(1, 2))
 -- Evaltf (Mapt (Sum 1) '(1, 2)) :: (Nat, Nat)
 -- = '(1, 3)
+
 type instance Evaltf (Mapt f '(a , b)) = '(a, Evaltf (f b))
 
 -- | Semigroup Operation Mappend implementation
@@ -112,12 +113,14 @@ type instance (<>) x y = AppendSymbol x y
 -- Evaltf ('[1,2,3] ++ '[4, 5, 6]) :: [Nat]
 -- = '[1, 2, 3, 4, 5, 6]
 data (++) :: [a] -> [a] -> Exp [a]
-type instance Evaltf ((++) xs ys ) = xs <> ys
+type instance Evaltf ((++) xs ys) = xs <> ys
 
--- | this is defined in the book but does not work because (++) operator
--- not defined level
--- type instance Evaltf (Mappend '[] (bs::[k])) = bs
--- type instance Evaltf (Mappend ((a ': as)::[k]) (bs::[k])) = a ': Evaltf (Mappend as bs) 
+-- | This is the alternative but it (++) becomes general
+-- to List; the above version is specific to List
+-- Check if it is any difference 
+-- data (++) :: a -> a -> Exp a
+-- type instance Evaltf ((++) (xs::[k]) (ys::[k])) = xs <> ys
+
 
 -- | given a type of any
 -- monoidal kind K, Mempty will give back the monoidal
