@@ -55,12 +55,14 @@ data OpenSum (f::k -> Type)(ts::[k]) where
 -- >>>:kind! Eval (FindIndex ((>) 2) '[1,2,3,1,2,3])
 -- Eval (FindIndex ((>) 2) '[1,2,3,1,2,3]) :: Maybe Nat
 -- = 'Just 0
+
+-- | FindElem works by looking through ts and comparing
+-- the first element of each tuple with key
 type FindElem (key :: k) (ts::[k]) =
   FromMaybe Stuck =<< FindIndex (TyEq key) ts
 
 -- | the returned index thru FindIndex via Just Nat 
 -- we can expose this value by using KnownNat 
---  
 type Member t ts = TL.KnownNat (Eval (FindElem t ts))
 
 -- |the type-level nature of FindElem means we
@@ -74,8 +76,8 @@ findElem = fromIntegral . natVal $ (Proxy @(Eval (FindElem t ts)))
 inj :: forall f t ts. Member t ts => f t -> OpenSum f ts
 inj = UnsafeOpenSum (findElem @t @ts)
 
--- | runtime check for if ;
--- the Int type tag inside of OpenSum is the same as
+-- | runtime check for;
+-- if the Int type tag inside of OpenSum is the same as
 -- the type we’re trying to extract it as
 -- if same; we use unsafeCoerce to give non-existential t 
 -- if not same; we get Nothing  
@@ -84,3 +86,26 @@ prj (UnsafeOpenSum i f) =
     if i == findElem @t @ts
       then Just $ unsafeCoerce f
       else Nothing
+
+-- | decompose gives us information about the types inside OpenSum      
+-- if we use zero as the tag we will get the first type via Left of Either
+-- we will also get the rest of the types as OpenSum with the rest of types
+-- us
+decompose :: OpenSum f (t ': ts) -> Either (f t) (OpenSum f ts)     
+decompose (UnsafeOpenSum 0 t) = Left $ unsafeCoerce t
+decompose (UnsafeOpenSum n t) = Right $ UnsafeOpenSum (n-1) t
+
+weaken :: OpenSum f ts -> OpenSum f (t ': ts)
+weaken (UnsafeOpenSum n t) = UnsafeOpenSum (n+1) t
+
+{- |
+  If we want to perform the same logic regardless of
+  what’s inside an OpenSum, prj and decompose both feel
+  inelegant. We introduce match eliminator which
+  consumes an OpenSum in O(1) time.
+-}
+-- By using a rank-n type(forall t. ) , match is given a function
+-- that can provide a b regardless of what’s inside the sum
+match :: forall f ts b. (forall t. f t -> b) -> OpenSum f ts -> b
+match fn (UnsafeOpenSum _ t) = fn t
+
