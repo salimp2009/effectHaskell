@@ -65,6 +65,7 @@ library
       ListCreate
       MonadBasics
       MonadicUtilities
+      OpenProducts
       OpenSums
       ParserExamples
       PatternMatch
@@ -102,6 +103,7 @@ library
     , lens-aeson
     , mtl
     , text
+    , vector
   default-language: Haskell2010
 
 executable monadTypeClass-exe
@@ -121,6 +123,7 @@ executable monadTypeClass-exe
     , monadTypeClass
     , mtl
     , text
+    , vector
   default-language: Haskell2010
 
 test-suite monadTypeClass-test
@@ -142,4 +145,5 @@ test-suite monadTypeClass-test
     , monadTypeClass
     , mtl
     , text
+    , vector
   default-language: Haskell2010

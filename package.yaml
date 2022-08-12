@@ -28,6 +28,7 @@ dependencies:
 - mtl
 - text
 - first-class-families
+- vector
 
 library:
   source-dirs: src

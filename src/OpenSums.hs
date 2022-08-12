@@ -29,10 +29,11 @@ with existential types."
 
 import Data.Kind (Type)
 import Data.Proxy
-import Fcf
+import qualified Fcf
 import qualified GHC.TypeLits as TL
 import GHC.TypeLits hiding (type (+), type (<=), type (>), type (<), type (<=))  
 import Unsafe.Coerce
+
   
 -- | OpenSum is a container of f t, where t has kind K
 --  f an indexed type, which means it provides a TYPE when given a K
@@ -48,27 +49,28 @@ data OpenSum (f::k -> Type)(ts::[k]) where
 
 -- FindIndex (from Fcf) search the type t we are looking for
 -- if it finds it return Maybe Nat ; if fails to find it return 'Nothing  
--- >>>:kind! Eval (FindIndex ((<=) 3) '[1, 2, 3, 1, 2, 3])
--- Eval (FindIndex ((<=) 3) '[1, 2, 3, 1, 2, 3]) :: Maybe Nat
+-- >>>:kind! Fcf.Eval (Fcf.FindIndex ((Fcf.<=) 3) '[1, 2, 3, 1, 2, 3])
+-- Fcf.Eval (Fcf.FindIndex ((Fcf.<=) 3) '[1, 2, 3, 1, 2, 3]) :: Maybe
+--                                                                Nat
 -- = 'Just 2
 
--- >>>:kind! Eval (FindIndex ((>) 2) '[1,2,3,1,2,3])
--- Eval (FindIndex ((>) 2) '[1,2,3,1,2,3]) :: Maybe Nat
+-- >>>:kind! Fcf.Eval (Fcf.FindIndex ((Fcf.>) 2) '[1,2,3,1,2,3])
+-- Fcf.Eval (Fcf.FindIndex ((Fcf.>) 2) '[1,2,3,1,2,3]) :: Maybe Nat
 -- = 'Just 0
 
 -- | FindElem works by looking through ts and comparing
 -- the first element of each tuple with key
 type FindElem (key :: k) (ts::[k]) =
-  FromMaybe Stuck =<< FindIndex (TyEq key) ts
+  Fcf.FromMaybe Fcf.Stuck Fcf.=<< Fcf.FindIndex (Fcf.TyEq key) ts
 
 -- | the returned index thru FindIndex via Just Nat 
 -- we can expose this value by using KnownNat 
-type Member t ts = TL.KnownNat (Eval (FindElem t ts))
+type Member t ts = TL.KnownNat (Fcf.Eval (FindElem t ts))
 
 -- |the type-level nature of FindElem means we
 -- pay no runtime cost for the computation.
 findElem :: forall t ts. Member t ts => Int
-findElem = fromIntegral . natVal $ (Proxy @(Eval (FindElem t ts)))
+findElem = fromIntegral . natVal $ (Proxy @(Fcf.Eval (FindElem t ts)))
 
 -- | smart safe constructor for OpenSum
 -- inj allows injecting a f t into any OpenSum f ts so long
@@ -95,6 +97,11 @@ decompose :: OpenSum f (t ': ts) -> Either (f t) (OpenSum f ts)
 decompose (UnsafeOpenSum 0 t) = Left $ unsafeCoerce t
 decompose (UnsafeOpenSum n t) = Right $ UnsafeOpenSum (n-1) t
 
+{- | weaken;
+  In practice, it is also useful to be able to widen the
+  possibilities of an open sum. A new function, weaken,
+  tacks a x type in front of the list of possibilities
+-}
 weaken :: OpenSum f ts -> OpenSum f (t ': ts)
 weaken (UnsafeOpenSum n t) = UnsafeOpenSum (n+1) t
 
