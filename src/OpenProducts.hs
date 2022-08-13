@@ -94,6 +94,20 @@ type UniqueKey (key::k) (ts::[(k, t)]) =
 -- insert (Key @"key") (Just False) result :: OpenProduct Maybe '[ '("key", Bool), '("key", Bool)]
 insert2 :: Eval (UniqueKey key ts) ~ 'True 
         => Key key -> f t -> OpenProduct f ts -> OpenProduct f ('(key, t) ': ts) 
-insert2 _ ft (OpenProduct v) =  OpenProduct $ V.cons (Anyc ft) v             
+insert2 _ ft (OpenProduct v) =  OpenProduct $ V.cons (Anyc ft) v   
+
+-- | to get the data out of OpenProduct we need a getter
+--  First we will do a lookup at type level in list of types (ts:: [(Symbol, k)])
+--  it will return us the index of the Vector, where the corresponding type is stored
+-- will return us the corresponding Type
+type FindElemP (key :: Symbol) (ts :: [(Symbol, k)]) =
+  Eval (FromMaybe Stuck =<< FindIndex (TyEq key <=< Fst) ts)
+
+-- | bringing the type level index info into term level  
+findElemP :: forall key ts. KnownNat (FindElemP key ts) => Int
+findElemP = fromIntegral . natVal $ (Proxy @(FindElemP key ts))
+
+type LookupType (key::k)(ts::[(k, t)]) =
+  FromMaybe Stuck =<< Lookup key ts
 
 
