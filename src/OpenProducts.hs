@@ -70,3 +70,30 @@ data Key (key :: Symbol) = Key
 
 insert :: Key key -> f t -> OpenProduct f ts -> OpenProduct f ('(key, t) ': ts)
 insert _ ft (OpenProduct v) =  OpenProduct $ V.cons (Anyc ft) v
+
+-- | prevent multiple same keys since it migh be confusing
+{-
+  data Null :: [a] -> Exp Bool
+  type instance Eval (Null '[]) = 'True
+  type instance Eval (Null (a ': as)) = 'False
+-}
+{-
+  "UniqueKey is the type-level equivalent of null . filter
+  (== key) . fst. If the key doesn’t exist in ts, UniqueKey
+  returns 'True. "
+-}
+type UniqueKey (key::k) (ts::[(k, t)]) = 
+    Null =<< Filter (TyEq key <=< Fst) ts
+-- >>>result = insert2 (Key @"key") (Just True) nil
+-- >>>:t result
+-- result :: OpenProduct Maybe '[ '("key", Bool)]
+-- >>>:t insert2(Key @"key") (Just False) result 
+-- Couldn't match type ‘'False’ with ‘'True’
+--   arising from a use of ‘insert2’
+-- >>>:t insert (Key @"key") (Just False) result 
+-- insert (Key @"key") (Just False) result :: OpenProduct Maybe '[ '("key", Bool), '("key", Bool)]
+insert2 :: Eval (UniqueKey key ts) ~ 'True 
+        => Key key -> f t -> OpenProduct f ts -> OpenProduct f ('(key, t) ': ts) 
+insert2 _ ft (OpenProduct v) =  OpenProduct $ V.cons (Anyc ft) v             
+
+
