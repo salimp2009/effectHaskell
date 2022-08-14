@@ -107,7 +107,23 @@ type FindElemP (key :: Symbol) (ts :: [(Symbol, k)]) =
 findElemP :: forall key ts. KnownNat (FindElemP key ts) => Int
 findElemP = fromIntegral . natVal $ (Proxy @(FindElemP key ts))
 
+-- | findElemp gives us index number of a key we are looking
+-- Lookup will give the type we should be getting out from the Vector
+-- so basically the second value of the tuple
+-- Lookup :: forall k b. k -> [(k, b)] -> Exp (Maybe b)
 type LookupType (key::k)(ts::[(k, t)]) =
   FromMaybe Stuck =<< Lookup key ts
+
+{-
+  "Since we’ve been careful in
+  maintaining our invariant that the types wrapped in our
+  Vector correspond exactly with those in ts, we know it’s
+  safe to unsafeCoerce"
+-}
+get :: forall key ts f. KnownNat (FindElemP key ts)  
+    => Key key -> OpenProduct f ts -> f (Eval (LookupType key ts))
+get _ (OpenProduct v) = unAnyc $ V.unsafeIndex v $ findElemP @key @ts
+  where 
+    unAnyc (Anyc a) = unsafeCoerce a
 
 
