@@ -126,4 +126,18 @@ get _ (OpenProduct v) = unAnyc $ V.unsafeIndex v $ findElemP @key @ts
   where 
     unAnyc (Anyc a) = unsafeCoerce a
 
+-- | to update an existing key, use SetIndex which needs the key and 
+-- new pair with key and type (OpenProduct allows to change types)    
+-- data SetIndex :: Nat -> a -> [a] -> Exp [a]
+type UpdateElem (key::Symbol) (t::k) (ts::[(Symbol, k)]) =
+    SetIndex (FindElemP key ts) '(key, t) ts 
+    
+update :: forall key ts t f. KnownNat (FindElemP key ts)    
+       => Key key -> f t -> OpenProduct f ts -> OpenProduct f (Eval(UpdateElem key t ts))
+update _ ft  (OpenProduct v) = OpenProduct $ v V.// [(findElemP @key @ts, Anyc ft)] 
+
+-- type DeleteElem (key::Symbol) (ts::[(Symbol, k)]) =
+--      Filter ((Fcf.<=) (FindElemP key ts) (Fst =< ) )ts
+
+
 
