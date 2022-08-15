@@ -136,8 +136,14 @@ update :: forall key ts t f. KnownNat (FindElemP key ts)
        => Key key -> f t -> OpenProduct f ts -> OpenProduct f (Eval(UpdateElem key t ts))
 update _ ft  (OpenProduct v) = OpenProduct $ v V.// [(findElemP @key @ts, Anyc ft)] 
 
--- type DeleteElem (key::Symbol) (ts::[(Symbol, k)]) =
---      Filter ((Fcf.<=) (FindElemP key ts) (Fst =< ) )ts
+--  type DeleteElem (key::Symbol) (ts::[(Symbol, k)]) =
+-- --      Filter ((Fcf.<=) (FindElemP key ts) (Fst =< ) )ts
 
+type DeleteElem key = Filter (Not <=< TyEq key <=< Fst) 
 
+delete :: forall key ts f. KnownNat (FindElemP key ts) 
+       => Key key -> OpenProduct f ts -> OpenProduct f (Eval(DeleteElem key ts))
+delete _ (OpenProduct v) =
+          let (v1, v2) = V.splitAt (findElemP @key @ts) v
+          in OpenProduct $ v1 V.++ V.tail v2
 
