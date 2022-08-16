@@ -147,13 +147,6 @@ delete _ (OpenProduct v) =
           let (v1, v2) = V.splitAt (findElemP @key @ts) v
           in OpenProduct $ v1 V.++ V.tail v2
 
-
-type UpdateorInsert (key::Symbol) (t::k) (ts::[(Symbol, k)]) = SetIndex (FindElemP key ts) '(key, t) ts 
-
-updateorInsert :: forall key ts t f. KnownNat (FindElemP key ts) 
-               => Key key -> f t -> OpenProduct f ts -> OpenProduct f (Eval(UpdateorInsert key t ts))
-updateorInsert = undefined
-
 type UpsertElem (key::Symbol) (t::k) (ts::[(Symbol, k)]) =
   FromMaybe ('(key, t) ': ts) 
   =<< Map (LambdaTypf3 SetIndex '(key, t) ts) 
@@ -168,3 +161,23 @@ data LambdaTypf3
   
 type instance Eval (LambdaTypf3 f b c a) =
   Eval (f a b c)
+
+type UpsertLoc (key :: Symbol)  (ts:: [(Symbol, k)]) = 
+    Eval (FindIndex (TyEq key <=< Fst) ts)
+
+class FindUpsertElem (a::Maybe Nat) where 
+  upsertElem :: Maybe Int
+
+instance FindUpsertElem 'Nothing where
+  upsertElem = Nothing  
+
+instance KnownNat n => FindUpsertElem ('Just n) where
+  upsertElem = Just . fromIntegral. natVal $ (Proxy @n)
+
+upsert :: forall key ts t f. FindUpsertElem (UpsertLoc key ts)
+       => Key key -> f t -> OpenProduct f ts -> OpenProduct f (Eval (UpsertElem key t ts))  
+upsert k ft (OpenProduct v)  = 
+  OpenProduct $ case upsertElem @(UpsertLoc key ts) of
+    Nothing -> V.cons (Anyc ft) v
+    Just n -> v V.// [(n, Anyc ft)]
+      
