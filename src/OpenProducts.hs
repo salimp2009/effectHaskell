@@ -147,3 +147,24 @@ delete _ (OpenProduct v) =
           let (v1, v2) = V.splitAt (findElemP @key @ts) v
           in OpenProduct $ v1 V.++ V.tail v2
 
+
+type UpdateorInsert (key::Symbol) (t::k) (ts::[(Symbol, k)]) = SetIndex (FindElemP key ts) '(key, t) ts 
+
+updateorInsert :: forall key ts t f. KnownNat (FindElemP key ts) 
+               => Key key -> f t -> OpenProduct f ts -> OpenProduct f (Eval(UpdateorInsert key t ts))
+updateorInsert = undefined
+
+type UpsertElem (key::Symbol) (t::k) (ts::[(Symbol, k)]) =
+  FromMaybe ('(key, t) ': ts) 
+  =<< Map (LambdaTypf3 SetIndex '(key, t) ts) 
+  =<< FindIndex (TyEq key <=< Fst) ts
+
+data LambdaTypf3
+  :: (a -> b -> c -> Exp r)
+  -> b
+  -> c
+  -> a
+  -> Exp r
+  
+type instance Eval (LambdaTypf3 f b c a) =
+  Eval (f a b c)
