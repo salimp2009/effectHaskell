@@ -68,6 +68,7 @@ data Key (key :: Symbol) = Key
 --   :: OpenProduct
 --        Maybe '[ '("semsoskey", Bool), '("salitoskey ", String)]
 
+
 insert :: Key key -> f t -> OpenProduct f ts -> OpenProduct f ('(key, t) ': ts)
 insert _ ft (OpenProduct v) =  OpenProduct $ V.cons (Anyc ft) v
 
@@ -180,4 +181,37 @@ upsert k ft (OpenProduct v)  =
   OpenProduct $ case upsertElem @(UpsertLoc key ts) of
     Nothing -> V.cons (Anyc ft) v
     Just n -> v V.// [(n, Anyc ft)]
+
+{-
+  Overloaded labels are enabled by turning on
+  -XOverloadedLabels. This extension gives us access to the
+  #foo syntax, which gets desugared as fromLabel @"foo" ::
+  a and asks the type system to solve a IsLabel "foo" a
+  constraint. Therefore, all we need to do is provide an
+  instance of IsLabel for Key.
+  Consider 
+      get (Key @"example") foo;
+  overloaded labels can turn our
+  snippet into;
+      get #example foo.
+-}
+
+instance (key ~ key') => IsLabel key (Key key') where
+  fromLabel = Key
+
+-- ^ use case of previous example after the instance IsLabel
+-- we can use 
+--    #someting data
+-- instead of
+--    Key @"something" data   
+-- >>>result = insert #salitoskey ( Just "didem") nil
+-- >>>:t result
+-- >>>:t insert #semoskey (Just "demir") result
+-- >>>:t insert #semsoskey (Just True) result
+-- result :: OpenProduct Maybe '[ '("salitoskey", String)]
+-- insert #semoskey (Just "demir") result
+--   :: OpenProduct
+--        Maybe '[ '("semoskey", String), '("salitoskey", String)]
+-- insert #semsoskey (Just True) result :: OpenProduct Maybe '[ '("semsoskey", Bool), '("salitoskey", String)]
+
       
