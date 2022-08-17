@@ -182,7 +182,7 @@ upsert k ft (OpenProduct v)  =
     Nothing -> V.cons (Anyc ft) v
     Just n -> v V.// [(n, Anyc ft)]
 
-{-
+{- |
   Overloaded labels are enabled by turning on
   -XOverloadedLabels. This extension gives us access to the
   #foo syntax, which gets desugared as fromLabel @"foo" ::
@@ -195,7 +195,9 @@ upsert k ft (OpenProduct v)  =
   snippet into;
       get #example foo.
 -}
-
+-- added a constraint (key~key') in
+-- instance (key ~ key') => IsLabel key (Key key') where 
+-- to make sure #key is a type Key 
 instance (key ~ key') => IsLabel key (Key key') where
   fromLabel = Key
 
@@ -213,5 +215,4 @@ instance (key ~ key') => IsLabel key (Key key') where
 --   :: OpenProduct
 --        Maybe '[ '("semoskey", String), '("salitoskey", String)]
 -- insert #semsoskey (Just True) result :: OpenProduct Maybe '[ '("semsoskey", Bool), '("salitoskey", String)]
-
       
