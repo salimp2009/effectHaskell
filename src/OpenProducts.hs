@@ -4,7 +4,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
+--{-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedLabels #-}
 {-# LANGUAGE PolyKinds #-}
@@ -14,6 +14,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
 module OpenProducts where
 
 import Data.Kind (Constraint, Type)
@@ -201,6 +202,8 @@ upsert k ft (OpenProduct v)  =
 instance (key ~ key') => IsLabel key (Key key') where
   fromLabel = Key
 
+resultOpenProduct = insert #salitoskey ( Just "didem") nil
+
 -- ^ use case of previous example after the instance IsLabel
 -- we can use 
 --    #someting data
@@ -216,3 +219,34 @@ instance (key ~ key') => IsLabel key (Key key') where
 --        Maybe '[ '("semoskey", String), '("salitoskey", String)]
 -- insert #semsoskey (Just True) result :: OpenProduct Maybe '[ '("semsoskey", Bool), '("salitoskey", String)]
       
+type RequireUniqueKey :: Bool -> Symbol -> k -> [(Symbol, k)] ->  Constraint
+type family RequireUniqueKey result key t ts where
+  RequireUniqueKey 'True key t ts = ()
+  RequireUniqueKey 'False key t ts = 
+    TypeError 
+      ( 'Text "Attempting to add a field name `" 
+        ':<>: 'Text key 
+        ':<>: 'Text "' with type "
+        ':<>: 'ShowType t ':<>: 'Text " to an OpenProduct."
+        ':$$: 'Text "But the OpenProduct already has a field"
+        ':<>: 'Text key
+        ':<>: 'Text "' with type "
+        ':<>: 'ShowType (Lookup key ts)
+        ':$$: 'Text "Consider using update' "
+        ':<>: 'Text "instead of insert"
+      )
+-- | use case;
+-- >>>result = insert3 (Key @"key") (Just True) nil
+-- >>>:t result
+-- >>>insert3 (Key @"key") (Just True) result
+-- Attempting to add a field name `key' with type Bool to an OpenProduct.
+-- But the OpenProduct already has a fieldkey' with type Lookup
+--                                                         "key" '[ '("key", Bool)]
+-- Consider using update' instead of insert
+
+insert3 :: RequireUniqueKey(Eval (UniqueKey key ts)) key t ts 
+        => Key key -> f t -> OpenProduct f ts -> OpenProduct f ('(key, t) ': ts) 
+insert3 _ ft (OpenProduct v) =  OpenProduct $ V.cons (Anyc ft) v   
+
+resultRequireUniqueKey = insert3 #key (Just True) nil
+    
