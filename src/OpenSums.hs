@@ -34,6 +34,8 @@ import qualified GHC.TypeLits as TL
 import GHC.TypeLits hiding (type (+), type (<=), type (>), type (<), type (<=))  
 import Unsafe.Coerce
 
+import CustomTypeErrors (FriendlyFindElem)
+
   
 -- | OpenSum is a container of f t, where t has kind K
 --  f an indexed type, which means it provides a TYPE when given a K
@@ -115,4 +117,26 @@ weaken (UnsafeOpenSum n t) = UnsafeOpenSum (n+1) t
 -- that can provide a b regardless of what’s inside the sum
 match :: forall f ts b. (forall t. f t -> b) -> OpenSum f ts -> b
 match fn (UnsafeOpenSum _ t) = fn t
+
+
+-- | example of unfriendly Error msg for OpenSum
+-- >>>prj foo :: Maybe (Maybe Int)
+-- No instance for (KnownNat Stuck) arising from a use of ‘prj’
+
+-- or get more error at ghci ;
+{- 
+    <interactive>:4:1: error:
+    • No instance for (GHC.TypeNats.KnownNat Fcf.Utils.Stuck)
+        arising from a use of ‘prj’
+    • In the expression: prj foo :: Maybe (Maybe Int)
+      In an equation for ‘it’: it = prj foo :: Maybe (Maybe Int)"
+-}
+foo :: OpenSum Maybe '[Bool, String]
+foo = inj (Just True) :: OpenSum Maybe '[Bool, String]
+ -- | if the proj is refactored as proj2 to use FriendlyFindElem 
+-- instead of Member t ts =>
+prj2 :: forall f t ts. (KnownNat (Fcf.Eval(FriendlyFindElem f t ts)),
+                        Member t ts) 
+    => OpenSum f ts -> Maybe (f t) 
+prj2 = prj
 
