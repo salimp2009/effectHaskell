@@ -243,10 +243,38 @@ type family RequireUniqueKey result key t ts where
 -- But the OpenProduct already has a fieldkey' with type Lookup
 --                                                         "key" '[ '("key", Bool)]
 -- Consider using update' instead of insert
-
 insert3 :: RequireUniqueKey(Eval (UniqueKey key ts)) key t ts 
         => Key key -> f t -> OpenProduct f ts -> OpenProduct f ('(key, t) ': ts) 
 insert3 _ ft (OpenProduct v) =  OpenProduct $ V.cons (Anyc ft) v   
 
 resultRequireUniqueKey = insert3 #key (Just True) nil
     
+type FriendlyFindElemP :: Symbol -> Symbol -> [(Symbol, k)] -> Exp Nat
+type family FriendlyFindElemP funcname key ts where
+  FriendlyFindElemP funcname key ts = 
+    FromMaybe
+      (TypeError
+      ('Text "Attempted to call `"
+       ':<>: 'Text funcname
+       ':<>: 'Text " 'with key `" ':<>: 'Text key
+       ':<>: 'Text " '."
+       ':$$: 'Text "But the OpenProduct has only keys :"
+       ':$$: 'Text " "
+       ':<>: 'ShowType (Eval(Map Fst ts))
+      )
+      ) =<< FindIndex (TyEq key <=< Fst) ts
+
+-- >>>:t update2 #key (Just False) resultRequireUniqueKey   
+-- update2 #key (Just False) resultRequireUniqueKey :: OpenProduct Maybe '[ '("key", Bool)]
+
+-- >>> :t update2 #key2 (Just False) resultRequireUniqueKey
+-- Attempted to call `update 'with key `key2 '.
+-- But the OpenProduct has only keys :
+--  '["key"]
+
+update2 :: forall key ts t f. ( KnownNat (Eval(FriendlyFindElemP "update" key ts)) 
+                              , KnownNat (FindElemP key ts) )    
+      => Key key -> f t -> OpenProduct f ts -> OpenProduct f (Eval(UpdateElem key t ts))
+update2 _ ft  (OpenProduct v) = OpenProduct $ v V.// [(findElemP @key @ts, Anyc ft)] 
+
+
