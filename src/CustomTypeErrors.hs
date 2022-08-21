@@ -94,4 +94,13 @@ type family FriendlyFindElem f t ts where
    find it"
 -} 
 
+-- >>>:kind! ShowList [1, 2, 3]
+-- ShowList [1, 2, 3] :: ErrorMessage
+-- = ('ShowType 1 ':<>: 'Text ", ")
+--   ':<>: (('ShowType 2 ':<>: 'Text ", ") ':<>: 'ShowType 3)
+type family ShowList (ts::[k]) where
+  ShowList '[] = Text ""
+  ShowList (t ': '[]) = ShowType t
+  ShowList (t ': ts) = ShowType t ':<>: Text ", " ':<>: ShowList ts 
+
 

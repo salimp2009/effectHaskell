@@ -24,6 +24,7 @@ import Fcf
 import GHC.OverloadedLabels (IsLabel (..))
 import GHC.TypeLits 
 import Unsafe.Coerce (unsafeCoerce)
+import CustomTypeErrors (ShowList)
 
  -- | a container Any that will
 -- existentialize away its k index.
@@ -138,9 +139,6 @@ update :: forall key ts t f. KnownNat (FindElemP key ts)
        => Key key -> f t -> OpenProduct f ts -> OpenProduct f (Eval(UpdateElem key t ts))
 update _ ft  (OpenProduct v) = OpenProduct $ v V.// [(findElemP @key @ts, Anyc ft)] 
 
---  type DeleteElem (key::Symbol) (ts::[(Symbol, k)]) =
--- --      Filter ((Fcf.<=) (FindElemP key ts) (Fst =< ) )ts
-
 type DeleteElem key = Filter (Not <=< TyEq key <=< Fst) 
 
 delete :: forall key ts f. KnownNat (FindElemP key ts) 
@@ -243,6 +241,7 @@ type family RequireUniqueKey result key t ts where
 -- But the OpenProduct already has a fieldkey' with type Lookup
 --                                                         "key" '[ '("key", Bool)]
 -- Consider using update' instead of insert
+
 insert3 :: RequireUniqueKey(Eval (UniqueKey key ts)) key t ts 
         => Key key -> f t -> OpenProduct f ts -> OpenProduct f ('(key, t) ': ts) 
 insert3 _ ft (OpenProduct v) =  OpenProduct $ V.cons (Anyc ft) v   
@@ -260,7 +259,7 @@ type family FriendlyFindElemP funcname key ts where
        ':<>: 'Text " '."
        ':$$: 'Text "But the OpenProduct has only keys :"
        ':$$: 'Text " "
-       ':<>: 'ShowType (Eval(Map Fst ts))
+       ':<>: ShowList (Eval(Map Fst ts))
       )
       ) =<< FindIndex (TyEq key <=< Fst) ts
 
@@ -270,11 +269,25 @@ type family FriendlyFindElemP funcname key ts where
 -- >>> :t update2 #key2 (Just False) resultRequireUniqueKey
 -- Attempted to call `update 'with key `key2 '.
 -- But the OpenProduct has only keys :
---  '["key"]
-
+--  "key"
 update2 :: forall key ts t f. ( KnownNat (Eval(FriendlyFindElemP "update" key ts)) 
                               , KnownNat (FindElemP key ts) )    
       => Key key -> f t -> OpenProduct f ts -> OpenProduct f (Eval(UpdateElem key t ts))
 update2 _ ft  (OpenProduct v) = OpenProduct $ v V.// [(findElemP @key @ts, Anyc ft)] 
 
 
+-- >>>:t resultRequireUniqueKey
+-- >>>:t delete2 #key resultRequireUniqueKey   
+-- resultRequireUniqueKey :: OpenProduct Maybe '[ '("key", Bool)]
+-- delete2 #key resultRequireUniqueKey :: OpenProduct Maybe '[]
+
+-- >>>:t delete2 #key1 resultRequireUniqueKey 
+-- Attempted to call `delete 'with key `key1 '.
+-- But the OpenProduct has only keys :
+--  "key"
+delete2 :: forall key ts f. ( KnownNat (Eval(FriendlyFindElemP "delete" key ts)) 
+                            , KnownNat (FindElemP key ts) )   
+       => Key key -> OpenProduct f ts -> OpenProduct f (Eval(DeleteElem key ts))
+delete2 _ (OpenProduct v) =
+          let (v1, v2) = V.splitAt (findElemP @key @ts) v
+          in OpenProduct $ v1 V.++ V.tail v2
