@@ -103,4 +103,9 @@ type family ShowList (ts::[k]) where
   ShowList (t ': '[]) = ShowType t
   ShowList (t ': ts) = ShowType t ':<>: Text ", " ':<>: ShowList ts 
 
+-- | using Type Error in a function as a constraint will not compile   
+-- since GHC will evaluate all the constraints therefore immediately gives error
+-- foo :: forall a. (TypeError (Text "testing type error")) => a -> Bool  
+-- foo _ = True
+
 

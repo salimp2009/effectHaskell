@@ -29,7 +29,7 @@ instance GEq U1 where
     geq U1 U1 = True
 
   
--- | V1 is the type thast cannot be constructed
+-- | V1 is the type that cannot be constructed
 -- V1 is generic rep of Void ; which has no inhabitants
 -- since it cant be constructed, it cant be tested therefore 
 -- there is no harm to call True

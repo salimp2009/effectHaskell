@@ -59,6 +59,7 @@ library
       HeterogeneousLists
       HigherKindTypes
       InductiveDataStructs
+      JsonSchemaGenericMetaData
       LetBindings
       Lib
       LiftingPureFunctions
