@@ -29,6 +29,10 @@ dependencies:
 - text
 - first-class-families
 - vector
+- aeson-pretty
+- kan-extensions
+- transformers
+- bytestring
 
 library:
   source-dirs: src
