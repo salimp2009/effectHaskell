@@ -44,6 +44,17 @@ import qualified Data.ByteString.Lazy.Char8 as LC8 (putStrLn)
     , "required": ["name" , "age", "permissions"]
     }
 -}
+
+-- >>>testpp  
+-- Object (fromList [("myproperty",Object (fromList [("type",String "boolean")]))])
+testpp :: Value
+testpp = makePropertObj @"myproperty" $ makeTypeObject @Bool
+
+-- | pretty print for testing
+prettyJSON :: Value -> IO ()
+prettyJSON = LC8.putStrLn . AEP.encodePretty @Value 
+          --(makePropertObj @"myproperty" $ makeTypeObject @Bool)
+
 data PersonN = PersonN
   { name  :: String
   , age   :: Int
@@ -64,15 +75,53 @@ instance  (KnownSymbol nm, KnownSymbol (ToJSONType a) )
       pure . makePropertObj @nm $ makeTypeObject @a
   {-# INLINE gschema #-} 
   
--- >>>testpp  
--- Object (fromList [("myproperty",Object (fromList [("type",String "boolean")]))])
-testpp :: Value
-testpp = makePropertObj @"myproperty" $ makeTypeObject @Bool
+  
+-- | merging product of fields
+instance (GSchema f , GSchema g) => GSchema (f :*: g) where
+  gschema = mergeObjects <$> gschema @f <*> gschema @g
+  {-# INLINE gschema #-}
+  
+-- | JSON Schema does give error message for sum types (not supported)
+instance (TypeError ('Err.Text "JSON Schema does not support sum types")) 
+          => GSchema (f :+: g) where
+          gschema = error "JSON Schema does not support sum types"        
+          {-# INLINE gschema #-}
+-- | the value for data constructors will be reached 
+-- thru M1 C - metadata for data constructors
+instance GSchema a => GSchema (M1 C _1 a) where
+    gschema = gschema @a
+    {-# INLINE gschema #-}
 
--- | pretty print for testing
-prettyJSON :: Value -> IO ()
-prettyJSON = LC8.putStrLn . AEP.encodePretty @Value 
-          --(makePropertObj @"myproperty" $ makeTypeObject @Bool)
+-- | instance for M1 D type constructor is needed
+-- to access the type's name and all of its properties
+instance (GSchema a, KnownSymbol nm) 
+      => GSchema (M1 D ('MetaData nm _1 _2 _3) a) where
+    gschema = do
+      sch <- gschema @a
+      pure $ object 
+        [ "title"      .= (String . pack . symbolVal $ Proxy @nm)
+        , "type"       .= String "object"
+        , "properties" .= sch
+        ]
+    {-# INLINE gschema #-}
+
+schema :: forall a. (GSchema (Rep a), Generic a) => Value
+schema = 
+    let (v, reqs) = runWriter $ gschema @(Rep a)
+    in mergeObjects v $ object
+          [ "required" .= Array (fromList $ String <$> reqs) ]
+{-# INLINE schema #-}
+
+-- | instances for optional values, lists, strings
+-- need to use overlapping instance for different base of M1...K1 to cover those
+-- first case Maybe a
+
+instance {-# OVERLAPPING #-} 
+      (KnownSymbol nm, KnownSymbol (ToJSONType a))
+          => GSchema (M1 S ('MetaSel ('Just nm) _1 _2 _3) (K1 _4 (Maybe a))) where
+      gschema = pure . makePropertObj @nm $ makeTypeObject @a
+      {-# INLINE gschema #-}
+
 
 -- | Value is a JSON value as a Haskell value from aeson package
 {-
@@ -170,6 +219,13 @@ makeTypeObject = object ["type" .= String (pack . symbolVal $ Proxy @(ToJSONType
 -- WAS WAS Object (fromList [("age",Object (fromList [("type",String "integer")]))])
 -- WAS NOW Object (fromList [("age",Object (fromList [("type",String "string")]))])
 -- NOW Object (fromList [("age",Object (fromList [("type",String "string")]))])
+
+-- -> prettyJSON $ makePropertObj @"age" $ makeTypeObject @String
+-- {
+--     "age": {
+--         "type": "string"
+--     }
+-- }
 makePropertObj :: forall name . KnownSymbol name => Value -> Value
 makePropertObj v = object [fromText (pack (symbolVal $ Proxy @name)) .= v ]
 

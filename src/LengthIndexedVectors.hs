@@ -22,7 +22,7 @@ type Vec n a = VectorID n a
 type VectorID :: Nat -> Type -> Type  
 data VectorID n a where
   VNil  :: VectorID 'Zero a
-  -- VCons :: a -> VectorID n a -> VectorID ('Succ n) a   -- Original implementation
+  -- VCons :: a -> VectorID n a -> VectorID ('Succ n) a   -- Original implementation from "Production Haskell"
   (:>) ::  a -> VectorID n a -> VectorID ('Succ n) a      -- << added later as a fancy constructor :)
 infixr 5 :>
 
@@ -58,11 +58,21 @@ type family Add (x::Nat) (y::Nat) where
 -- >>> andVec (True :> True :> VNil) 
 -- True
 andVec :: Vec n Bool -> Bool
-andVec VNil = True
+andVec VNil      = True
 andVec (b :> bs) = b && andVec bs
 
 -- >>>headVec $ append (1 :> 2 :> VNil) (3 :> 4 :> 5 :> VNil) 
 -- 1
 headVec :: Vec ('Succ n) a -> a
 headVec (x :> _) = x
- 
+
+-- | similar init in Data.List drops the last elem in the list
+-- only accepts non-empty list as impplied by type annotation
+initVec :: Vec (Succ n) a -> Vec n a 
+initVec (_ :> VNil)        = VNil
+initVec (x :> xs@(_ :> _)) = x :> initVec xs
+
+mapVec :: (a -> b) -> Vec n a -> Vec n b
+mapVec _ VNil      = VNil
+mapVec f (x :> xs) = f x :> mapVec f xs
+
