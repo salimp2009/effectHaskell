@@ -114,13 +114,40 @@ schema =
 
 -- | instances for optional values, lists, strings
 -- need to use overlapping instance for different base of M1...K1 to cover those
--- first case Maybe a
 
+-- | first overlapping case; Maybe a
 instance {-# OVERLAPPING #-} 
       (KnownSymbol nm, KnownSymbol (ToJSONType a))
           => GSchema (M1 S ('MetaSel ('Just nm) _1 _2 _3) (K1 _4 (Maybe a))) where
       gschema = pure . makePropertObj @nm $ makeTypeObject @a
       {-# INLINE gschema #-}
+
+-- | Lists are serialized to Array in JSON Schema; 
+-- their type is "array" and has extra property "items" and has a "type" property
+-- { "type": "array", "items": { "type": "boolean" }}
+-- need an Overlapping instance for K1 _ [a]
+instance {-# OVERLAPPING #-} 
+      (KnownSymbol nm, KnownSymbol (ToJSONType [a]), KnownSymbol (ToJSONType a) )
+          => GSchema (M1 S ('MetaSel ('Just nm) _1 _2 _3) (K1 _4 [a])) where
+      gschema = do
+        emitRequired @nm
+        let innerType = object 
+                          [ "items" .= makeTypeObject @a
+                          ]
+        pure . makePropertObj @nm 
+             . mergeObjects innerType 
+             $ makeTypeObject @[a] 
+      {-# INLINE gschema #-}
+
+-- | special overlapping case needed for Strings since they are [Char]
+-- it will be treated as an array unless there is a specialization
+-- correct instance would be same as the default 'K1 _ a' case
+instance {-# OVERLAPPING #-} KnownSymbol nm
+    => GSchema (M1 S ('MetaSel ('Just nm) _1 _2 _3) (K1 _4 String)) where
+  gschema = do
+    emitRequired @nm
+    pure . makePropertObj @nm $ makeTypeObject @String
+  {-# INLINE gschema #-}
 
 
 -- | Value is a JSON value as a Haskell value from aeson package
@@ -263,3 +290,42 @@ makePropertObj v = object [fromText (pack (symbolVal $ Proxy @name)) .= v ]
 --                       'NoSourceStrictness
 --                       'DecidedLazy)
 --                    (Rec0 [Bool]))))
+
+-- | Finally completed; (pasted from ghci)
+{- 
+  λ >> prettyJSON  (schema @PersonN)
+{
+    "properties": {
+        "age": {
+            "type": "integer"
+        },
+        "name": {
+            "type": "string"
+        },
+        "permissions": {
+            "items": {
+                "type": "boolean"
+            },
+            "type": "array"
+        },
+        "phone": {
+            "type": "string"
+        }
+    },
+    "required": [
+        "name",
+        "age",
+        "permissions"
+    ],
+    "title": "PersonN",
+    "type": "object"
+}
+
+
+
+
+
+
+
+
+-}
