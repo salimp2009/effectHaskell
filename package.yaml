@@ -33,6 +33,8 @@ dependencies:
 - kan-extensions
 - transformers
 - bytestring
+- inspection-testing
+- hspec
 
 library:
   source-dirs: src
@@ -61,3 +63,4 @@ tests:
     dependencies:
     - monadTypeClass
     - hspec
+    - inspection-testing

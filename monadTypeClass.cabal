@@ -60,6 +60,7 @@ library
       HigherKindTypes
       InductiveDataStructs
       JsonSchemaGenericMetaData
+      KanExtensionsExamples
       LengthIndexedVectors
       LetBindings
       Lib
@@ -104,6 +105,8 @@ library
     , bytestring
     , containers
     , first-class-families
+    , hspec
+    , inspection-testing
     , kan-extensions
     , lens
     , lens-aeson
@@ -127,6 +130,8 @@ executable monadTypeClass-exe
     , bytestring
     , containers
     , first-class-families
+    , hspec
+    , inspection-testing
     , kan-extensions
     , lens
     , lens-aeson
@@ -141,6 +146,7 @@ test-suite monadTypeClass-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      InpsectionTesting
       Paths_monadTypeClass
   hs-source-dirs:
       test
@@ -153,6 +159,7 @@ test-suite monadTypeClass-test
     , containers
     , first-class-families
     , hspec
+    , inspection-testing
     , kan-extensions
     , lens
     , lens-aeson
