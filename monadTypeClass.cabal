@@ -58,6 +58,7 @@ library
       GreetingFunction
       HeterogeneousLists
       HigherKindTypes
+      IndexedMonadsExample
       InductiveDataStructs
       JsonSchemaGenericMetaData
       KanExtensionsExamples
@@ -65,6 +66,7 @@ library
       LetBindings
       Lib
       LiftingPureFunctions
+      LinearAllocations
       ListComprehend
       ListCreate
       MonadBasics
@@ -104,8 +106,10 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
+    , do-notation
     , first-class-families
     , hspec
+    , indexed
     , inspection-testing
     , kan-extensions
     , lens
@@ -129,8 +133,10 @@ executable monadTypeClass-exe
     , base >=4.7 && <5
     , bytestring
     , containers
+    , do-notation
     , first-class-families
     , hspec
+    , indexed
     , inspection-testing
     , kan-extensions
     , lens
@@ -157,8 +163,10 @@ test-suite monadTypeClass-test
     , base >=4.7 && <5
     , bytestring
     , containers
+    , do-notation
     , first-class-families
     , hspec
+    , indexed
     , inspection-testing
     , kan-extensions
     , lens

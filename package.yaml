@@ -35,6 +35,8 @@ dependencies:
 - bytestring
 - inspection-testing
 - hspec
+- indexed
+- do-notation
 
 library:
   source-dirs: src
