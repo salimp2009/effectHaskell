@@ -1,4 +1,3 @@
-
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE PolyKinds #-}
@@ -60,5 +59,13 @@ instance Applicative m => IxPointed (Ix m) where
 instance Applicative m => IxApplicative (Ix m) where
   iap :: forall i j k a b . Ix m i j (a -> b) -> Ix m j k a -> Ix m i k b
   iap = coerce $ (<*>) @m @a @b
+
+instance Monad m => IxMonad (Ix m) where
+  -- ibind :: (a -> m j k b) -> m i j a -> m i k b
+  ibind :: forall i j k a b 
+          . (a -> Ix m j k b) 
+        ->  Ix m i j a 
+        ->  Ix m i k b
+  ibind = coerce $ (=<<) @m @a @b        
 
        
