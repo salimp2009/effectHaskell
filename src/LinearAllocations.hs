@@ -5,6 +5,8 @@
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+
+
 module LinearAllocations where
 
 import Control.Monad.Indexed
@@ -17,6 +19,7 @@ import Language.Haskell.DoNotation
 import Prelude hiding (Monad (..), pure)
 import qualified System.IO as SIO
 import System.IO hiding (openFile, Handle)
+import Unsafe.Coerce (unsafeCoerce)
 
 
 -- | goal is to use IxMonad which allows 
@@ -58,5 +61,36 @@ openFile :: FilePath
 openFile = coerce SIO.openFile
                      
 newtype Handle s key = Handle
-    { unsafeGetHandle :: SIO.Handle}                     
+    { unsafeGetHandle :: SIO.Handle}  
+    
+type IsOpen (key :: k) (ts::[k])  =
+    IsJust =<< Find (TyEq key) ts 
+    
+type Close (key :: k) (ts :: [k]) =
+      Filter (Not <=< TyEq key) ts  
+      
+closeFile :: Eval (IsOpen key open) ~ 'True
+          => Handle s key
+          -> Linear s ('LinearState next open) 
+                      ('LinearState next (Eval(Close key open)))
+                      ()
+closeFile = coerce SIO.hClose
+
+
+  
+-- runLinear :: (forall s. Linear s ('LinearState 0'[] ) 
+--                                  ('LinearState n '[] ) a 
+
+--              )
+--           -> IO a
+-- runLinear = coerce    
+
+-- | for testing purpose
+etcPswd :: forall {k} {s :: k} {next :: Nat} {open :: [Nat]}
+          . Linear 
+              s
+              ('LinearState next open)
+              ('LinearState (next TL.+ 1) (next : open))
+              (Handle s next)
+etcPswd = openFile "etcpasswd" ReadMode
 
