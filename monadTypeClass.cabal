@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      AdHOCImplemntSingleton
       ApplicativeBasic
       ApplicativeGoodies
       BasicTypes
@@ -105,6 +106,7 @@ library
     , aeson-pretty
     , base >=4.7 && <5
     , bytestring
+    , constraints
     , containers
     , do-notation
     , first-class-families
@@ -132,6 +134,7 @@ executable monadTypeClass-exe
     , aeson-pretty
     , base >=4.7 && <5
     , bytestring
+    , constraints
     , containers
     , do-notation
     , first-class-families
@@ -162,6 +165,7 @@ test-suite monadTypeClass-test
     , aeson-pretty
     , base >=4.7 && <5
     , bytestring
+    , constraints
     , containers
     , do-notation
     , first-class-families

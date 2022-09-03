@@ -37,6 +37,8 @@ dependencies:
 - hspec
 - indexed
 - do-notation
+- constraints
+
 
 library:
   source-dirs: src
