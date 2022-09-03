@@ -5,6 +5,8 @@
 {-# LANGUAGE RebindableSyntax #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 
 module LinearAllocations where
@@ -19,7 +21,8 @@ import Language.Haskell.DoNotation
 import Prelude hiding (Monad (..), pure)
 import qualified System.IO as SIO
 import System.IO hiding (openFile, Handle)
-import Unsafe.Coerce (unsafeCoerce)
+--import Unsafe.Coerce (unsafeCoerce)
+--import Data.Functor.Identity (Identity(..))
 
 
 -- | goal is to use IxMonad which allows 
@@ -50,44 +53,78 @@ data LinearState = LinearState
   meaning file handles can leak out of it"
 -}
 newtype Linear s (i::LinearState) (j::LinearState) a = Linear
-        { unsafeLinear :: Ix IO i j a}
+        { unsafeRunLinear :: Ix IO i j a}
         deriving (IxFunctor, IxPointed, IxApplicative, IxMonad)
 
-openFile :: FilePath 
-         -> IOMode 
-         -> Linear s ('LinearState next open) 
+openFile :: FilePath
+         -> IOMode
+         -> Linear s ('LinearState next open)
                      ('LinearState (next TL.+ 1) (next ': open))
-                     (Handle s next)    
+                     (Handle s next)
 openFile = coerce SIO.openFile
-                     
+
 newtype Handle s key = Handle
-    { unsafeGetHandle :: SIO.Handle}  
-    
+    { unsafeGetHandle :: SIO.Handle}
+
 type IsOpen (key :: k) (ts::[k])  =
-    IsJust =<< Find (TyEq key) ts 
-    
+    IsJust =<< Find (TyEq key) ts
+
 type Close (key :: k) (ts :: [k]) =
-      Filter (Not <=< TyEq key) ts  
-      
+      Filter (Not <=< TyEq key) ts
+
 closeFile :: Eval (IsOpen key open) ~ 'True
           => Handle s key
-          -> Linear s ('LinearState next open) 
+          -> Linear s ('LinearState next open)
                       ('LinearState next (Eval(Close key open)))
                       ()
 closeFile = coerce SIO.hClose
 
+-- >>>:t runLinear ( etcPswd >>= closeFile ) 
+-- runLinear ( etcPswd >>= closeFile ) :: IO ()
 
-  
--- runLinear :: (forall s. Linear s ('LinearState 0'[] ) 
---                                  ('LinearState n '[] ) a 
 
---              )
---           -> IO a
--- runLinear = coerce    
+-- | if the file is not closed then we a get an error;
+-- >>>:t runLinear etcPswd
+-- Couldn't match type: '[0]
+--                with: '[]
+-- Expected: Linear s ('LinearState 0 '[]) ('LinearState 1 '[]) a
+--   Actual: Linear
+--             s ('LinearState 0 '[]) ('LinearState (0 + 1) '[0]) (Handle s 0)
+
+
+-- | if we try to close file more than once 
+-- >>>:t runLinear (etcPswd >>= \f -> closeFile f >> closeFile f)
+-- Couldn't match type ‘'False’ with ‘'True’
+--   arising from a use of ‘closeFile’
+
+-- >>>:t runLinear (etcPswd >>= \f -> closeFile f >> pure f) 
+-- Couldn't match type ‘a’ with ‘Handle s 0’
+-- Expected: Linear s ('LinearState 0 '[]) ('LinearState 1 '[]) a
+--   Actual: Linear
+--             s ('LinearState 0 '[]) ('LinearState 1 '[]) (Handle s 0)
+--   because type variable ‘s’ would escape its scope
+-- This (rigid, skolem) type variable is bound by
+--   a type expected by the context:
+--     forall (s :: k0).
+--     Linear s ('LinearState 0 '[]) ('LinearState 1 '[]) a
+--   at <interactive>:1:11-51
+
+-- | original version was existentializing Handle to avoid leaking
+-- coerce did not play well and gave error; this way is not safe
+-- only using testing the rest of the implementation; it works
+-- Note: Will open an issue at books repo
+-- Note: there is a solution to use an explicit input parameter
+-- then coerce works
+runLinear :: (forall s.
+              Linear s ('LinearState 0 '[] )
+                       ('LinearState n '[] ) a
+             )
+          -> IO a
+runLinear n = coerce n
 
 -- | for testing purpose
 etcPswd :: forall {k} {s :: k} {next :: Nat} {open :: [Nat]}
-          . Linear 
+          . Linear
               s
               ('LinearState next open)
               ('LinearState (next TL.+ 1) (next : open))
