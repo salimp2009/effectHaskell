@@ -7,6 +7,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeFamilyDependencies #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module AdHOCImplemntSingleton where
 
@@ -32,13 +33,13 @@ fromSBool SFalse = False
 data SomeSBool where
   SomeSBool :: SBool b -> SomeSBool
 
--- >>>withSomeBool (SomeSBool STrue) fromSBool  
+-- >>>withSomeSBool (SomeSBool STrue) fromSBool  
 -- True
 
--- >>>withSomeBool (toSBool False) fromSBool
+-- >>>withSomeSBool (toSBool False) fromSBool
 -- False
-withSomeBool :: SomeSBool -> (forall (b::Bool). SBool b -> r) -> r
-withSomeBool (SomeSBool sb)  f = f sb
+withSomeSBool :: SomeSBool -> (forall (b::Bool). SBool b -> r) -> r
+withSomeSBool (SomeSBool sb)  f = f sb
 
 toSBool :: Bool -> SomeSBool
 toSBool True = SomeSBool STrue
@@ -73,4 +74,49 @@ instance MonadLogging 'True where
     (a, w) <- runWriterT m
     for_ w putStrLn
     pure a
+
+program :: MonadLogging b => LoggingMonad b ()
+program = do
+    logMsg "hello world"  
+    pure ()
+
+-- | this version does not gives error;
+-- "No instance for (MonadLogging b)
+-- arising from a use of ‘runLogging’"
+-- the reason for as explained in the book;
+{- 
+  "The problem is that typeclasses are implemented in
+  GHC as implicitly passed variables. By 3 , GHC doesn’t
+  know the type of b, and thus can’t find the appropriate
+  MonadLogging dictionary—even though MonadLogging is
+  total and theoretically GHC should be able to determine
+  this"
+-}
+-- useprogram :: IO ()
+-- useprogram = do
+--   bool  <- read @Bool <$> getLine    
+--   withSomeSBool (toSBool bool) $ 
+--     \(_ ::SBool b) -> 
+--       runLogging @b program
+
+-- | in order to help GHC deduce right instance of
+-- Monadlogging b, we can help writing a function
+-- that can deliver dictorionaries for any constraint
+-- that is total over Bool
+
+-- | dict is a function that requires both constraints to be satisfied 
+-- then calls right instance with a given type from Singleton SBool
+dict :: (c 'True, c 'False) => SBool b -> Dict (c b)
+dict STrue  = Dict
+dict SFalse = Dict
+
+-- | rewriting useprogram using dict function
+-- use case;
+-- -> useprogram True
+-- -> hello world
+useprogram :: Bool -> IO ()
+useprogram bool = do
+  withSomeSBool (toSBool bool) $ \(sb :: SBool b) ->
+    case dict @MonadLogging sb of
+      Dict -> runLogging @b program
 
