@@ -55,4 +55,35 @@ class SingKind k where
     to Demote, allowing GHC to infer k from Demote k. "
   -}
 
+data instance Sing (a::Bool) where
+  STrue  :: Sing 'True
+  SFalse :: Sing 'False
+
+-- >>>withSomeSing (toSing True) fromSing 
+-- True
+
+-- >>>withSomeSing (toSing False) fromSing 
+-- False
+instance SingKind Bool where
+  type Demote Bool = Bool
+  toSing True  = SomeSing STrue
+  toSing False = SomeSing SFalse
+  fromSing STrue  = True
+  fromSing SFalse = False
+
+-- | Singletons are unique inhabitant of their types
+-- and at the term level they are isomorphic with ()
+-- There we can get a () very easily ??
+class SingI (a::k) where
+  sing :: Sing a
+
+instance SingI 'True where
+  sing = STrue
+  
+instance SingI 'False where
+  sing = SFalse  
+  
+
+
+
   
