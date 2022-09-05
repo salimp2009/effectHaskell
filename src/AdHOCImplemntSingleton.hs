@@ -80,13 +80,13 @@ program = do
     logMsg "hello world"  
     pure ()
 
--- | this version does not gives error;
+-- | this version does not work; it gives error;
 -- "No instance for (MonadLogging b)
 -- arising from a use of ‘runLogging’"
 -- the reason for as explained in the book;
 {- 
   "The problem is that typeclasses are implemented in
-  GHC as implicitly passed variables. By 3 , GHC doesn’t
+  GHC as implicitly passed variables. By the last line , GHC doesn’t
   know the type of b, and thus can’t find the appropriate
   MonadLogging dictionary—even though MonadLogging is
   total and theoretically GHC should be able to determine
@@ -94,7 +94,7 @@ program = do
 -}
 -- useprogram :: IO ()
 -- useprogram = do
---   bool  <- read @Bool <$> getLine    
+--   bool  <- read <$> getLine    
 --   withSomeSBool (toSBool bool) $ 
 --     \(_ ::SBool b) -> 
 --       runLogging @b program
