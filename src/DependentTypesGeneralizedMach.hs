@@ -64,6 +64,7 @@ data instance Sing (a::Bool) where
 
 -- >>>withSomeSing (toSing False) fromSing 
 -- False
+
 instance SingKind Bool where
   type Demote Bool = Bool
   toSing True  = SomeSing STrue
@@ -81,7 +82,25 @@ instance SingI 'True where
   sing = STrue
   
 instance SingI 'False where
-  sing = SFalse  
+  sing = SFalse
+  
+data instance Sing (a:: Maybe k) where
+  SJust     :: Sing (a::k) -> Sing ('Just a)
+  SNothing  :: Sing 'Nothing
+
+instance SingI a => SingI ('Just a) where
+  sing = SJust sing
+
+instance SingI 'Nothing where
+  sing = SNothing  
+
+instance (k ~ Demote k , SingKind k ) => SingKind (Maybe k) where  
+  type Demote (Maybe k) = Maybe k
+  toSing (Just a) = withSomeSing (toSing a) $ SomeSing . SJust
+  toSing Nothing  = SomeSing SNothing
+  fromSing (SJust a) = Just $ fromSing a
+  fromSing SNothing  = Nothing
+
   
 
 
