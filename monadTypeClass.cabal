@@ -83,6 +83,7 @@ library
       ReverseList
       RolesCoerceExamples
       RolesExamples
+      SingletonsDependentPairs
       StateContext
       SumTypes
       TermsTypesKinds
@@ -118,6 +119,9 @@ library
     , lens
     , lens-aeson
     , mtl
+    , singletons
+    , singletons-base
+    , singletons-th
     , text
     , transformers
     , vector
@@ -129,7 +133,7 @@ executable monadTypeClass-exe
       Paths_monadTypeClass
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wincomplete-patterns
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , aeson-pretty
@@ -147,6 +151,9 @@ executable monadTypeClass-exe
     , lens-aeson
     , monadTypeClass
     , mtl
+    , singletons
+    , singletons-base
+    , singletons-th
     , text
     , transformers
     , vector
@@ -160,7 +167,7 @@ test-suite monadTypeClass-test
       Paths_monadTypeClass
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wincomplete-patterns
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       aeson
     , aeson-pretty
@@ -178,6 +185,9 @@ test-suite monadTypeClass-test
     , lens-aeson
     , monadTypeClass
     , mtl
+    , singletons
+    , singletons-base
+    , singletons-th
     , text
     , transformers
     , vector

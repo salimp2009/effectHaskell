@@ -38,6 +38,9 @@ dependencies:
 - indexed
 - do-notation
 - constraints
+- singletons
+- singletons-th
+- singletons-base
 
 
 library:
@@ -51,7 +54,7 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    - -Wincomplete-patterns
+   
     dependencies: 
     - monadTypeClass
 
@@ -63,7 +66,7 @@ tests:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
-    - -Wincomplete-patterns
+   
     dependencies:
     - monadTypeClass
     - hspec

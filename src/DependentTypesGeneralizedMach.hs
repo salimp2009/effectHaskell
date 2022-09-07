@@ -1,9 +1,9 @@
-{-# LANGUAGE DataKinds #-}
+--{-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE GADTs #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE PolyKinds #-}
+--{-# LANGUAGE KindSignatures #-}
+--{-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
@@ -14,7 +14,7 @@
 module DependentTypesGeneralizedMach where
 
 import Data.Kind (Type)
-import Data.Typeable
+import Data.Typeable 
 import Data.Void
 import Unsafe.Coerce (unsafeCoerce)
 
@@ -101,8 +101,69 @@ instance (k ~ Demote k , SingKind k ) => SingKind (Maybe k) where
   fromSing (SJust a) = Just $ fromSing a
   fromSing SNothing  = Nothing
 
-  
+data instance Sing (a ::[k]) where
+  SNil  :: Sing '[]
+  SCons :: Sing (h ::k) -> Sing (t::[k]) -> Sing (h ': t)
 
+instance SingI '[] where
+  sing = SNil
+
+instance (SingI h, SingI t) => SingI (h ': t)  where
+ sing = SCons sing sing 
+
+instance (k ~ Demote k, SingKind k) => SingKind [k] where
+  type Demote [k] = [k]
+  toSing []  = SomeSing SNil
+  toSing (h : t) = withSomeSing (toSing h) $ \sh ->
+                   withSomeSing (toSing t) $ \st ->
+                    SomeSing $ SCons sh st 
+  fromSing (SCons h t) =  fromSing h : fromSing t
+  fromSing SNil = []
+
+-- | these are generated automatically with singleton package
+-- using Template Haskell singletons [d| ...|] function 
+-- together with the above Sing, SingI, SomeSing..definitions
+-- SDecide is nominal equality for singletons
+-- checks if two Sing s are equal  
+class SDecide k where
+      (%~) :: Sing (a :: k)
+            -> Sing (b :: k)
+            -> Decision (a :~: b)
+
+-- | definition of :~: from Typeable            
+-- data a :~: b where
+--   Refl :: a :~: a 
+
+-- The type a -> Void at 1 is the Curry–Howard
+-- encoding of logical false—because Void is uninhabited, it
+-- can’t be constructed. Thus, a function that produces Void
+-- must not be callable
+data Decision a
+    = Proved a
+    | Disproved (a -> Void)
+
+-- | free instance of SDecide at term level 
+-- which can also be used with singleton  package    
+-- since singleton package does not have these 
+instance (Eq (Demote k), SingKind k) => SDecide k where
+      a %~ b =
+        if fromSing a == fromSing b
+           then Proved $ unsafeCoerce Refl
+           else Disproved $ const undefined
+
+-- | type level instance of SDecide
+instance SDecide Bool where
+  STrue %~ STrue    = Proved Refl
+  SFalse %~ SFalse  = Proved Refl
+  _ %~ _ = Disproved $ const undefined
+   
+instance SDecide k => SDecide (Maybe k) where
+  SJust a %~ SJust b    =  
+    case a %~ b of
+      Proved Refl  -> Proved Refl
+      Disproved _  -> Disproved $ const undefined
+  SNothing %~ SNothing  = Proved Refl 
+  _ %~ _ = Disproved $ const undefined 
 
 
   
