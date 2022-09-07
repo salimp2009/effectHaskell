@@ -11,6 +11,9 @@
 {-# LANGUAGE TypeInType #-}
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE UndecidableInstances #-}
+--{-# LANGUAGE PatternSynonyms #-}
+--{-# LANGUAGE ViewPatterns #-}
+
 module DependentTypesGeneralizedMach where
 
 import Data.Kind (Type)

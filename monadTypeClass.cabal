@@ -83,6 +83,7 @@ library
       ReverseList
       RolesCoerceExamples
       RolesExamples
+      SigmaTypesDependentPairs
       SingletonsDependentPairs
       StateContext
       SumTypes
