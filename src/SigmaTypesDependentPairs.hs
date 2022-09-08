@@ -93,10 +93,8 @@ fromSigma (Sigma s f) =
 -- f is K -> Type
 -- since Sing has a kind K the f will the type that Constraint needs
 
--- | Original did not work add
--- changing from forall k to forall {k} it worked 
---type Dict1 :: forall k. (Type -> Constraint) (k -> Type) -> Constraint
-type Dict1 :: forall {k}. (Type -> Constraint) -> (k -> Type) -> Constraint
+
+type Dict1 :: forall k. (Type -> Constraint) -> (k -> Type) -> Constraint
 class Dict1  c f where
   dict1 :: Sing a -> Dict (c (f a))
 
@@ -106,6 +104,33 @@ instance (Dict1 Eq (f :: k ->Type)
   Sigma sa fa == Sigma sb fb =
       case sa %~ sb of
         Proved Refl ->
-          case dict1 @Eq @f sa of
+          case dict1 @_ @Eq @f sa of
             Dict -> fa  == fb
         Disproved _  -> False
+
+instance (Dict1 Show (f::k ->Type)
+         , Show (Demote k )
+         , SingKind k) => Show (Sigma f) where
+  show (Sigma sa fa) = 
+    case dict1 @_ @Show @f sa of
+      Dict -> mconcat 
+            ["Sigma"
+            , show $ fromSing sa
+            , " ("
+            , show fa
+            , ")"
+            ]
+
+instance ( Dict1 Ord(f ::k -> Type)
+         , Dict1 Eq f
+         , SDecide k  
+         , SingKind k
+        , Ord (Demote k) )            
+        => Ord (Sigma f) where
+  compare (Sigma sa fa) (Sigma sb fb) =
+    case sa %~ sb of 
+      Proved Refl -> 
+          case dict1 @_ @Ord @f sa of
+            Dict -> compare fa fb
+      Disproved _ -> 
+            compare (fromSing sa) (fromSing sb)
