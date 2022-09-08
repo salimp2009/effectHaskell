@@ -12,6 +12,11 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeInType #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE StandaloneKindSignatures #-}
+
+
 
 module SigmaTypesDependentPairs where
 
@@ -53,10 +58,54 @@ toSigma fa  = Sigma sing fa
 --   :: forall {k} {a :: k} {f :: k -> *}.
 --      (SingI a, SDecide k) =>
 --      Sigma f -> Maybe (f a)
+-- | casting a Sigma f back to f a
+{- 
+  "By pattern matching on Refl at (case expression) , GHC learns 
+  that a ~ t, where t is the “existential” type inside of the Sigma.
+  With this equality in hand, it’s clearly safe to return the 
+  f t when asking for f a.
+"
+
+-}
 fromSigma :: forall k (a::k) (f :: k -> Type)
            . (SingI a, SDecide k)
-          => Sigma f -> Maybe (f a) 
+          => Sigma f -> Maybe (f a)
 fromSigma (Sigma s f) =
   case s %~ sing @a of
     Proved Refl  -> Just f
     Disproved _  -> Nothing
+
+
+-- >>>:t dict1
+-- dict1
+--   :: forall {k} {c :: * -> Constraint} {f :: k -> *} {a :: k}.
+--      Dict1 c f =>
+--      Sing a -> Dict (c (f a))
+
+-- >>>:k Dict1
+-- Dict1 :: (* -> Constraint) -> (k -> *) -> Constraint
+-- >>>:k Dict1 Eq Maybe
+-- Dict1 Eq Maybe :: Constraint
+
+-- | dict fnuction can be generalized into a type class to 
+-- provide total constraints on a given singleton
+-- c is Constraint kind ; Type -> Constraint
+-- f is K -> Type
+-- since Sing has a kind K the f will the type that Constraint needs
+
+-- | Original did not work add
+-- changing from forall k to forall {k} it worked 
+--type Dict1 :: forall k. (Type -> Constraint) (k -> Type) -> Constraint
+type Dict1 :: forall {k}. (Type -> Constraint) -> (k -> Type) -> Constraint
+class Dict1  c f where
+  dict1 :: Sing a -> Dict (c (f a))
+
+instance (Dict1 Eq (f :: k ->Type)
+         , SDecide k) 
+         => Eq (Sigma f) where
+  Sigma sa fa == Sigma sb fb =
+      case sa %~ sb of
+        Proved Refl ->
+          case dict1 @Eq @f sa of
+            Dict -> fa  == fb
+        Disproved _  -> False
