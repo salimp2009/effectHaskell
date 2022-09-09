@@ -30,6 +30,8 @@ import Data.Ord.Singletons
 import Data.Singletons.TH
 import Data.String.Singletons
 import Prelude.Singletons
+import Data.Foldable (traverse_)
+
 
 
 {- 
@@ -168,4 +170,17 @@ logs =
               
     , toSigma $ Text "structured logging is coolsy"
     ]
+-- | use case;
+-- -> traverse_ putStrLn (showLogs logs)
+-- Text "hello"
+-- Json (Object (fromList [("world",Number 5.0)]))
+-- Text "structured logging is coolsy"
+
+-- >>>:t traverse_ putStrLn (showLogs logs)
+-- traverse_ putStrLn (showLogs logs) :: IO ()
+showLogs :: [Sigma LogMsg] -> [String]   
+showLogs = fmap $ withSigma $ \sa fa ->
+  case dict1 @_ @Show @LogMsg sa of
+    Dict -> show fa
+
                         
