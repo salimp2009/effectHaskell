@@ -15,12 +15,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE DataKinds            #-}
 {-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE DerivingStrategies #-}
 
 
 
 module SigmaTypesDependentPairs where
 
-import Data.Aeson
+import Data.Aeson ( Value, object, KeyValue((.=)) , Key(..) )
+import Data.Aeson.Key (fromText, fromString)
 import Data.Constraint
 import Data.Kind (Type)
 import Data.Maybe (mapMaybe)
@@ -28,6 +30,7 @@ import Data.Ord.Singletons
 import Data.Singletons.TH
 import Data.String.Singletons
 import Prelude.Singletons
+
 
 {- 
   "Sigma types also known as dependent pairs, generalize
@@ -134,3 +137,35 @@ instance ( Dict1 Ord(f ::k -> Type)
             Dict -> compare fa fb
       Disproved _ -> 
             compare (fromSing sa) (fromSing sb)
+
+-- | structured logging             
+singletons [d|
+  data LogType
+      = JsonMsg
+      | TextMsg
+      deriving (Eq, Ord, Show)
+  |]
+
+data family LogMsg (msg :: LogType)
+
+newtype instance LogMsg 'JsonMsg = Json Value
+  deriving (Eq, Show)
+
+newtype instance LogMsg 'TextMsg = Text String
+  deriving (Eq, Show)
+  
+instance ( c (LogMsg 'JsonMsg)
+         , c (LogMsg 'TextMsg)
+         ) => Dict1 c LogMsg where
+  dict1 SJsonMsg = Dict
+  dict1 STextMsg = Dict  
+
+logs :: [Sigma LogMsg]
+logs = 
+    [ toSigma $ Text "hello"
+    , toSigma $ Json $ 
+          object [ fromString "world" .= (5::Int)]
+              
+    , toSigma $ Text "structured logging is coolsy"
+    ]
+                        
