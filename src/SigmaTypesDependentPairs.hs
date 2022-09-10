@@ -178,9 +178,28 @@ logs =
 
 -- >>>:t traverse_ putStrLn (showLogs logs)
 -- traverse_ putStrLn (showLogs logs) :: IO ()
+
+-- >>>:t putStrLn
+-- putStrLn :: String -> IO ()
+
+-- >>>:t traverse_
+-- traverse_ :: (Foldable t, Applicative f) => (a -> f b) -> t a -> f ()
 showLogs :: [Sigma LogMsg] -> [String]   
 showLogs = fmap $ withSigma $ \sa fa ->
   case dict1 @_ @Show @LogMsg sa of
     Dict -> show fa
 
-                        
+-- | filter the log data; 
+-- e.g: looking for JSON entries 
+catSigmas :: forall k (a::k) f 
+           . (SingI a, SDecide k)
+          => [Sigma f]  -> [f a]
+catSigmas=  mapMaybe fromSigma
+
+-- >>>jsonLogs logs
+-- [Json (Object (fromList [("world",Number 5.0)]))]
+
+-- >>>show (jsonLogs logs)
+-- "[Json (Object (fromList [(\"world\",Number 5.0)]))]"
+jsonLogs :: [Sigma LogMsg] -> [LogMsg 'JsonMsg]
+jsonLogs = catSigmas
