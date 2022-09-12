@@ -37,6 +37,21 @@ import Language.Haskell.TH.Syntax
 
 -- >>>:t runQ
 -- runQ :: Quasi m => Q a -> m a
+
+-- >>>:t (runQ expTH)
+-- >>>:t runQ
+-- runQ :: Quasi m => Q a -> m a
+
+-- >>>:kind! Quasi
+-- Quasi :: (* -> *) -> Constraint
+-- = Quasi
+
+-- >>>:kind! Exp
+-- Exp :: *
+-- = Exp
+
+-- >>>:t [| 1 + 2 |]
+-- [| 1 + 2 |] :: Quote m => m Exp
 expTH :: Q Exp
 expTH = [| 1 + 2 |]
 
@@ -46,17 +61,9 @@ expTH = [| 1 + 2 |]
 -- >>>$(pure answer)
 -- 32
 
--- >>>$$(liftTyped (5::Int))
--- 5
+-- >>>:t $(pure answer)
+-- $(pure answer) :: Num p => p
 
--- >>>:t ( $$(liftTyped (5::Int)) )
--- ( $$(liftTyped (5::Int)) ) :: Int
-
--- >>>$$([|| 1 + 2 ||])
--- 3
-
--- >>>:t ([|| 1 + 2 ||])
--- ([|| 1 + 2 ||]) :: (Quote m, Num a) => Code m a
 answer :: Exp
 answer = LitE (IntegerL 32)
 
@@ -70,3 +77,16 @@ answer = LitE (IntegerL 32)
 -- ->Hello Template Haskell
 hello :: Q Exp
 hello = [|putStrLn "Hello Template Haskell"|]
+
+-- | typed Template Haskell
+-- >>>$$(liftTyped (5::Int))
+-- 5
+
+-- >>>:t ( $$(liftTyped (5::Int)) )
+-- ( $$(liftTyped (5::Int)) ) :: Int
+
+-- >>>$$([|| 1 + 2 ||])
+-- 3
+
+-- >>>:t ([|| 1 + 2 ||])
+-- ([|| 1 + 2 ||]) :: (Quote m, Num a) => Code m a

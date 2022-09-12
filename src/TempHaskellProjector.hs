@@ -37,5 +37,27 @@ import Language.Haskell.TH.Syntax
 
 -- >>>runQ [| \(x, _, _) -> x |]
 -- LamE [TupP [VarP x_0,WildP,WildP]] (VarE x_0)
+
+-- >>>:t [| \(x, _, _) -> x |]
+-- [| \(x, _, _) -> x |] :: Quote m => m Exp
 proj :: Int -> Int -> Q Exp
-proj = undefined
+proj n k = do
+  x <- newName "x"
+  let makePat j
+        | j == k = VarP x
+        | otherwise = WildP
+  pure $ LamE [TupP $ map makePat [0..n-1]] (VarE x)
+
+
+
+
+--- >>>$(proj 3 2) ("aaa", "bbb", "ccc")  
+-- "ccc"
+
+-- >>>:t $(proj 3 2) 
+-- $(proj 3 2) :: (a, b, c) -> c
+
+-- >>>:t proj
+-- proj :: Int -> Int -> Q Exp
+
+
