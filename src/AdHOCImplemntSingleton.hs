@@ -30,6 +30,7 @@ fromSBool :: SBool b -> Bool
 fromSBool STrue  = True
 fromSBool SFalse = False
 
+
 data SomeSBool where
   SomeSBool :: SBool b -> SomeSBool
 
@@ -92,8 +93,8 @@ program = do
   total and theoretically GHC should be able to determine
   this"
 -}
--- useprogram :: IO ()
--- useprogram = do
+-- useprogram' :: IO ()
+-- useprogram' = do
 --   bool  <- read <$> getLine    
 --   withSomeSBool (toSBool bool) $ 
 --     \(_ ::SBool b) -> 

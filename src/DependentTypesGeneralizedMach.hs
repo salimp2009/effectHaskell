@@ -167,6 +167,3 @@ instance SDecide k => SDecide (Maybe k) where
       Disproved _  -> Disproved $ const undefined
   SNothing %~ SNothing  = Proved Refl 
   _ %~ _ = Disproved $ const undefined 
-
-
-  

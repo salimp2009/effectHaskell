@@ -203,3 +203,8 @@ catSigmas=  mapMaybe fromSigma
 -- "[Json (Object (fromList [(\"world\",Number 5.0)]))]"
 jsonLogs :: [Sigma LogMsg] -> [LogMsg 'JsonMsg]
 jsonLogs = catSigmas
+
+-- >>>textLogs logs
+-- [Text "hello",Text "structured logging is coolsy"]
+textLogs :: [Sigma LogMsg] -> [LogMsg 'TextMsg]
+textLogs = catSigmas

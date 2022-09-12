@@ -87,6 +87,8 @@ library
       SingletonsDependentPairs
       StateContext
       SumTypes
+      TempHaskellProjector
+      TemplateHaskellBasic
       TermsTypesKinds
       TestCode
       Type_Operators
@@ -123,6 +125,7 @@ library
     , singletons
     , singletons-base
     , singletons-th
+    , template-haskell
     , text
     , transformers
     , vector
@@ -155,6 +158,7 @@ executable monadTypeClass-exe
     , singletons
     , singletons-base
     , singletons-th
+    , template-haskell
     , text
     , transformers
     , vector
@@ -189,6 +193,7 @@ test-suite monadTypeClass-test
     , singletons
     , singletons-base
     , singletons-th
+    , template-haskell
     , text
     , transformers
     , vector
