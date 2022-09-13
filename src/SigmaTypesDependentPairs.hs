@@ -55,7 +55,7 @@ withSigma c (Sigma sa f) = c sa f
 -- >>>:t toSigma
 -- toSigma :: forall {k} {a :: k} {f :: k -> *}. SingI a => f a -> Sigma f
 toSigma :: SingI a => f a -> Sigma f
-toSigma fa  = Sigma sing fa
+toSigma   = Sigma sing 
 
 
 -- >>>:t fromSigma
@@ -63,6 +63,7 @@ toSigma fa  = Sigma sing fa
 --   :: forall {k} {a :: k} {f :: k -> *}.
 --      (SingI a, SDecide k) =>
 --      Sigma f -> Maybe (f a)
+
 -- | casting a Sigma f back to f a
 {- 
   "By pattern matching on Refl at (case expression) , GHC learns 
@@ -70,7 +71,6 @@ toSigma fa  = Sigma sing fa
   With this equality in hand, it’s clearly safe to return the 
   f t when asking for f a.
 "
-
 -}
 fromSigma :: forall k (a::k) (f :: k -> Type)
            . (SingI a, SDecide k)

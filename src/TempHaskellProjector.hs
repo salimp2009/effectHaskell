@@ -117,3 +117,42 @@ proj3 n k
 -- >>>:t tupP
 -- tupP :: Quote m => [m Pat] -> m Pat
 
+-- >>>:t (mkProjDec 2 1)
+-- (mkProjDec 2 1) :: Q [Dec]
+
+-- >>>runQ $ mkProjDec 2 1
+-- [ValD (VarP proj_2_1) (NormalB (LamE [TupP [WildP,VarP x_3]] (VarE x_3))) []]
+
+
+
+
+-- | Generating Declarations via TH
+-- goal is generate all projector for a given number of 
+  -- elements in a tuple 
+mkProjName :: Int -> Int -> Name
+mkProjName n k = mkName $ "proj_" <> show n <> "_" <> show k
+
+mkProjDec :: Int -> Int -> Q [Dec]
+mkProjDec n k = [d| $nm = $(proj3 n k)|] 
+  where 
+    nm = varP $ mkProjName n k
+
+
+-- >>>$fpi
+-- 6.283185307179586
+
+-- >>>runQ fpi
+-- InfixE (Just (VarE GHC.Float.pi)) (VarE GHC.Num.+) (Just (VarE pi))
+
+-- >>>pi
+-- 3.141592653589793
+
+-- >>>gnew = let pi =3 in $fpi
+-- >>>gnew
+-- 6.141592653589793
+
+fpi :: Q Exp
+fpi = [| pi + $(varE (mkName "pi")) |]
+
+
+
