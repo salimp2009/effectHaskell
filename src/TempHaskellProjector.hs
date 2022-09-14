@@ -111,7 +111,8 @@ proj3 n k
           | j == k = varP x
           | otherwise = wildP
     mkArg x = tupP $ map (mkPat x ) [0..n-1]  
-    
+   
+
 -- >>>:t TupP    
 -- TupP :: [Pat] -> Pat
 -- >>>:t tupP
@@ -134,15 +135,61 @@ mkProjDec n k = [d| $nm = $(proj3 n k)|]
   where 
     nm = varP $ mkProjName n k
 
--- >>>runQ [t| forall a b. (a, b) -> b|]
--- ForallT [PlainTV a_2 SpecifiedSpec,PlainTV b_3 SpecifiedSpec] [] (AppT (AppT ArrowT (AppT (AppT (TupleT 2) (VarT a_2)) (VarT b_3))) (VarT b_3))
+-- >>>runQ [t| forall a b. (a, b) -> a|]
+-- ForallT [PlainTV a_4 SpecifiedSpec,PlainTV b_5 SpecifiedSpec] [] (AppT (AppT ArrowT (AppT (AppT (TupleT 2) (VarT a_4)) (VarT b_5))) (VarT a_4))
+
+
+-- ForallT [PlainTV a_0 SpecifiedSpec,PlainTV b_1 SpecifiedSpec] [] 
+-- (AppT 
+--    (AppT 
+--        ArrowT 
+--        (AppT 
+--            (AppT (TupleT 2) (VarT a_0)) 
+--            (VarT b_1)
+--        )
+--     )
+--     (VarT a_0))
+
 -- | goal is to create function top level declaration
 -- need to use Typed Haskell to make it simpler
-mkProjType :: Int -> Int -> Q Dec    
-mkProjType n k = sigD nm funTy
-  where 
-    nm = mkProjName n k
-    funTy = undefined   -- <<< to be implemented
+-- mkProjType :: Int -> Int -> Q Dec    
+-- mkProjType n k = sigD nm funTy
+--   where 
+--     nm = mkProjName n k
+--     funTy =  do
+--         resTy <- newName "res"                -- <<< name for a type of result
+--         tys   <- mapM (getTy resTy) [0..n-1]  -- <<< a list of all types
+--         forallT (map plainTV tys)
+--                 (pure [])                     -- <<< empty list for constraints
+--                  [t| $(mkTuple tys) -> $(varT resTy) |]   -- <<<< an arrow in the type of a function
+
+--     getTy  resTy j
+--         | k == j = pure resTy
+--         | otherwise = newName "ty"
+
+--     mkTuple tys = pure $ foldl addApp (TupleT n) tys
+--     addApp acc_ty ty = AppT acc_ty (VarT ty)
+
+-- >>>:t PlainTV
+-- PlainTV :: Name -> flag -> TyVarBndr flag
+
+-- >>>:t forallT
+-- forallT :: Quote m => [TyVarBndr Specificity] -> m Cxt -> m Type -> m Type
+
+-- >>>:k Specificity
+-- Specificity :: *
+
+-- >>>:t SpecifiedSpec
+-- SpecifiedSpec :: Specificity
+
+-- >>>
+
+-- >>>:t sigD
+-- sigD :: Quote m => Name -> m Type -> m Dec
+
+-- >>>:k Type
+-- Type :: *
+
 -- >>>$$(liftTyped 5)
 -- 5
 
