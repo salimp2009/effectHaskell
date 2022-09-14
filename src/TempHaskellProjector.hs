@@ -123,9 +123,6 @@ proj3 n k
 -- >>>runQ $ mkProjDec 2 1
 -- [ValD (VarP proj_2_1) (NormalB (LamE [TupP [WildP,VarP x_3]] (VarE x_3))) []]
 
-
-
-
 -- | Generating Declarations via TH
 -- goal is generate all projector for a given number of 
   -- elements in a tuple 
@@ -137,6 +134,42 @@ mkProjDec n k = [d| $nm = $(proj3 n k)|]
   where 
     nm = varP $ mkProjName n k
 
+-- >>>runQ [t| forall a b. (a, b) -> b|]
+-- ForallT [PlainTV a_2 SpecifiedSpec,PlainTV b_3 SpecifiedSpec] [] (AppT (AppT ArrowT (AppT (AppT (TupleT 2) (VarT a_2)) (VarT b_3))) (VarT b_3))
+-- | goal is to create function top level declaration
+-- need to use Typed Haskell to make it simpler
+mkProjType :: Int -> Int -> Q Dec    
+mkProjType n k = sigD nm funTy
+  where 
+    nm = mkProjName n k
+    funTy = undefined   -- <<< to be implemented
+-- >>>$$(liftTyped 5)
+-- 5
+
+-- >>>add1 x = [|| x + 1 ||]
+-- >>>$$(add1 2)
+-- 3
+
+-- >>>msnd (x, y) = [||(forall x y. (x, y) -> y) ||]
+-- >>>$$(msnd (1,2))
+-- View pattern in expression context: forall x y . (x, y) -> y
+
+
+
+-- >>>:k ForallT
+-- ForallT :: [TyVarBndr Specificity] -> Cxt -> Type -> Type
+
+-- >>>:k ValD    
+-- ValD :: Pat -> Body -> [Dec] -> Dec
+
+-- >>>:k VarP
+-- VarP :: Name -> Pat
+
+-- >>>:k NormalB
+-- NormalB :: Exp -> Body
+
+-- >>>:k LamE
+-- LamE :: [Pat] -> Exp -> Exp
 
 -- >>>$fpi
 -- 6.283185307179586
@@ -147,7 +180,7 @@ mkProjDec n k = [d| $nm = $(proj3 n k)|]
 -- >>>pi
 -- 3.141592653589793
 
--- >>>gnew = let pi =3 in $fpi
+-- >>>gnew = let pi = 3 in $fpi
 -- >>>gnew
 -- 6.141592653589793
 
