@@ -152,29 +152,51 @@ mkProjDec n k = [d| $nm = $(proj3 n k)|]
 
 -- | goal is to create function top level declaration
 -- need to use Typed Haskell to make it simpler
--- mkProjType :: Int -> Int -> Q Dec    
--- mkProjType n k = sigD nm funTy
---   where 
---     nm = mkProjName n k
---     funTy =  do
---         resTy <- newName "res"                -- <<< name for a type of result
---         tys   <- mapM (getTy resTy) [0..n-1]  -- <<< a list of all types
---         forallT (map plainTV tys)
---                 (pure [])                     -- <<< empty list for constraints
---                  [t| $(mkTuple tys) -> $(varT resTy) |]   -- <<<< an arrow in the type of a function
+mkProjType :: Int -> Int -> Q Dec    
+mkProjType n k = sigD nm funTy
+  where 
+    nm = mkProjName n k
+    funTy =  do
+        resTy <- newName "res"                -- <<< name for a type of result
+        tys   <- mapM (getTy resTy) [0..n-1]  -- <<< a list of all types
+        forallT (map (`PlainTV` SpecifiedSpec) tys)
+                (pure [])                     -- <<< empty list for constraints
+                [t| $(mkTuple tys) -> $(varT resTy) |]   -- <<<< an arrow in the type of a function
 
---     getTy  resTy j
---         | k == j = pure resTy
---         | otherwise = newName "ty"
+    getTy  resTy j
+        | k == j = pure resTy
+        | otherwise = newName "ty"
 
---     mkTuple tys = pure $ foldl addApp (TupleT n) tys
---     addApp acc_ty ty = AppT acc_ty (VarT ty)
+    mkTuple tys = pure $ foldl addApp (TupleT n) tys
+    addApp acc_ty ty = AppT acc_ty (VarT ty)
+
+mkProjectors :: [Int] -> Q [Dec]
+mkProjectors = fmap concat . mapM projectors
+  where 
+    projectors n = concat <$> mapM (mkProj n) [0..n-1]
+    mkProj n k   = (:) <$> mkProjType n k <*> mkProjDec n k
+ 
+-- >>>:t mkProjectors
+-- mkProjectors :: [Int] -> Q [Dec]
 
 -- >>>:t PlainTV
 -- PlainTV :: Name -> flag -> TyVarBndr flag
 
+-- >>>:t plainTV
+-- plainTV :: Name -> TyVarBndr ()
+
+-- >>>:t plainInvisTV 
+-- plainInvisTV :: Quote m => Name -> Specificity -> m (TyVarBndr Specificity)
+
+-- >>>:i plainTV
+-- plainTV :: Name -> TyVarBndr ()
+--   	-- Defined in ‘Language.Haskell.TH.Lib’
+
 -- >>>:t forallT
 -- forallT :: Quote m => [TyVarBndr Specificity] -> m Cxt -> m Type -> m Type
+
+-- >>>:t ForallT
+-- ForallT :: [TyVarBndr Specificity] -> Cxt -> Type -> Type
 
 -- >>>:k Specificity
 -- Specificity :: *
@@ -182,7 +204,8 @@ mkProjDec n k = [d| $nm = $(proj3 n k)|]
 -- >>>:t SpecifiedSpec
 -- SpecifiedSpec :: Specificity
 
--- >>>
+-- >>>:t ForallT 
+-- ForallT :: [TyVarBndr Specificity] -> Cxt -> Type -> Type
 
 -- >>>:t sigD
 -- sigD :: Quote m => Name -> m Type -> m Dec
