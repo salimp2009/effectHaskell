@@ -89,6 +89,7 @@ library
       SumTypes
       TempHaskellProjector
       TemplateHaskellBasic
+      TemplateHaskellPredicates
       TermsTypesKinds
       TestCode
       Type_Operators
