@@ -19,15 +19,19 @@
 {-# LANGUAGE LambdaCase #-}
 -- {-# LANGUAGE DerivingStrategies #-}
 
-module TemplateHaskellPredicates where
+module TemplateHaskellPredicates 
+                    ( -- Shape(..)  ,
+                     mkPredicates
+                    ) 
+                    where
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
 
 -- | geometric shapes to be use in example
-data Shape = Circle Double
-           | Square Double
-           | Triangle Double Double Double
+-- data Shape = Circle Double
+--            | Square Double
+--            | Triangle Double Double Double
            
 -- | typical predicates that might be needed        
 -- isCircle   :: Shape -> Bool
@@ -62,11 +66,65 @@ mkPredicate (NormalC name types) =
     predicate = varP $ mkName $ "is" <> nameBase name
     pat = conP name $ replicate (length types) wildP
 
-mkPredicate _ = pure []   
+mkPredicate _ = pure []  
+
+{- ^
+  "we build the predicate name using the mkName and nameBase functions. 
+  The latter function removes all the qualifications, if present. 
+  Then we build a pattern for the corresponding constructor. 
+  This requires providing the right number of wildcards in
+  the pattern."
+-}
+
+mkPredicates :: Name -> Q [Dec]
+mkPredicates name = 
+    reify name
+    >>= fmap concat . mapM mkPredicate . extractConstructors
+  
+
+{-
+  the built-in syntax 'f and ''T can be used to construct names, 
+  The expression 'f gives a Name which refers to the value f currently in scope, 
+  and ''T gives a Name which refers to the type T currently in scope. 
+  These names can never be captured.
+  lookupValueName and lookupTypeName are similar to 'f and ''T respectively, 
+  but the Names are looked up at the point where the current splice is being run. 
+  These names can never be captured.
+  newName monadically generates a new name, which can never be captured.
+  mkName generates a capturable name.
+
+  Names constructed using newName and mkName may be used in bindings 
+  (such as let x = ... or x -> ...), 
+  but names constructed using lookupValueName, lookupTypeName, 'f, ''T may not.
+-}
+
+
+
 
 -- >>>:i nameBase
 -- nameBase :: Name -> String
 --   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i Name
+-- type Name :: *
+-- data Name = Name OccName NameFlavour
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i OccName
+-- type OccName :: *
+-- newtype OccName = OccName String
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i NameFlavour
+-- type NameFlavour :: *
+-- data NameFlavour
+--   = NameS
+--   | NameQ ModName
+--   | NameU !Uniq
+--   | NameL !Uniq
+--   | NameG NameSpace PkgName ModName
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
 
 -- >>>:i conP
 -- conP :: Quote m => Name -> [m Pat] -> m Pat
