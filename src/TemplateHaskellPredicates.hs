@@ -16,6 +16,7 @@
 --{-# LANGUAGE ScopedTypeVariables #-}
 --{-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE StandaloneKindSignatures #-}
+{-# LANGUAGE LambdaCase #-}
 -- {-# LANGUAGE DerivingStrategies #-}
 
 module TemplateHaskellPredicates where
@@ -41,6 +42,181 @@ data Shape = Circle Double
 
 -- >>>:t reify
 -- reify :: Name -> Q Info
+
+extractConstructors :: Info -> [Con]
+extractConstructors (TyConI (DataD _ _ _ _ cons _)) = cons
+extractConstructors _ = []
+
+-- | although several data constructor 
+-- this example implements only NormalC and ignores others
+mkPredicate :: Con -> Q [Dec]
+mkPredicate (NormalC name types) = 
+  [d|
+      $predicate = 
+        \z -> case z of 
+                $pat -> True
+                _    -> False
+  |]
+
+  where
+    predicate = varP $ mkName $ "is" <> nameBase name
+    pat = conP name $ replicate (length types) wildP
+
+mkPredicate _ = pure []   
+
+-- >>>:i nameBase
+-- nameBase :: Name -> String
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i conP
+-- conP :: Quote m => Name -> [m Pat] -> m Pat
+--   	-- Defined in ‘Language.Haskell.TH.Lib.Internal’
+
+-- >>>:i Quote
+-- type Quote :: (* -> *) -> Constraint
+-- class Monad m => Quote m where
+--   newName :: String -> m Name
+--   {-# MINIMAL newName #-}
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Quote Q -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Quote IO -- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i VarP
+-- type Pat :: *
+-- data Pat = ... | VarP Name | ...
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i Pat
+-- type Pat :: *
+-- data Pat
+--   = LitP Lit
+--   | VarP Name
+--   | TupP [Pat]
+--   | UnboxedTupP [Pat]
+--   | UnboxedSumP Pat SumAlt SumArity
+--   | ConP Name [Pat]
+--   | InfixP Pat Name Pat
+--   | UInfixP Pat Name Pat
+--   | ParensP Pat
+--   | TildeP Pat
+--   | BangP Pat
+--   | AsP Name Pat
+--   | WildP
+--   | RecP Name [FieldPat]
+--   | ListP [Pat]
+--   | SigP Pat Type
+--   | ViewP Exp Pat
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i BangType
+-- type BangType :: *
+-- type BangType = (Bang, Type)
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i Type
+-- type Type :: *
+-- data Type
+--   = ForallT [TyVarBndr Specificity] Cxt Type
+--   | ForallVisT [TyVarBndr ()] Type
+--   | AppT Type Type
+--   | AppKindT Type Kind
+--   | SigT Type Kind
+--   | VarT Name
+--   | ConT Name
+--   | PromotedT Name
+--   | InfixT Type Name Type
+--   | UInfixT Type Name Type
+--   | ParensT Type
+--   | TupleT Int
+--   | UnboxedTupleT Int
+--   | UnboxedSumT SumArity
+--   | ArrowT
+--   | MulArrowT
+--   | EqualityT
+--   | ListT
+--   | PromotedTupleT Int
+--   | PromotedNilT
+--   | PromotedConsT
+--   | StarT
+--   | ConstraintT
+--   | LitT TyLit
+--   | WildCardT
+--   | ImplicitParamT String Type
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+ 
+-- >>>:i Con
+-- type Con :: *
+-- data Con
+--   = NormalC Name [BangType]
+--   | RecC Name [VarBangType]
+--   | InfixC BangType Name BangType
+--   | ForallC [TyVarBndr Specificity] Cxt Con
+--   | GadtC [Name] [BangType] Type
+--   | RecGadtC [Name] [VarBangType] Type
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Eq Con -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Ord Con -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Show Con -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance [safe] Ppr Con -- Defined in ‘Language.Haskell.TH.Ppr’
+
+
+-- >>>:i Info
+-- type Info :: *
+-- data Info
+--   = ClassI Dec [InstanceDec]
+--   | ClassOpI Name Type ParentName
+--   | TyConI Dec
+--   | FamilyI Dec [InstanceDec]
+--   | PrimTyConI Name Arity Unlifted
+--   | DataConI Name Type ParentName
+--   | PatSynI Name PatSynType
+--   | VarI Name Type (Maybe Dec)
+--   | TyVarI Name Type
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i TyConI Dec
+-- type Info :: *
+-- data Info = ... | TyConI Dec | ...
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+-- type Dec :: *
+-- data Dec
+--   = FunD Name [Clause]
+--   | ValD Pat Body [Dec]
+--   | DataD Cxt Name [TyVarBndr ()] (Maybe Kind) [Con] [DerivClause]
+--   | NewtypeD Cxt Name [TyVarBndr ()] (Maybe Kind) Con [DerivClause]
+--   | TySynD Name [TyVarBndr ()] Type
+--   | ClassD Cxt Name [TyVarBndr ()] [FunDep] [Dec]
+--   | InstanceD (Maybe Overlap) Cxt Type [Dec]
+--   | SigD Name Type
+--   | KiSigD Name Kind
+--   | ForeignD Foreign
+--   | InfixD Fixity Name
+--   | PragmaD Pragma
+--   | DataFamilyD Name [TyVarBndr ()] (Maybe Kind)
+--   | DataInstD Cxt
+--               (Maybe [TyVarBndr ()])
+--               Type
+--               (Maybe Kind)
+--               [Con]
+--               [DerivClause]
+--   | NewtypeInstD Cxt
+--                  (Maybe [TyVarBndr ()])
+--                  Type
+--                  (Maybe Kind)
+--                  Con
+--                  [DerivClause]
+--   | TySynInstD TySynEqn
+--   | OpenTypeFamilyD TypeFamilyHead
+--   | ClosedTypeFamilyD TypeFamilyHead [TySynEqn]
+--   | RoleAnnotD Name [Role]
+--   | StandaloneDerivD (Maybe DerivStrategy) Cxt Type
+--   | DefaultSigD Name Type
+--   | PatSynD Name PatSynArgs PatSynDir Pat
+--   | PatSynSigD Name PatSynType
+--   | ImplicitParamBindD String Exp
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
 
 
            
