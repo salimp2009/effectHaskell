@@ -13,7 +13,13 @@ data FuncInfo = FuncInfo
       }
 
 parseRemoteInterface :: String -> Q [FuncInfo]
-parseRemoteInterface = undefined
+parseRemoteInterface quote = concat <$> mapM (funcInfo . parseDecl) funcs
+      where
+            funcs = filter (not . null) $ map (dropWhile isSpace) $ lines quote
 
-  
-genClientStubs = undefined
+funcInfo :: ParseResult (Decl SrcSpanInfo) -> Q [FuncInfo]             
+funcInfo (ParseOk (TypeSig _ ids t)) = 
+      pure $ [FuncInfo {..} |  let ty = toType t,  
+                               Ident _ name <- ids]
+
+funcInfo err = fail $ " " <> show err                       

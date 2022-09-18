@@ -20,3 +20,8 @@ remote = QuasiQuoter
 quoteFuncInfoDec :: String -> Q [Dec]
 quoteFuncInfoDec quote = parseRemoteInterface quote >>= genClientStubs
 
+genClientStubs :: [FuncInfo] -> Q [Dec]
+genClientStubs fis = concat <$> mapM (genClientStub "callRemote") fis
+
+genClientStub :: String -> FuncInfo -> Q [Dec]
+genClientStub  = undefined
