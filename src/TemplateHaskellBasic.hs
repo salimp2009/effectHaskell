@@ -54,6 +54,9 @@ import Language.Haskell.TH.Syntax
 
 -- >>>:t [| 1 + 2 |]
 -- [| 1 + 2 |] :: Quote m => m Exp
+
+-- >>>show (expTH)
+-- No instance for (Show (Q Exp)) arising from a use of ‘show’
 expTH :: Q Exp
 expTH = [| 1 + 2 |]
 

@@ -80,6 +80,15 @@ library
       ProgramEval
       RankNTypeExamples
       RecordSyntax
+      RemotefunCalls.Client
+      RemotefunCalls.ClientUtils
+      RemotefunCalls.DeclsGenerator
+      RemotefunCalls.PingCommon
+      RemotefunCalls.RemoteIO
+      RemotefunCalls.RemoteParser
+      RemotefunCalls.RpcCommon
+      RemotefunCalls.Server
+      RemotefunCalls.ServerUtils
       ReverseList
       RolesCoerceExamples
       RolesExamples
@@ -90,6 +99,7 @@ library
       TempHaskellProjector
       TemplateHaskellBasic
       TemplateHaskellPredicates
+      TemplateHaskellQuasiQuoters
       TermsTypesKinds
       TestCode
       Type_Operators
@@ -112,17 +122,24 @@ library
     , aeson-pretty
     , base >=4.7 && <5
     , bytestring
+    , cereal
+    , connection
     , constraints
     , containers
     , do-notation
     , first-class-families
+    , haskell-src-exts
+    , haskell-src-meta
     , hspec
+    , http-client
     , indexed
     , inspection-testing
     , kan-extensions
     , lens
     , lens-aeson
     , mtl
+    , network
+    , network-simple
     , singletons
     , singletons-base
     , singletons-th
@@ -138,17 +155,22 @@ executable monadTypeClass-exe
       Paths_monadTypeClass
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N -Wincomplete-patterns
   build-depends:
       aeson
     , aeson-pretty
     , base >=4.7 && <5
     , bytestring
+    , cereal
+    , connection
     , constraints
     , containers
     , do-notation
     , first-class-families
+    , haskell-src-exts
+    , haskell-src-meta
     , hspec
+    , http-client
     , indexed
     , inspection-testing
     , kan-extensions
@@ -156,6 +178,8 @@ executable monadTypeClass-exe
     , lens-aeson
     , monadTypeClass
     , mtl
+    , network
+    , network-simple
     , singletons
     , singletons-base
     , singletons-th
@@ -179,11 +203,16 @@ test-suite monadTypeClass-test
     , aeson-pretty
     , base >=4.7 && <5
     , bytestring
+    , cereal
+    , connection
     , constraints
     , containers
     , do-notation
     , first-class-families
+    , haskell-src-exts
+    , haskell-src-meta
     , hspec
+    , http-client
     , indexed
     , inspection-testing
     , kan-extensions
@@ -191,6 +220,8 @@ test-suite monadTypeClass-test
     , lens-aeson
     , monadTypeClass
     , mtl
+    , network
+    , network-simple
     , singletons
     , singletons-base
     , singletons-th

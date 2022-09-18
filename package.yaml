@@ -42,6 +42,13 @@ dependencies:
 - singletons-th
 - singletons-base
 - template-haskell
+- cereal
+- http-client
+- network
+- connection
+- network-simple
+- haskell-src-exts
+- haskell-src-meta
 
 
 library:
@@ -55,6 +62,7 @@ executables:
     - -threaded
     - -rtsopts
     - -with-rtsopts=-N
+    - -Wincomplete-patterns
    
     dependencies: 
     - monadTypeClass
