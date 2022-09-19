@@ -63,7 +63,6 @@ arity _ = 0
                         
 
 
-
 -- >>>:t curry
 -- curry :: ((a, b) -> c) -> a -> b -> c
 
