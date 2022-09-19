@@ -49,6 +49,7 @@ dependencies:
 - network-simple
 - haskell-src-exts
 - haskell-src-meta
+- exceptions
 
 
 library:

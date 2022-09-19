@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE RecordWildCards #-}
 module RemotefunCalls.RemoteParser where
 
@@ -22,4 +23,5 @@ funcInfo (ParseOk (TypeSig _ ids t)) =
       pure $ [FuncInfo {..} |  let ty = toType t,  
                                Ident _ name <- ids]
 
-funcInfo err = fail $ " " <> show err                       
+funcInfo err = fail $ "Error when parsing remote interface (type signature expected)\n " 
+               <> show err                       

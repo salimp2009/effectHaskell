@@ -127,6 +127,7 @@ library
     , constraints
     , containers
     , do-notation
+    , exceptions
     , first-class-families
     , haskell-src-exts
     , haskell-src-meta
@@ -166,6 +167,7 @@ executable monadTypeClass-exe
     , constraints
     , containers
     , do-notation
+    , exceptions
     , first-class-families
     , haskell-src-exts
     , haskell-src-meta
@@ -208,6 +210,7 @@ test-suite monadTypeClass-test
     , constraints
     , containers
     , do-notation
+    , exceptions
     , first-class-families
     , haskell-src-exts
     , haskell-src-meta
