@@ -4,10 +4,10 @@
 module RemotefunCalls.RpcCommon where
 
 import Data.ByteString (ByteString)
-import Network.Connection
-import Control.Monad.Reader
-import Control.Monad.State
-import Control.Monad.Catch
+import Network.Connection ( Connection )
+import Control.Monad.Reader ( MonadIO, MonadReader, ReaderT )
+import Control.Monad.State ( MonadIO, MonadState, StateT(StateT) )
+import Control.Monad.Catch ( MonadThrow, Exception, MonadCatch )
 
 -- | message size in bytes
 msgSizeField :: Int

@@ -3,8 +3,8 @@
 {-# LANGUAGE DerivingStrategies #-}
 module RemotefunCalls.PingCommon where
 
-import GHC.Generics
-import Data.Serialize   -- <<< this is from cereal package
+import GHC.Generics ( Generic )
+import Data.Serialize ( Serialize )   -- <<< this is from cereal package
 
 import RemotefunCalls.RpcCommon
 
@@ -19,4 +19,3 @@ type RemotePing a = RSIO Integer a
 data PingAnswer = PingAnswer String Integer
   deriving stock (Show, Generic)
   deriving anyclass (Serialize)
-

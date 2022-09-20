@@ -31,6 +31,17 @@ unEitherStaged stage eValue = either (throwRemote . errMsg ) pure eValue
   where
     errMsg msg = "Decoding error (" <> show stage <> "): " <> msg
 
+runRemote :: RemoteState st => String -> PortNumber -> RSIO st a -> IO a
+runRemote host port computation = do
+    conn <- remoteConnectTo host port
+    res <- runRemoteConn conn computation
+    liftIO $ connectionClose conn
+    pure res   
+    
+runRemoteConn :: RemoteState st => Connection -> RSIO st a -> IO a
+runRemoteConn conn computation =
+    runReaderT (evalStateT (runRem computation) initState) conn    
+
 {- 
   from cereal package and module Serialize 
   encode :: Serialize a => a -> ByteString
@@ -44,9 +55,9 @@ sendRSIO msg = do
      conn <- ask 
      liftIO $ connectionPut conn $ buildMsgEnvelope $ encode msg
   where
-  buildMsgEnvelope payload = runPut $ do
-  putWord64be (fromIntegral $ BS.length payload)
-  putByteString payload 
+    buildMsgEnvelope payload = runPut $ do
+      putWord64be (fromIntegral $ BS.length payload)
+      putByteString payload 
 
 {- 
   newtype RSIO st a = RSIO 
@@ -65,9 +76,42 @@ receiveRSIO = ask >>= \conn ->
             (\e -> if isEOFError e then throwM ConnectionClosed
                    else throwRemote (displayException e))
 
+-- >>>:t RemoteException
+-- RemoteException :: String -> RemoteException
 
+-- >>>:i RemoteException
+-- type RemoteException :: *
+-- data RemoteException = ConnectionClosed | RemoteException String
+--   	-- Defined at C:\developer\haskell\effectiveHaskellbook\chapter9Monads\monadTypeClass\src\RemotefunCalls\RpcCommon.hs:17:1
+-- instance Show RemoteException
+--   -- Defined at C:\developer\haskell\effectiveHaskellbook\chapter9Monads\monadTypeClass\src\RemotefunCalls\RpcCommon.hs:21:10
+-- instance Exception RemoteException
+--   -- Defined at C:\developer\haskell\effectiveHaskellbook\chapter9Monads\monadTypeClass\src\RemotefunCalls\RpcCommon.hs:34:10
 throwRemote :: String -> RSIO st b
 throwRemote err_msg = throwM $ RemoteException err_msg
+
+-- >>>:t ConnectionParams
+-- ConnectionParams
+--   :: HostName
+--      -> PortNumber
+--      -> Maybe TLSSettings
+--      -> Maybe ProxySettings
+--      -> ConnectionParams
+
+-- >>>:i ConnectionContext
+-- type ConnectionContext :: *
+-- data ConnectionContext
+--   = ConnectionContext {globalCertificateStore :: !CertificateStore}
+--   	-- Defined in ‘Network.Connection.Types’
+
+-- >>>:t initConnectionContext
+-- initConnectionContext :: IO ConnectionContext
+remoteConnectTo :: String -> PortNumber -> IO Connection
+remoteConnectTo host port = do
+    connCtx <- initConnectionContext
+    connectTo connCtx connParams
+  where
+    connParams = ConnectionParams host port Nothing Nothing
 
 
 
