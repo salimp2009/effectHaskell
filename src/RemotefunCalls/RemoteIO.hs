@@ -112,8 +112,3 @@ remoteConnectTo host port = do
     connectTo connCtx connParams
   where
     connParams = ConnectionParams host port Nothing Nothing
-
-
-
-
-

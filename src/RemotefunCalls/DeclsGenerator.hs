@@ -40,6 +40,9 @@ genClientStubs fis = concat <$> mapM (genClientStub "callRemote") fis
 
 -- >>>:t FunD
 -- FunD :: Name -> [Clause] -> Dec
+
+-- >>>:t SigD
+-- SigD :: Name -> Type -> Dec
 genClientStub :: String -> FuncInfo -> Q [Dec]
 genClientStub callee FuncInfo{..} =  do
        funcImpl <- funD funName [clause [] (normalB stubBody) []]
@@ -61,8 +64,6 @@ arity (AppT (AppT ArrowT _) rest) = arity rest + 1
 arity _ = 0
 
                         
-
-
 -- >>>:t curry
 -- curry :: ((a, b) -> c) -> a -> b -> c
 
@@ -86,3 +87,17 @@ curryAll n
           | n > 1 = [| curry. $(curryAll (n-1)) |]
           | otherwise = fail "curryAll argument can't be"
 
+-- >>>:t const          
+-- const :: a -> b -> a
+
+-- >>>:t $(uncurryAll 3)
+-- $(uncurryAll 3) :: (a -> b1 -> b2 -> c) -> ((a, b1), b2) -> c
+
+-- >>>:t uncurry
+-- uncurry :: (a -> b -> c) -> (a, b) -> c
+uncurryAll :: Int -> Q Exp
+uncurryAll 0 = [| (const :: a -> () -> a) |]         
+uncurryAll 1 = [| id |]
+uncurryAll n  
+        | n > 1 = [| uncurry . $(uncurryAll (n-1)) |]
+        | otherwise = fail "uncurryAll can not have negative number"       
