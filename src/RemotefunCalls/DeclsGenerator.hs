@@ -51,7 +51,46 @@ genClientStub callee FuncInfo{..} =  do
         funName  = mkName name
         typeSig  = SigD funName ty
         stubBody = [| $(curryAll (arity ty)) $ $(dyn callee) name|]  
- 
+      
+
+-- >>>:i Name        
+-- type Name :: *
+-- data Name = Name OccName NameFlavour
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Eq Name -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Ord Name -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Show Name -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance [safe] Ppr Name -- Defined in ‘Language.Haskell.TH.Ppr’
+
+-- | genServer takes the names of functions that are supposed to be called remotely
+genServer :: [Name] -> Q [Dec]       
+genServer names = [d| 
+                      server :: String -> PortNumber -> IO ()  
+                      server host port = serveRPC host port $(genRemoteTable names)
+                   |]
+
+genRemoteTable:: [Name] -> Q Exp
+genRemoteTable names = 
+        mapM reifyFunc names 
+        >>= listE . map (genServerStub "unserialized")
+        
+
+-- >>>:i ExpQ        
+-- type ExpQ :: *
+-- type ExpQ = Q Exp
+--   	-- Defined in ‘Language.Haskell.TH.Lib.Internal’
+genServerStub :: String -> FuncInfo -> ExpQ 
+genServerStub callee FuncInfo{..} = 
+                [| 
+                   (name, $(dyn callee) $ $(uncurryAll (arity ty)) $(dyn name) ) 
+                |]
+
+reifyFunc :: Name -> Q FuncInfo        
+reifyFunc nm = do
+        VarI _ t Nothing <- reify nm 
+        pure $ FuncInfo (nameBase nm) t
+                
+                
 -- >>>:t dyn       
 -- dyn :: Quote m => String -> m Exp
 
@@ -100,41 +139,4 @@ uncurryAll 0 = [| (const :: a -> () -> a) |]
 uncurryAll 1 = [| id |]
 uncurryAll n  
         | n > 1 = [| uncurry . $(uncurryAll (n-1)) |]
-        | otherwise = fail "uncurryAll can not have negative number"       
-
--- >>>:i Name        
--- type Name :: *
--- data Name = Name OccName NameFlavour
---   	-- Defined in ‘Language.Haskell.TH.Syntax’
--- instance Eq Name -- Defined in ‘Language.Haskell.TH.Syntax’
--- instance Ord Name -- Defined in ‘Language.Haskell.TH.Syntax’
--- instance Show Name -- Defined in ‘Language.Haskell.TH.Syntax’
--- instance [safe] Ppr Name -- Defined in ‘Language.Haskell.TH.Ppr’
-
--- | genServer takes the names of functions that are supposed to be called remotely
-genServer :: [Name] -> Q [Dec]       
-genServer names = [d| 
-                      server :: String -> PortNumber -> IO ()  
-                      server host port = serveRPC host port $(genRemoteTable names)
-                   |]
-
-genRemoteTable:: [Name] -> Q Exp
-genRemoteTable names = 
-        mapM reifyFunc names 
-        >>= listE . map (genServerStub "unserialized")
-        
-
-reifyFunc :: Name -> Q FuncInfo        
-reifyFunc nm = do
-        VarI _ t Nothing <- reify nm 
-        pure $ FuncInfo (nameBase nm) t
-
--- >>>:i ExpQ        
--- type ExpQ :: *
--- type ExpQ = Q Exp
---   	-- Defined in ‘Language.Haskell.TH.Lib.Internal’
-genServerStub :: String -> FuncInfo -> ExpQ 
-genServerStub callee FuncInfo{..} = 
-                [| 
-                   (name, $(dyn callee) $ $(uncurryAll (arity ty)) $(dyn name) ) 
-                |] 
+        | otherwise = fail "uncurryAll can not have negative number"  
