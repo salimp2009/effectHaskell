@@ -1,3 +1,5 @@
+--{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 module RemotefunCalls.ClientUtils 
             ( module RemotefunCalls.RpcCommon
@@ -13,7 +15,7 @@ import RemotefunCalls.RemoteIO
 import RemotefunCalls.DeclsGenerator (remote) 
 
 
-callRemote :: (Serialize a, Serialize b) => Operation -> RemoteAction st a b
+callRemote :: forall a b st. (Serialize a, Serialize b) => Operation -> RemoteAction st a b
 callRemote operation params = do
         sendRSIO (operation, encode params)
         answer <- receiveRSIO

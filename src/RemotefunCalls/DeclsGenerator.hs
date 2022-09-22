@@ -72,7 +72,7 @@ genServer names = [d|
 genRemoteTable:: [Name] -> Q Exp
 genRemoteTable names = 
         mapM reifyFunc names 
-        >>= listE . map (genServerStub "unserialized")
+        >>= listE . map (genServerStub "runSerialized")
         
 
 -- >>>:i ExpQ        

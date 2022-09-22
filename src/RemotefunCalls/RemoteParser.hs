@@ -20,8 +20,8 @@ parseRemoteInterface quote = concat <$> mapM (funcInfo . parseDecl) funcs
 
 funcInfo :: ParseResult (Decl SrcSpanInfo) -> Q [FuncInfo]             
 funcInfo (ParseOk (TypeSig _ ids t)) = 
-      pure $ [FuncInfo {..} |  let ty = toType t,  
-                               Ident _ name <- ids]
+      pure $ [FuncInfo {..} |   Ident _ name <- ids,
+                                let ty = toType t]
 
 funcInfo err = fail $ "Error when parsing remote interface (type signature expected)\n " 
                <> show err                       

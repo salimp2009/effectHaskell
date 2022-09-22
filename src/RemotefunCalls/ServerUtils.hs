@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 
-module RemotefunCalls.ServerUtils where
+module RemotefunCalls.ServerUtils (genServer, serveRPC, runSerialized) where
 
 import Data.Serialize
 import Data.ByteString (ByteString)
