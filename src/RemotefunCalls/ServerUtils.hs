@@ -1,6 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
+--{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module RemotefunCalls.ServerUtils (genServer, serveRPC, runSerialized) where
 

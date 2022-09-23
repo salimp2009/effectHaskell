@@ -9,6 +9,7 @@ import TempHaskellProjector
 import TemplateHaskellPredicates (mkPredicates)
 import TemplateHaskellQuasiQuoters ( str ) 
 
+
 $(mkProjectors  [2..10])
 
 data Shape = Circle Double
@@ -43,9 +44,8 @@ main = do
     putStrLn $ proj_5_4 (undefined,undefined,undefined,undefined, "3rd Success!")
     
     putStrLn multStr
-    
-    mapM_ print [isCircle s1, isSquare s2, isTriangle s3]
-        where
-            s1 = Circle 4
-            s2 = Square 10
-            s3 = Triangle 1 1 1         
+    -- mapM_ print [isCircle s1, isSquare s2, isTriangle s3]
+    --     where
+    --         s1 = Circle 4
+    --         s2 = Square 10
+    --         s3 = Triangle 1 1 1         

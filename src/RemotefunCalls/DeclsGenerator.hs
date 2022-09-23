@@ -50,7 +50,7 @@ genClientStub callee FuncInfo{..} =  do
      where
         funName  = mkName name
         typeSig  = SigD funName ty
-        stubBody = [| $(curryAll (arity ty)) $ $(dyn callee) name|]  
+        stubBody = [| $(curryAll (arity ty)) $ $(dyn callee) name |]  
       
 
 -- >>>:i Name        
@@ -79,6 +79,7 @@ genRemoteTable names =
 -- type ExpQ :: *
 -- type ExpQ = Q Exp
 --   	-- Defined in ‘Language.Haskell.TH.Lib.Internal’
+
 genServerStub :: String -> FuncInfo -> ExpQ 
 genServerStub callee FuncInfo{..} = 
                 [| 
@@ -94,9 +95,50 @@ reifyFunc nm = do
 -- >>>:t dyn       
 -- dyn :: Quote m => String -> m Exp
 
+-- >>>:t ForallT
+-- ForallT :: [TyVarBndr Specificity] -> Cxt -> Type -> Type
+
+-- >>>:t AppT
+-- AppT :: Type -> Type -> Type
+
 -- | arity inspect TH type type representation 
 -- determines the number of function arguments
--- However this function does not all typea (about 23-24) in TH.Type 
+-- However this function does not all types (about 23-24) in TH.Type 
+
+-- >>>:i Type
+-- type Type :: *
+-- data Type
+--   = ForallT [TyVarBndr Specificity] Cxt Type
+--   | ForallVisT [TyVarBndr ()] Type
+--   | AppT Type Type
+--   | AppKindT Type Kind
+--   | SigT Type Kind
+--   | VarT Name
+--   | ConT Name
+--   | PromotedT Name
+--   | InfixT Type Name Type
+--   | UInfixT Type Name Type
+--   | ParensT Type
+--   | TupleT Int
+--   | UnboxedTupleT Int
+--   | UnboxedSumT SumArity
+--   | ArrowT
+--   | MulArrowT
+--   | EqualityT
+--   | ListT
+--   | PromotedTupleT Int
+--   | PromotedNilT
+--   | PromotedConsT
+--   | StarT
+--   | ConstraintT
+--   | LitT TyLit
+--   | WildCardT
+--   | ImplicitParamT String Type
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Eq Type -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Ord Type -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Show Type -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance [safe] Ppr Type -- Defined in ‘Language.Haskell.TH.Ppr’
 arity :: Type -> Int
 arity (ForallT _ _ rest) = arity rest
 arity (AppT (AppT ArrowT _) rest) = arity rest + 1

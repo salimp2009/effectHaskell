@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
-module RemotefunCalls.Server where
+module RemotefunCalls.Server  where
 
 import Control.Monad.State
 import RemotefunCalls.ServerUtils
@@ -11,9 +11,13 @@ ping = do
   n <- get
   liftIO $ putStrLn $ "Ping received/answered with " <> show n
   pure $ PingAnswer "OK" n
+  
 echo :: String -> RemotePing String
 echo msg = do
     liftIO $ putStrLn $ "Echo message: " <> msg
     pure msg
 
--- genServer ['ping, 'echo]
+genServer ['ping, 'echo]
+
+runServer :: IO ()
+runServer = server "localhost" 1500

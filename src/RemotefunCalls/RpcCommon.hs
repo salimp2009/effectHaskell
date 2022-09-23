@@ -60,7 +60,7 @@ newtype RSIO st a = RSIO
                               MonadThrow, MonadCatch)
 
 type Operation = String
-type RemoteAction st a b = a -> RSIO st a
+type RemoteAction st a b = a -> RSIO st b
 type RPCTable st = [(Operation, RemoteAction st ByteString ByteString)]                              
 
 data DecodeStages = Stage0 | Stage1 | Stage2
