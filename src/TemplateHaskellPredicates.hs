@@ -88,8 +88,8 @@ mkPredicates name =
   and ''T gives a Name which refers to the type T currently in scope. 
   These names can never be captured.
   lookupValueName and lookupTypeName are similar to 'f and ''T respectively, 
-  but the Names are looked up at the point where the current splice is being run. 
-  These names can never be captured.
+  but the Names are looked up at the point where the current splice is being run, 
+  and these names can never be captured.
   newName monadically generates a new name, which can never be captured.
   mkName generates a capturable name.
 
