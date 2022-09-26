@@ -44,28 +44,31 @@ precompute xs = do
       let name = mkName "lookupTable"
           patterns = map intToPat xs
           fnBodies = map precomputeInteger xs
-          clauses =  precompClauses fnBodies patterns -- <> lastClause
+          clauses =  precompClauses fnBodies patterns <> lastClause
       return [FunD name clauses ]
   where
     intToPat :: Int -> Pat
     intToPat = LitP . IntegerL . toInteger
 
     precomputeInteger :: Int -> Exp
-    precomputeInteger = LitE . DoublePrimL . toRational . bigMathProblem
+    precomputeInteger = LitE . RationalL . toRational . bigMathProblem
 
     precompClauses :: [Exp] -> [Pat] -> [Clause]
     precompClauses = zipWith (\body patrn -> Clause [patrn] (NormalB body) [])
 
     x' = mkName "x"
     lastClause = [Clause [VarP x'] (NormalB appBody) []]
-    appBody = AppE (VarE (mkName "bigMathProblem")) (VarE  x')
+    appBody = AppE (VarE (mkName "bigMathProblem")) (VarE x')
 
 bigMathProblem :: Int -> Double
-bigMathProblem x = fromIntegral @Int @Double (x * x) + 100.0233
+bigMathProblem x = fromIntegral @_ @Double (x * x) + 100.0233
     
    
 -- >>>:t Clause
 -- Clause :: [Pat] -> Body -> [Dec] -> Clause
+
+-- >>>:t RationalL
+-- RationalL :: Rational -> Lit
 
 -- | there was an error so created 
 -- version matching exact code in the book
