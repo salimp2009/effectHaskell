@@ -96,6 +96,7 @@ library
       SingletonsDependentPairs
       StateContext
       SumTypes
+      TempHaskellMultiFuncDec
       TempHaskellProjector
       TemplateHaskellBasic
       TemplateHaskellPredicates
