@@ -54,5 +54,24 @@ functionLevels = go 0
     go n (ForallT _ _ rest) = go n rest
     go n _  = n   
 
+-- | when we querry a function we get Info   
+-- a sum type that has various Constructor
+-- we  pattern match to get the ones with Type to generator   
 getType :: Info -> Maybe Type
-getType _ = undefined    
+getType (ClassOpI _ t   _) = Just t
+getType (DataConI _ t  _)  = Just t
+getType (VarI _ t _)       = Just t
+getType (TyVarI _ t)       = Just t
+getType _                  = Nothing
+
+decForFunc :: Name -> Name -> Q Dec
+decForFunc reader fn = do
+  info <- reify fn
+  arity <- maybe (reportError "Unable to get arity of name" >> return 0 )
+                 (return . functionLevels) 
+                 (getType info)
+  return (FunD fnName [Clause varPat (NormalB final) []])
+
+fnName = undefined
+varPat = undefined 
+final = undefined  
