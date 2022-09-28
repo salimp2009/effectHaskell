@@ -19,6 +19,8 @@ module TempHaskellMultiFuncDec where
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
+import Control.Monad (replicateM)
+import Control.Monad.Reader (liftIO)
 
 {- 
   fmap :: (a -> b) -> f a -> f b
@@ -66,12 +68,121 @@ getType _                  = Nothing
 
 decForFunc :: Name -> Name -> Q Dec
 decForFunc reader fn = do
-  info <- reify fn
-  arity <- maybe (reportError "Unable to get arity of name" >> return 0 )
-                 (return . functionLevels) 
-                 (getType info)
+  info  <- reify fn
+  arity <- getArity info
+  varNames <- replicateM (arity -1) (newName "arg")
+  b <- newName "b"  
+  let fnName    = mkName . nameBase $ fn
+      bound     = AppE (VarE '(>>=)) (VarE reader) 
+      binder    = AppE bound . LamE [VarP b]        -- << similar to; (>>=) reader (\b -> ...)
+      varExprs   = map VarE (b : varNames)            
+      fullExprs  = foldl AppE (VarE fn) varExprs
+      liftedExpr = AppE (VarE 'liftIO) fullExprs
+      final      = binder liftedExpr
+      varPat     = map VarP varNames
   return (FunD fnName [Clause varPat (NormalB final) []])
+    where
+      getArity info'= maybe (reportError "Unable to get arity of name" >> return 0 )
+                       (return . functionLevels) 
+                       (getType info')
 
-fnName = undefined
-varPat = undefined 
-final = undefined  
+
+deriveReader :: Name -> DecsQ
+deriveReader rd =
+              mapM (decForFunc rd)
+              [ 'destroyUserBackend
+              , 'housekeepBackend
+              , 'getUserIdByName
+              , 'getUserById
+              , 'listUsers
+              , 'countUsers
+               , 'createUser
+               , 'updateUser
+               , 'updateUserDetails
+               , 'authUser
+               , 'deleteUser
+               ]  
+-- | these function declarations and backend functions needs to be implemented
+-- in another file
+-- and needs to be called as ; 
+-- deriverReader 'backend  
+-- but that will be out of the example scope   
+
+backend = undefined
+destroyUserBackend = undefined 
+housekeepBackend = undefined
+getUserIdByName = undefined
+getUserById = undefined
+listUsers = undefined
+countUsers = undefined
+createUser = undefined
+updateUser = undefined
+updateUserDetails = undefined
+authUser = undefined
+deleteUser = undefined
+          
+{- 
+  fn        ~ VarE fn
+  fn a      ~ AppE (VarE fn) (VarE a)
+  fn a b    ~ AppE (AppE (VarEfn) (VarE a)) (VarE b)
+  fn a b c  ~ AppE (AppE (AppE (VarEfn) (VarE a)) (VarE b)) (VarE c)
+-}
+
+-- >>>:i AppE
+-- type Exp :: *
+-- data Exp = ... | AppE Exp Exp | ...
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i VarE
+-- type Exp :: *
+-- data Exp = VarE Name | ...
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i LamE
+-- type Exp :: *
+-- data Exp = ... | LamE [Pat] Exp | ...
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i Pat
+-- type Pat :: *
+-- data Pat
+--   = LitP Lit
+--   | VarP Name
+--   | TupP [Pat]
+--   | UnboxedTupP [Pat]
+--   | UnboxedSumP Pat SumAlt SumArity
+--   | ConP Name [Pat]
+--   | InfixP Pat Name Pat
+--   | UInfixP Pat Name Pat
+--   | ParensP Pat
+--   | TildeP Pat
+--   | BangP Pat
+--   | AsP Name Pat
+--   | WildP
+--   | RecP Name [FieldPat]
+--   | ListP [Pat]
+--   | SigP Pat Type
+--   | ViewP Exp Pat
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Eq Pat -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Ord Pat -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Show Pat -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance [safe] Ppr Pat -- Defined in ‘Language.Haskell.TH.Ppr’
+
+-- | this is the boilerplate  to create several functions
+-- that we are trying automate using TH
+{- 
+derivedFunction arg1 arg2 ... argn =
+  ((>>=) backend)
+    (\b -> liftIO ((...(((function b) arg1) arg2)...) argn))
+-}
+
+-- >>>:i newName
+-- type Quote :: (* -> *) -> Constraint
+-- class Monad m => Quote m where
+--   newName :: String -> m Name
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i mkName
+-- mkName :: String -> Name
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
