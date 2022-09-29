@@ -66,60 +66,67 @@ getType (VarI _ t _)       = Just t
 getType (TyVarI _ t)       = Just t
 getType _                  = Nothing
 
-decForFunc :: Name -> Name -> Q Dec
-decForFunc reader fn = do
-  info  <- reify fn
-  arity <- getArity info
-  varNames <- replicateM (arity -1) (newName "arg")
-  b <- newName "b"  
-  let fnName    = mkName . nameBase $ fn
-      bound     = AppE (VarE '(>>=)) (VarE reader) 
-      binder    = AppE bound . LamE [VarP b]        -- << similar to; (>>=) reader (\b -> ...)
-      varExprs   = map VarE (b : varNames)            
-      fullExprs  = foldl AppE (VarE fn) varExprs
-      liftedExpr = AppE (VarE 'liftIO) fullExprs
-      final      = binder liftedExpr
-      varPat     = map VarP varNames
-  return (FunD fnName [Clause varPat (NormalB final) []])
-    where
-      getArity info'= maybe (reportError "Unable to get arity of name" >> return 0 )
-                       (return . functionLevels) 
-                       (getType info')
+-- | this is the boilerplate  to create several functions
+-- that we are trying automate using TH
+{- 
+derivedFunction arg1 arg2 ... argn =
+  ((>>=) backend)
+    (\b -> liftIO ((...(((function b) arg1) arg2)...) argn))
+-}
+-- decForFunc :: Name -> Name -> Q Dec
+-- decForFunc reader fn = do
+--   info  <- reify fn
+--   arity <- getArity info
+--   varNames <- replicateM (arity -1) (newName "arg")
+--   b <- newName "b"  
+--   let fnName    = mkName . nameBase $ fn
+--       bound     = AppE (VarE '(>>=)) (VarE reader) 
+--       binder    = AppE bound . LamE [VarP b]        -- << similar to; (>>=) reader (\b -> ...)
+--       varExprs   = map VarE (b : varNames)            
+--       fullExprs  = foldl AppE (VarE fn) varExprs
+--       liftedExpr = AppE (VarE 'liftIO) fullExprs
+--       final      = binder liftedExpr
+--       varPat     = map VarP varNames
+--   return (FunD fnName [Clause varPat (NormalB final) []])
+--     where
+--       getArity info'= maybe (reportError "Unable to get arity of name" >> return 0 )
+--                        (return . functionLevels) 
+--                        (getType info')
 
 
-deriveReader :: Name -> DecsQ
-deriveReader rd =
-              mapM (decForFunc rd)
-              [ 'destroyUserBackend
-              , 'housekeepBackend
-              , 'getUserIdByName
-              , 'getUserById
-              , 'listUsers
-              , 'countUsers
-               , 'createUser
-               , 'updateUser
-               , 'updateUserDetails
-               , 'authUser
-               , 'deleteUser
-               ]  
--- | these function declarations and backend functions needs to be implemented
--- in another file
--- and needs to be called as ; 
--- deriverReader 'backend  
--- but that will be out of the example scope   
+-- deriveReader :: Name -> DecsQ
+-- deriveReader rd =
+--               mapM (decForFunc rd)
+--               [ 'destroyUserBackend
+--               , 'housekeepBackend
+--               , 'getUserIdByName
+--               , 'getUserById
+--               , 'listUsers
+--               , 'countUsers
+--                , 'createUser
+--                , 'updateUser
+--                , 'updateUserDetails
+--                , 'authUser
+--                , 'deleteUser
+--                ]  
+-- -- | these function declarations and backend functions needs to be implemented
+-- -- in another file
+-- -- and needs to be called as ; 
+-- -- deriverReader 'backend  
+-- -- but that will be out of the example scope   
 
-backend = undefined
-destroyUserBackend = undefined 
-housekeepBackend = undefined
-getUserIdByName = undefined
-getUserById = undefined
-listUsers = undefined
-countUsers = undefined
-createUser = undefined
-updateUser = undefined
-updateUserDetails = undefined
-authUser = undefined
-deleteUser = undefined
+-- backend = undefined
+-- destroyUserBackend = undefined 
+-- housekeepBackend = undefined
+-- getUserIdByName = undefined
+-- getUserById = undefined
+-- listUsers = undefined
+-- countUsers = undefined
+-- createUser = undefined
+-- updateUser = undefined
+-- updateUserDetails = undefined
+-- authUser = undefined
+-- deleteUser = undefined
           
 {- 
   fn        ~ VarE fn
@@ -164,18 +171,6 @@ deleteUser = undefined
 --   | SigP Pat Type
 --   | ViewP Exp Pat
 --   	-- Defined in ‘Language.Haskell.TH.Syntax’
--- instance Eq Pat -- Defined in ‘Language.Haskell.TH.Syntax’
--- instance Ord Pat -- Defined in ‘Language.Haskell.TH.Syntax’
--- instance Show Pat -- Defined in ‘Language.Haskell.TH.Syntax’
--- instance [safe] Ppr Pat -- Defined in ‘Language.Haskell.TH.Ppr’
-
--- | this is the boilerplate  to create several functions
--- that we are trying automate using TH
-{- 
-derivedFunction arg1 arg2 ... argn =
-  ((>>=) backend)
-    (\b -> liftIO ((...(((function b) arg1) arg2)...) argn))
--}
 
 -- >>>:i newName
 -- type Quote :: (* -> *) -> Constraint

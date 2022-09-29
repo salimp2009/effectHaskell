@@ -50,6 +50,8 @@ main = do
     putStrLn $ proj_4_2 (undefined,undefined,"2nd Success!",undefined)
     putStrLn $ proj_5_4 (undefined,undefined,undefined,undefined, "3rd Success!")
 
+    putStrLn multStr
+
     mapM_ print [isCircle s1, isSquare s2, isTriangle s3]
         where
             s1 = Circle 4
