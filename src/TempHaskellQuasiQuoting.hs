@@ -14,6 +14,7 @@ module TempHaskellQuasiQuoting where
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
+import Control.Monad
 
 -- >>>runQ [e|1 + 2 |]
 -- InfixE (Just (LitE (IntegerL 1))) (VarE GHC.Num.+) (Just (LitE (IntegerL 2)))
@@ -61,14 +62,6 @@ compose = [| \l r x -> l(r x) |]
 -- >>> $compose (*2) (+1) 0
 -- 2
 
-[d| class TupleX t r | t -> r where 
-      _X :: t ->r 
-  |]
-
--- >>> [d| class TupleX t r | t -> r where _X :: t ->r |]
--- [ClassD [] TupleX_0 [PlainTV t_2 (),PlainTV r_3 ()] [FunDep [t_2] [r_3]] 
---     [SigD _X_1 (AppT (AppT ArrowT (VarT t_2)) 
-
 
 -- >>>:i TupleX 
 -- type TupleX :: * -> * -> Constraint
@@ -85,5 +78,111 @@ compose = [| \l r x -> l(r x) |]
 -- [SigD x_7 
 --  (AppT (AppT (AppT (TupleT 3) (VarT a_4)) (VarT b_5)) (VarT c_6))
 --   , ValD (VarP x_7) (NormalB (VarE GHC.Err.undefined)) []]
+
+-- >>>runQ [d| x:: a -> b; x = undefined |]
+-- [SigD x_2 
+--  (AppT (AppT ArrowT (VarT a_0)) (VarT b_1))
+-- ,ValD (VarP x_2) (NormalB (VarE GHC.Err.undefined)) []]
+
+-- >>>[d| x :: (a , b , c) ->d -> e; x = undefined |]
+-- [SigD x_8 
+--  (AppT 
+--    (AppT ArrowT (AppT (AppT (AppT (TupleT 3) (VarT a_3)) (VarT b_4)) (VarT c_5))) 
+--    (AppT (AppT ArrowT (VarT d_6)) (VarT e_7))
+--  )
+-- ,ValD (VarP x_8) (NormalB (VarE GHC.Err.undefined)) []]
+
+[d| class TupleX t r | t -> r where 
+      _X :: t ->r 
+  |]
+
+-- >>> [d| class TupleX t r | t -> r where _X :: t ->r |]
+-- [ClassD [] TupleX_0 [PlainTV t_2 (),PlainTV r_3 ()] [FunDep [t_2] [r_3]] 
+--     [SigD _X_1 (AppT (AppT ArrowT (VarT t_2))] 
+-- | ^ this is what we are doing X being any given size of a Tuple
+-- t refern to the nth element and r is the nth element of the given Tuple
 generateTupleClass :: Int -> Q [Dec]
-generateTupleClass size = undefined
+generateTupleClass size = do
+  unless (size > 0) $ 
+    fail $ "Non-positive size: " <> size'
+  pure [cDecl]  
+    where 
+      size' = show size
+      className = mkName ("Tupple" <> size')
+      methodName = mkName ('_' : size')
+      t = mkName "t"
+      r = mkName "r"
+      cDecl = ClassD [] className [PlainTV t(),PlainTV r ()] [FunDep [t] [r]] [mDecl]
+      mDecl = SigD methodName (AppT (AppT ArrowT (VarT t)) (VarT r))
+
+-- >>>:t ClassD      
+-- ClassD :: Cxt -> Name -> [TyVarBndr ()] -> [FunDep] -> [Dec] -> Dec
+
+
+-- >>>:t SigD
+-- ValD :: Pat -> Body -> [Dec] -> Dec
+
+-- >>>:t FunDep
+-- FunDep :: [Name] -> [Name] -> FunDep
+
+-- >>>:i Pat
+-- type Pat :: *
+-- data Pat
+--   = LitP Lit
+--   | VarP Name
+--   | TupP [Pat]
+--   | UnboxedTupP [Pat]
+--   | UnboxedSumP Pat SumAlt SumArity
+--   | ConP Name [Pat]
+--   | InfixP Pat Name Pat
+--   | UInfixP Pat Name Pat
+--   | ParensP Pat
+--   | TildeP Pat
+--   | BangP Pat
+--   | AsP Name Pat
+--   | WildP
+--   | RecP Name [FieldPat]
+--   | ListP [Pat]
+--   | SigP Pat Type
+--   | ViewP Exp Pat
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
+-- >>>:i Dec
+-- type Dec :: *
+-- data Dec
+--   = FunD Name [Clause]
+--   | ValD Pat Body [Dec]
+--   | DataD Cxt Name [TyVarBndr ()] (Maybe Kind) [Con] [DerivClause]
+--   | NewtypeD Cxt Name [TyVarBndr ()] (Maybe Kind) Con [DerivClause]
+--   | TySynD Name [TyVarBndr ()] Type
+--   | ClassD Cxt Name [TyVarBndr ()] [FunDep] [Dec]
+--   | InstanceD (Maybe Overlap) Cxt Type [Dec]
+--   | SigD Name Type
+--   | KiSigD Name Kind
+--   | ForeignD Foreign
+--   | InfixD Fixity Name
+--   | PragmaD Pragma
+--   | DataFamilyD Name [TyVarBndr ()] (Maybe Kind)
+--   | DataInstD Cxt
+--               (Maybe [TyVarBndr ()])
+--               Type
+--               (Maybe Kind)
+--               [Con]
+--               [DerivClause]
+--   | NewtypeInstD Cxt
+--                  (Maybe [TyVarBndr ()])
+--                  Type
+--                  (Maybe Kind)
+--                  Con
+--                  [DerivClause]
+--   | TySynInstD TySynEqn
+--   | OpenTypeFamilyD TypeFamilyHead
+--   | ClosedTypeFamilyD TypeFamilyHead [TySynEqn]
+--   | RoleAnnotD Name [Role]
+--   | StandaloneDerivD (Maybe DerivStrategy) Cxt Type
+--   | DefaultSigD Name Type
+--   | PatSynD Name PatSynArgs PatSynDir Pat
+--   | PatSynSigD Name PatSynType
+--   | ImplicitParamBindD String Exp
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+
