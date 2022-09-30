@@ -113,7 +113,7 @@ generateTupleClass size = do
       methodName = mkName ('_' : size')
       t = mkName "t"
       r = mkName "r"
-      cDecl = ClassD [] className [PlainTV t(),PlainTV r ()] [FunDep [t] [r]] [mDecl]
+      cDecl = ClassD [] className [PlainTV t (),PlainTV r ()] [FunDep [t] [r]] [mDecl]
       mDecl = SigD methodName (AppT (AppT ArrowT (VarT t)) (VarT r))
 
 
@@ -138,10 +138,16 @@ generateTupleInstance element size = do
     methodName  = mkName ('_' : size')
     x =  mkName "x"  -- << this is the name for requested element
     vars = [mkName ('t' : show n) | n <- [1..size]] -- << these are the other variable not including requested one
-    iDecl = undefined
-
+    signature = foldl (\acc var -> AppT acc (VarT var)) (TupleT size) vars  -- << this is the part ->; (AppT (AppT (AppT (TupleT 3) (VarT a_4)) ...) (VarT c_6))
+    iDecl =  InstanceD Nothing [] (AppT (AppT (ConT className) signature) (VarT $ mkName ('t' : element'))) [mDecl]
+    mDecl = FunD  methodName [Clause [TupP $ replicate (element -1) WildP  <> [VarP x] <> replicate (size - element) WildP] (NormalB (VarE x)) []]   
 -- >>>:t ClassD      
 -- ClassD :: Cxt -> Name -> [TyVarBndr ()] -> [FunDep] -> [Dec] -> Dec
+
+-- >>>:i InstanceD
+-- type Dec :: *
+-- data Dec = ... | InstanceD (Maybe Overlap) Cxt Type [Dec] | ...
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
 
 -- >>>:t SigD
 -- ValD :: Pat -> Body -> [Dec] -> Dec
