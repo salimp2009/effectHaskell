@@ -16,6 +16,7 @@ import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
 import Control.Monad
 
+
 -- >>>runQ [e|1 + 2 |]
 -- InfixE (Just (LitE (IntegerL 1))) (VarE GHC.Num.+) (Just (LitE (IntegerL 2)))
 
@@ -108,16 +109,39 @@ generateTupleClass size = do
   pure [cDecl]  
     where 
       size' = show size
-      className = mkName ("Tupple" <> size')
+      className = mkName ("Tuple" <> size')
       methodName = mkName ('_' : size')
       t = mkName "t"
       r = mkName "r"
       cDecl = ClassD [] className [PlainTV t(),PlainTV r ()] [FunDep [t] [r]] [mDecl]
       mDecl = SigD methodName (AppT (AppT ArrowT (VarT t)) (VarT r))
 
+
+-- >>>runQ [d| instance TupleX (a, b, c) c where _X (_, _, c) = c |]      
+-- [InstanceD Nothing [] 
+--  (AppT (AppT (ConT TempHaskellQuasiQuoting.TupleX) 
+--    (AppT (AppT (AppT (TupleT 3) (VarT a_4)) (VarT b_5)) (VarT c_6))) (VarT c_6)) 
+--    [FunD TempHaskellQuasiQuoting._X [Clause [TupP [WildP,WildP,VarP c_7]] (NormalB (VarE c_7)) []]]]
+-- | need to create instance of the TupleX class
+
+generateTupleInstance :: Int -> Int -> Q [Dec]
+generateTupleInstance element size = do 
+  unless (size > 0) $ 
+    fail $ "Non-positive size: " <> size'
+  unless (size >= element) $ 
+    fail $ "Can't extract element: " <> element' <> " off " <> size'  
+  pure [iDecl]
+  where
+    element' = show element
+    size'    = show size 
+    className   = mkName ("Tuple" <> size')
+    methodName  = mkName ('_' : size')
+    x =  mkName "x"  -- << this is the name for requested element
+    vars = [mkName ('t' : show n) | n <- [1..size]] -- << these are the other variable not including requested one
+    iDecl = undefined
+
 -- >>>:t ClassD      
 -- ClassD :: Cxt -> Name -> [TyVarBndr ()] -> [FunDep] -> [Dec] -> Dec
-
 
 -- >>>:t SigD
 -- ValD :: Pat -> Body -> [Dec] -> Dec

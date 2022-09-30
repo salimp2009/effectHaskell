@@ -1,7 +1,9 @@
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeApplications #-}
-
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 module Main where
 
 import Lib ()
@@ -10,9 +12,10 @@ import TempHaskellProjector
 import TemplateHaskellPredicates (mkPredicates)
 import TemplateHaskellQuasiQuoters ( str )
 import TemplateHaskLookupTable
+import TempHaskellQuasiQuoting
 
 
-
+$(generateTupleClass 3)
 
 $(precompute [1..5])
 
