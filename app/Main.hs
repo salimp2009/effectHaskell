@@ -3,6 +3,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE TupleSections #-}
 --{-# LANGUAGE MultiParamTypeClasses #-}
 module Main where
 
@@ -15,9 +16,11 @@ import TemplateHaskLookupTable
 import TempHaskellQuasiQuoting
 
 
-$(generateTupleClass 3)
+-- $(generateTupleClass 3)
 
-$(generateTupleInstance 3 5)
+-- $(generateTupleInstance 3 5)
+
+$(generateTupleBoilerPlate 10)
 
 $(precompute [1..5])
 
@@ -55,7 +58,8 @@ main = do
     putStrLn $ proj_4_2 (undefined,undefined,"2nd Success!",undefined)
     putStrLn $ proj_5_4 (undefined,undefined,undefined,undefined, "3rd Success!")
 
-    print $ _3 (43, "hello", "Demir", [], 3.14)
+    print $ _1 (43, "hello", "Demir", [], 3.14)
+    print $ _5 (1, 2, 3, 4, 5, 6, 7, 8, 9)
     
     putStrLn multStr
 

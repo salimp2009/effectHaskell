@@ -59,10 +59,15 @@ newVal :: Int -> Int
 newVal = decl 
 
 compose :: Q Exp
-compose = [| \l r x -> l(r x) |]
-
+compose  = [| \l r x -> l(r x) |]
 -- >>> $compose (*2) (+1) 0
 -- 2
+
+
+-- >>>:set -XFlexibleContexts
+-- >>>$(compose 2)   (*2) (+1)
+-- Couldn't match expected type: t0 -> ExpQ
+--             with actual type: Q Exp
 
 
 -- >>>:i TupleX 

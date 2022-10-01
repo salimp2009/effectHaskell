@@ -108,6 +108,7 @@ library
       Type_Operators
       TypeAlgebras
       TypeAliases
+      TypedTemplateHaskell
       TypeFamilies
       TypeHoleUses
       TypeLevelDefunctionalization
