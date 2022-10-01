@@ -3,7 +3,7 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE FunctionalDependencies #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
+--{-# LANGUAGE MultiParamTypeClasses #-}
 module Main where
 
 import Lib ()
@@ -16,6 +16,8 @@ import TempHaskellQuasiQuoting
 
 
 $(generateTupleClass 3)
+
+$(generateTupleInstance 3 5)
 
 $(precompute [1..5])
 
@@ -53,6 +55,8 @@ main = do
     putStrLn $ proj_4_2 (undefined,undefined,"2nd Success!",undefined)
     putStrLn $ proj_5_4 (undefined,undefined,undefined,undefined, "3rd Success!")
 
+    print $ _3 (43, "hello", "Demir", [], 3.14)
+    
     putStrLn multStr
 
     mapM_ print [isCircle s1, isSquare s2, isTriangle s3]

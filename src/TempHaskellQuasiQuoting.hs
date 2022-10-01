@@ -15,6 +15,7 @@ module TempHaskellQuasiQuoting where
 import Language.Haskell.TH
 import Language.Haskell.TH.Syntax
 import Control.Monad
+import Data.Traversable (for)
 
 
 -- >>>runQ [e|1 + 2 |]
@@ -134,13 +135,27 @@ generateTupleInstance element size = do
   where
     element' = show element
     size'    = show size 
-    className   = mkName ("Tuple" <> size')
-    methodName  = mkName ('_' : size')
+    className   = mkName ("Tuple" <> element')
+    methodName  = mkName ('_' : element')
     x =  mkName "x"  -- << this is the name for requested element
     vars = [mkName ('t' : show n) | n <- [1..size]] -- << these are the other variable not including requested one
     signature = foldl (\acc var -> AppT acc (VarT var)) (TupleT size) vars  -- << this is the part ->; (AppT (AppT (AppT (TupleT 3) (VarT a_4)) ...) (VarT c_6))
     iDecl =  InstanceD Nothing [] (AppT (AppT (ConT className) signature) (VarT $ mkName ('t' : element'))) [mDecl]
-    mDecl = FunD  methodName [Clause [TupP $ replicate (element -1) WildP  <> [VarP x] <> replicate (size - element) WildP] (NormalB (VarE x)) []]   
+    mDecl = FunD  methodName [Clause [TupP $ replicate (element -1) WildP  <> [VarP x] <> replicate (size - element) WildP] (NormalB $ VarE x) []]   
+
+generateTupleBoilerPlate :: Int -> Q [Dec]
+generateTupleBoilerPlate size =
+  concatFor [1..size] $ \classDecIndex -> do
+    cDecl   <- generateTupleClass classDecIndex                   -- << cDecl  :: [Dec]
+    iDecls  <- for [1..classDecIndex] $ \instanceDecIndex ->      -- << iDecls :: [[Dec]]
+        generateTupleInstance instanceDecIndex classDecIndex
+    pure $ concat (cDecl : iDecls)                                -- pure _ :: [Dec] -> Q [Dec]
+  where
+    concatFor :: [Int] -> (Int -> Q [Dec]) -> Q [Dec]
+    concatFor xs = fmap concat . for xs       
+
+
+
 -- >>>:t ClassD      
 -- ClassD :: Cxt -> Name -> [TyVarBndr ()] -> [FunDep] -> [Dec] -> Dec
 
