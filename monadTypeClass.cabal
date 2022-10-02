@@ -109,6 +109,7 @@ library
       TypeAlgebras
       TypeAliases
       TypedTemplateHaskell
+      TypedTHPrimes
       TypeFamilies
       TypeHoleUses
       TypeLevelDefunctionalization
