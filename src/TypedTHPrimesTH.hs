@@ -10,6 +10,7 @@
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE FunctionalDependencies #-}
+{-# LANGUAGE RankNTypes #-}
 module TypedTHPrimesTH where
 
 
@@ -37,8 +38,8 @@ primesUpTo' n = go 2
   where
     go i
       | i > n     = [|| [] ||]
-      | isPrime i = [|| i : $$(go (i+1)) ||]
-      | otherwise = [|| $$(go (i+1)) ||]
+      | isPrime i = [|| i : $$(go (i + 1)) ||]
+      | otherwise = [|| $$(go (i + 1)) ||]
 
 -- >>>$$(primesUpTo' 100)    
 -- [2,3,5,7,11,13,17,19,23,25,29,31,35,37,41,43,47,49,53,55,59,61,65,67,71,73,77,79,83,85,89,91,95,97]
@@ -52,6 +53,35 @@ primesUpTo' n = go 2
 --        (Just (InfixE (Just (LitE (IntegerL 5))) (ConE GHC.Types.:) 
 --        (Just (InfixE (Just (LitE (IntegerL 7))) (ConE GHC.Types.:) 
 --        (Just (ConE GHC.Types.[]))))))))
+
+primesUpTo2 :: Integer -> [Integer]
+primesUpTo2 n = filter isPrime [2..n]
+
+primesUpTo2' :: Integer -> Code Q [Integer]
+primesUpTo2' n = [|| primesUpTo2 n ||]
+
+mempty' :: forall a. Monoid a => Code Q a 
+mempty' = [|| mempty||]
+
+-- >>>:t mempty
+-- mempty :: Monoid a => a
+
+
+-- >>> myXempty :: [Int] ; myXempty = id $$(mempty' @([Int]))
+-- >>> myXempty
+-- []
+
+-- >>> myXempty :: String ; myXempty = id $$(mempty' :: Code Q String)
+-- >>> myXempty
+-- ""
+
+
+
+
+
+
+
+
 
 
 

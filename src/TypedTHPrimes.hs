@@ -10,9 +10,9 @@ isPrime n
       go i 
        | i >= n         = True
        | n `mod` i == 0 = False
-       | otherwise      = go (n+2)
+       | otherwise      = go (i + 2)
 
-
+-- | this is not efficient see version 2 in TypeTHPrimesTH module for a better impl.
 primesUpTo :: Integer -> [Integer]
 primesUpTo n = go 2 
   where 

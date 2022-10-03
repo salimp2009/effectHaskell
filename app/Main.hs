@@ -14,6 +14,7 @@ import TemplateHaskellPredicates (mkPredicates)
 import TemplateHaskellQuasiQuoters ( str )
 import TemplateHaskLookupTable
 import TempHaskellQuasiQuoting
+import TypedTHPrimesTH
 
 
 -- $(generateTupleClass 3)
@@ -48,7 +49,13 @@ Hast built thyself a live-long monument…
 main :: IO ()
 main = do
     print greeting
-
+    let numbers = $$(primesUpTo2' 10000)
+    putStrLn "Which prime number do you want to know (should be  smaller than ~ 1000)"
+    input <- readLn
+    if input < length numbers
+        then print (numbers !! (input-1))
+        else  putStrLn "Number too big"
+    
     putStrLn $ $(proj 3 1) (undefined,"1st Success!",undefined)
     putStrLn $ $(proj 3 2) (undefined,"Success!","2nd success")
     putStrLn $ $(proj 4 2) (undefined,undefined,"2nd Success!",undefined)
