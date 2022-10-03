@@ -110,6 +110,7 @@ library
       TypeAliases
       TypedTemplateHaskell
       TypedTHPrimes
+      TypedTHPrimesTH
       TypeFamilies
       TypeHoleUses
       TypeLevelDefunctionalization

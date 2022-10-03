@@ -13,11 +13,13 @@ isPrime n
        | otherwise      = go (n+2)
 
 
-isPrimeUpTo :: Integer -> [Integer]
-isPrimeUpTo n = go 2 
+primesUpTo :: Integer -> [Integer]
+primesUpTo n = go 2 
   where 
     go i
       | i > n     = []
       | isPrime i = i : go (i + 1)
       | otherwise = go (i + 1)
+
+      
 
