@@ -90,7 +90,13 @@ hello = [|putStrLn "Hello Template Haskell"|]
 -- >>>:t ( $$(liftTyped (5::Int)) )
 -- ( $$(liftTyped (5::Int)) ) :: Int
 
+-- >>>:t liftTyped
+-- liftTyped :: (Lift t, Quote m) => t -> Code m t
+
 -- >>>$$([|| 1 + 2 ||])
+-- 3
+
+-- >>>$([| 1 + 2 |])
 -- 3
 
 -- >>>:t ([|| 1 + 2 ||])

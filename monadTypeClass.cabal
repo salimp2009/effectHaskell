@@ -119,6 +119,10 @@ library
       TypeScopingApplications
       TypesFromSchema
       UsingUnDefined
+      WebAPI0
+      WebAPI1
+      WebAPI2
+      WebAPI3
   other-modules:
       Paths_monadTypeClass
   hs-source-dirs:

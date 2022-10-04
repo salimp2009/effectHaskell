@@ -54,6 +54,10 @@ primesUpTo' n = go 2
 --        (Just (InfixE (Just (LitE (IntegerL 7))) (ConE GHC.Types.:) 
 --        (Just (ConE GHC.Types.[]))))))))
 
+
+-- >>>:t runQ 
+-- runQ :: Quasi m => Q a -> m a
+
 primesUpTo2 :: Integer -> [Integer]
 primesUpTo2 n = filter isPrime [2..n]
 
@@ -74,6 +78,43 @@ mempty' = [|| mempty||]
 -- >>> myXempty :: String ; myXempty = id $$(mempty' :: Code Q String)
 -- >>> myXempty
 -- ""
+
+-- | if such an error exists then do type application or explicit type declaration
+-- as show above examples of myXempty
+-- >>> myXempty :: String ; myXempty = id $$mempty'
+-- >>> myXempty
+-- Ambiguous type variable ‘a0’ arising from a use of ‘mempty'’
+-- prevents the constraint ‘(Monoid a0)’ from being solved.
+-- Probable fix: use a type annotation to specify what ‘a0’ should be.
+-- These potential instances exist:
+--   instance Monoid Series -- Defined in ‘Data.Aeson.Encoding.Internal’
+--   instance Monoid Key -- Defined in ‘Data.Aeson.Key’
+--   instance Monoid (KeyMap v) -- Defined in ‘Data.Aeson.KeyMap’
+--   ...plus 81 others
+--   (use -fprint-potential-instances to see them all)
+
+-- | it is also possible to convert from old style to new style 
+-- from Q (TExp a) -> Code Q a
+-- >>>:t liftCode 
+-- liftCode :: m (TExp a) -> Code m a
+
+-- >>>:t Code
+-- Code :: m (TExp a) -> Code m a
+
+-- >>>:t Q
+-- Q :: (forall (m :: * -> *). Quasi m => m a) -> Q a
+
+-- >>>:i Quote
+-- type Quote :: (* -> *) -> Constraint
+-- class Monad m => Quote m where
+--   newName :: String -> m Name
+--   {-# MINIMAL newName #-}
+--   	-- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Quote Q -- Defined in ‘Language.Haskell.TH.Syntax’
+-- instance Quote IO -- Defined in ‘Language.Haskell.TH.Syntax’
+
+
+
 
 
 
