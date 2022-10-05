@@ -1,5 +1,8 @@
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE RankNTypes #-}
 module WebAPI1 where
-import Data.Kind (Type)
+
+import Text.Read (readMaybe)
 
 -- | Book rating and services can be represented enumarating the 
 -- potential values
@@ -39,3 +42,45 @@ impl2 = BookInfoAPIImpl
          }            
     where 
       notImplemented = ioError (userError "not implemented")
+
+type Request = [String]
+
+encode :: Show a => HandlerAction a -> IO String
+encode m = show <$> m 
+
+route :: BookInfoAPIImpl -> Request -> Maybe (IO String)
+route impl [] = pure $ encode $ root impl
+route impl [op, bid'] = do
+      bid <- readMaybe bid'
+      case op of
+        "title"  -> pure $ encode $ title impl bid
+        "year"   -> pure $encode $ year impl bid
+        "rating" -> pure $encode $ rating impl bid
+        _        -> Nothing
+route _ _ = Nothing
+
+-- >>>getReq2 impl1 ["year", "7548"]
+-- "2021"
+
+-- >>>getReq2 impl2 ["year", "7548"]
+-- user error (not implemented)
+
+-- >>>getReq2 impl1 []
+-- "Ok"
+
+-- >>>getReq2 impl2 []
+-- "Down"
+getReq2 :: BookInfoAPIImpl -> Request -> IO String
+getReq2 impl reqs = 
+    case route impl reqs of
+      Just m  -> m
+      Nothing -> pure "Malformed request"
+
+checkReq2 ::  BookInfoAPIImpl  -> IO ()     
+checkReq2 impl = do
+   rootOK <- getReq2 impl []
+   answer <- getReq2 impl ["year", "7548"]
+   putStrLn ( if rootOK == "Ok" && answer == "2021"
+              then "OK"
+              else "Wrong anser"
+            )
