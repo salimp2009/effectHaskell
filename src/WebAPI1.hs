@@ -54,8 +54,8 @@ route impl [op, bid'] = do
       bid <- readMaybe bid'
       case op of
         "title"  -> pure $ encode $ title impl bid
-        "year"   -> pure $encode $ year impl bid
-        "rating" -> pure $encode $ rating impl bid
+        "year"   -> pure $ encode $ year impl bid
+        "rating" -> pure $ encode $ rating impl bid
         _        -> Nothing
 route _ _ = Nothing
 
