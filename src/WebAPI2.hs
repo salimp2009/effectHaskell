@@ -10,6 +10,12 @@ import GHC.TypeLits
 import Text.Read (readMaybe)
 
 import WebAPI1
+    ( encode,
+      BookID,
+      HandlerAction,
+      Rating(Great),
+      Request,
+      ServiceStatus(Ok) )
 
 -- | describes results ; what we are getting 
 -- as a response
@@ -55,6 +61,7 @@ implServer = pure Ok
        title _  = pure "Haskell in Depth"
        year _   = pure 2021
        rating _ = pure Great
+       
 -- | same as above since this directly applies implementation
 -- the above version uses type family to directly work on types
 -- and creates the same implementation 
