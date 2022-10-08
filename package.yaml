@@ -50,7 +50,10 @@ dependencies:
 - haskell-src-exts
 - haskell-src-meta
 - exceptions
-
+- servant-server
+- servant-blaze 
+- warp 
+- blaze-html 
 
 library:
   source-dirs: src
