@@ -12,6 +12,8 @@ import WebAPI2
 import WebAPI1
 import Data.Proxy (Proxy(..), Proxy)
 import GHC.TypeLits
+import Text.Read (readMaybe)
+
 
 {- 
   "The FlexibleInstances GHC extension is almost always needed 
@@ -52,9 +54,78 @@ instance (HasServer a, HasServer b) => HasServer (a :<|> b) where
      <|> routeS (Proxy :: Proxy b) handlerb xs
 
 instance  (KnownSymbol s, HasServer r) => HasServer ((s::Symbol) :> r)   where
-  routeS :: Proxy (s :> r) -> Server r -> Request -> Maybe (IO String)
+  routeS :: Proxy (s :> r) 
+          -> Server r 
+          -> Request 
+          -> Maybe (IO String)
   routeS _ handler (x : xs)
       | symbolVal (Proxy :: Proxy s) == x = routeS (Proxy :: Proxy r) handler xs
   routeS _ _      _ =  Nothing  
+
+instance (Read a, HasServer r)  => HasServer (Capture a :> r) where
+  routeS :: Proxy (Capture a :> r) 
+         -> (a -> Server r) 
+         -> [String]                      -- << same as using Request = [String]
+         -> Maybe(IO String)
+  routeS _ handler (x : xs) = do
+      a <- readMaybe x
+      routeS (Proxy @r) (handler a) xs   -- << Proxy @r -> Proxy :: Proxy r 
+  routeS _ _      _  = Nothing      
+
+get :: HasServer layout 
+    => Proxy layout -> Server layout -> Request -> IO String
+get proxy handler request = 
+    case routeS proxy handler request of
+      Nothing -> ioError (userError "Error 404: Malformed request")
+      Just m  -> m
+
+-- | use case; 
+-- ^^^ Use case of check implementation                 
+-- λ >>checkServBookAPI implServer
+-- OK
+-- λ >>checkServBookAPI implServer2
+-- OK      
+checkServBookAPI :: Server BookInfoAPI -> IO ()
+checkServBookAPI impl = do 
+       b      <- get (Proxy :: Proxy BookInfoAPI)  impl []  
+       answer <- get (Proxy :: Proxy BookInfoAPI)  impl ["year", "123234"]
+       putStrLn  ( if b == "Ok" && answer == "2021"
+                   then "OK"
+                   else "Wrong answer!"
+                 )
+
+-- >>>:t checkServBookAPI
+-- checkServBookAPI
+--   :: (HandlerAction ServiceStatus
+--       :<|> ((Int -> HandlerAction [Char])
+--             :<|> ((Int -> HandlerAction Int)
+--                   :<|> (Int -> HandlerAction Rating))))
+--      -> IO ()
+
+-- >>>:t implServer
+-- implServer
+--   :: HandlerAction ServiceStatus
+--      :<|> ((Int -> HandlerAction [Char])
+--            :<|> ((Int -> HandlerAction Int)
+--                  :<|> (Int -> HandlerAction Rating)))
+
+-- >>>:t implServer2
+-- implServer2 :: BookInfoAPIImpl2
+
+-- >>>:i BookInfoAPIImpl2
+-- type BookInfoAPIImpl2 :: *
+-- type BookInfoAPIImpl2 =
+--   HandlerAction ServiceStatus
+--   :<|> ((BookID -> HandlerAction String)
+--         :<|> ((BookID -> HandlerAction Int)
+--               :<|> (BookID -> HandlerAction Rating)))
+--   	-- Defined at C:\developer\haskell\effectiveHaskellbook\chapter9Monads\monadTypeClass\src\WebAPI2.hs:41:1
+
+
+
+
+                  
+        
+       
 
 

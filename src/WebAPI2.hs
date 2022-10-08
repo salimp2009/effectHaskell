@@ -44,7 +44,7 @@ type BookInfoAPIImpl2 =
   :<|> (BookID -> HandlerAction Int)     
   :<|> (BookID -> HandlerAction Rating)     
 
--- | layout stands for our API 
+-- | layout stands for our BookInfoAPI 
 -- Server layout -> implementation 
 type family Server layout :: Type  
 type instance Server (Get a)        = HandlerAction a
@@ -86,10 +86,4 @@ getReq3 :: Server BookInfoAPI -> Request -> IO String
 getReq3 impl reqs =
       case route2 impl reqs of
             Just m  -> m
-            Nothing -> pure "Malformed request"
-
-
-
-
-
-    
+            Nothing -> pure "Malformed request"  
