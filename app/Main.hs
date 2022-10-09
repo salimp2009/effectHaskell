@@ -15,6 +15,8 @@ import TemplateHaskellQuasiQuoters ( str )
 import TemplateHaskLookupTable
 import TempHaskellQuasiQuoting
 import TypedTHPrimesTH
+import WebAPIServant
+import Network.Wai.Handler.Warp
 
 
 -- $(generateTupleClass 3)
@@ -69,6 +71,8 @@ main = do
     print $ _5 (1, 2, 3, 4, 5, 6, 7, 8, 9)
     
     putStrLn multStr
+
+    --run 8081 app
 
     mapM_ print [isCircle s1, isSquare s2, isTriangle s3]
         where

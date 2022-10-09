@@ -2,8 +2,8 @@
 -- {-# LANGUAGE TypeApplications #-}
 -- {-# LANGUAGE KindSignatures #-}
 
-module Calculator where
-
+module Calculator () where
+                  
 import Text.Read (readEither)
 
 -- | Lit Int -> Literal integer
@@ -73,13 +73,13 @@ parse' (token : rest) =
                   Right (exprConstructor firstArg secondArg , rest'') 
 
   -- | use cases ; 
---  run " + 3 5"      -> "The Answer is : 8"
---  run " + 3 - 8 5"  -> "The Answer is : 6"
---  run "-10 5"       -> "Found extra tokens: 5"
---  run "- -10 5"     -> "The Answer is : -15"
---  run "- 15 + 1 * 2 / 8 4" -> "The Answer is : 10"
-run :: String -> String
-run expr =
+--  runC " + 3 5"      -> "The Answer is : 8"
+--  runC " + 3 - 8 5"  -> "The Answer is : 6"
+--  runC "-10 5"       -> "Found extra tokens: 5"
+--  runC "- -10 5"     -> "The Answer is : -15"
+--  runC "- 15 + 1 * 2 / 8 4" -> "The Answer is : 10"
+runC :: String -> String
+runC expr =
   case parse expr of
     Left err -> err
     Right expr' -> 
