@@ -43,6 +43,9 @@ library
       DerivingStrategyBasics
       DestructureValues
       DoNotation
+      Elevators.LowLevelElev
+      Elevators.UnsafeElev
+      Elevators.UseUnsafeElev
       ExistentialsForUnsafeIO
       ExistentialTypes
       FibsLazy

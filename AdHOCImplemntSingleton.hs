@@ -16,7 +16,7 @@ import Data.Constraint (Dict (..))
 import Data.Foldable (for_)
 import Data.Kind (Type)
 
-
+--
 data SBool (b::Bool) where
   STrue  :: SBool 'True
   SFalse :: SBool 'False
