@@ -1,6 +1,9 @@
 --{-# LANGUAGE TypeApplications #-}
 module Elevators.UnsafeElev where
 
+import Control.Monad.Trans
+import qualified Elevators.LowLevelElev as LL
+
 data DoorState = Opened | Closed
     deriving (Eq, Show)
 
@@ -39,3 +42,15 @@ belowTop flr = flr < maxBound
 
 aboveGround :: Floor -> Bool
 aboveGround flr = flr > minBound
+
+down :: MonadIO m => Elevator -> m Elevator
+down el@(Elevator fl@(Floor n) Closed) 
+    | aboveGround fl = do
+          liftIO $ LL.down
+          pure $ el {current = Floor (n-1)}
+    | otherwise = error "Elevator is on Ground floor"
+
+down el@(Elevator _ Opened) = error " door is open, please close the door!"
+
+open :: MonadIO m => Floor -> Elevator -> m Elevator
+open fl el = undefined
