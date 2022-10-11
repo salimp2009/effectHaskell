@@ -48,9 +48,17 @@ down el@(Elevator fl@(Floor n) Closed)
     | aboveGround fl = do
           liftIO $ LL.down
           pure $ el {current = Floor (n-1)}
-    | otherwise = error "Elevator is on Ground floor"
+    | otherwise = error "Elevator is at Ground floor"
 
-down el@(Elevator _ Opened) = error " door is open, please close the door!"
+down el@(Elevator _ Opened) = error "door is open, please close the door!"
+
+up :: MonadIO m => Elevator -> m Elevator
+up el@(Elevator fl@(Floor n) Closed)
+    | belowTop fl = do
+        liftIO $ LL.up
+        pure $ el {current = Floor (n+1)}
+    | otherwise = error "Elevator is at Top floor"
+up el@(Elevator _ Opened) = error "door is open, please close the door!"
 
 open :: MonadIO m => Floor -> Elevator -> m Elevator
 open fl el 
@@ -62,4 +70,21 @@ open fl el
         else
             error "Door is already opened"
     | otherwise = error 
-            "Can't open door when we are not on the right floor or elsewhere"
+            "Can't open door when we are not on the right floor or moving"
+
+close :: MonadIO m => Floor -> Elevator -> m Elevator
+close fl el
+    | sameFloor fl el =
+        if isOpened el
+            then do 
+                liftIO $ LL.close
+                pure $ el {door = Closed}
+            else
+                error "Door is already closed"
+    | otherwise = error "Can't close when we are on the right floor or moving"
+
+ensureClosed :: MonadIO m => Elevator -> m Elevator            
+ensureClosed el 
+        | isClosed el  = pure el
+        | otherwise    = close (current el) el
+
