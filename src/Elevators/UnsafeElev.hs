@@ -53,4 +53,13 @@ down el@(Elevator fl@(Floor n) Closed)
 down el@(Elevator _ Opened) = error " door is open, please close the door!"
 
 open :: MonadIO m => Floor -> Elevator -> m Elevator
-open fl el = undefined
+open fl el 
+    | sameFloor fl el =
+        if isClosed el
+        then do            
+            liftIO $ LL.open
+            pure $ el {door = Opened}
+        else
+            error "Door is already opened"
+    | otherwise = error 
+            "Can't open door when we are not on the right floor or elsewhere"
