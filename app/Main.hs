@@ -7,17 +7,16 @@
 --{-# LANGUAGE MultiParamTypeClasses #-}
 module Main where
 
-import Lib ()
+import Lib 
 import GreetingFunction ( greeting )
-import TempHaskellProjector
+import TempHaskellProjector ( proj, mkProjectors )
 import TemplateHaskellPredicates (mkPredicates)
 import TemplateHaskellQuasiQuoters ( str )
-import TemplateHaskLookupTable
-import TempHaskellQuasiQuoting
-import TypedTHPrimesTH
+import TemplateHaskLookupTable ( precompute, bigMathProblem )
+import TempHaskellQuasiQuoting ( generateTupleBoilerPlate )
+import TypedTHPrimesTH ( primesUpTo2' )
 import WebAPIServant
-import Network.Wai.Handler.Warp
-
+import Network.Wai.Handler.Warp 
 
 -- $(generateTupleClass 3)
 
@@ -47,10 +46,12 @@ Thou in our wonder and astonishment
 Hast built thyself a live-long monument…
         |]
 
+--
 
 main :: IO ()
 main = do
     print greeting
+   
     let numbers = $$(primesUpTo2' 10000)
     putStrLn "Which prime number do you want to know (should be  smaller than ~ 1000)"
     input <- readLn
@@ -72,7 +73,8 @@ main = do
     
     putStrLn multStr
 
-    --run 8081 app
+    run 8081 app
+ 
 
     mapM_ print [isCircle s1, isSquare s2, isTriangle s3]
         where

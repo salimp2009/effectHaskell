@@ -44,6 +44,8 @@ library
       DestructureValues
       DoNotation
       Elevators.LowLevelElev
+      Elevators.SingGen
+      Elevators.SingManual
       Elevators.UnsafeElev
       Elevators.UseUnsafeElev
       ExistentialsForUnsafeIO

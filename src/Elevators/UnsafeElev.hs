@@ -93,8 +93,8 @@ moveTo fl el' = do
           el <- ensureClosed el'
           case compare fl (current el) of
             EQ -> pure el 
-            GT -> up el     >>= moveTo fl
-            LT -> down el   >>= moveTo fl
+            GT -> up el >>= moveTo fl
+            LT -> down el >>= moveTo fl
 
 call :: MonadIO m => Floor -> Elevator -> m Elevator
 call fl el = do
