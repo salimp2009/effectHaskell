@@ -88,3 +88,24 @@ ensureClosed el
         | isClosed el  = pure el
         | otherwise    = close (current el) el
 
+moveTo :: MonadIO m => Floor -> Elevator -> m Elevator
+moveTo fl el' = do
+          el <- ensureClosed el'
+          case compare fl (current el) of
+            EQ -> pure el 
+            GT -> up el     >>= moveTo fl
+            LT -> down el   >>= moveTo fl
+
+call :: MonadIO m => Floor -> Elevator -> m Elevator
+call fl el = do
+    liftIO $ putStrLn $ "Call to: " <> show fl
+    if sameFloor fl el
+       then (if isOpened el then pure el else open fl el)
+       else moveTo fl el >>= open fl
+
+-- Alternative implementation
+    -- case compare fl (current el) of
+    --     EQ -> if isOpened el 
+    --           then pure el 
+    --           else open fl el
+    --     _ -> moveTo fl el >>= open fl
