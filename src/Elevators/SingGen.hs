@@ -29,6 +29,28 @@ singletons [d|
   |]
 
 data DoorM (s :: DoorStateM) where
-  MkDoor :: SingI s => DoorM s 
+  MkDoorM :: SingI s => DoorM s 
+
+
+doorStateM :: forall s. DoorM s -> DoorStateM
+doorStateM MkDoorM =
+  case sing :: SDoorStateM s of
+    SClosedM -> ClosedM
+    SOpenedM -> OpenedM
+
+-- >>> doorStateM (MkDoorM @('ClosedM))     
+-- ClosedM
+
+-- >>> doorStateM (MkDoorM :: DoorM 'ClosedM)  
+-- ClosedM
+
+-- >>> doorStateM (MkDoorM :: DoorM 'OpenedM) 
+-- OpenedM
+
+
+    
+    
+
+  
 
 
