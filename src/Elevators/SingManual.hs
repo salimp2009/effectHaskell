@@ -60,5 +60,14 @@ deriving instance Show SomeDoor
 parseDoor :: String -> Maybe SomeDoor
 parseDoor "Opened" = Just $ SomeDoor (MkDoor @('OpenedN))
 parseDoor "Closed" = Just $ SomeDoor (MkDoor :: Door ClosedN)
-parseDoor _        = Nothing  
+parseDoor _        = Nothing 
+
+switchState :: forall s. Door s -> SomeDoor
+switchState door@MkDoor = 
+    case sDoorState :: SDoorState s of 
+        SOpened -> SomeDoor (closeN door )
+        SClosed -> SomeDoor (openN door)
+
+-- >>>switchState (MkDoor::Door 'OpenedN)
+-- SomeDoor Door ClosedN
 
