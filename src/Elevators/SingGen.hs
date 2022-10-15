@@ -31,6 +31,8 @@ singletons [d|
 data DoorM (s :: DoorStateM) where
   MkDoorM :: SingI s => DoorM s 
 
+instance Show (DoorM s) where
+  show d = "DoorM " <> show (doorStateM d)
 
 doorStateM :: forall s. DoorM s -> DoorStateM
 doorStateM MkDoorM =
@@ -47,10 +49,23 @@ doorStateM MkDoorM =
 -- >>> doorStateM (MkDoorM :: DoorM 'OpenedM) 
 -- OpenedM
 
+data SomeDoorM where
+  SomeDoorM :: DoorM s -> SomeDoorM
 
-    
-    
+deriving instance Show SomeDoorM  
 
+openM :: DoorM 'ClosedM -> DoorM 'OpenedM
+openM _ = MkDoorM    
+
+closeM :: DoorM 'OpenedM -> DoorM 'ClosedM
+closeM _ = MkDoorM 
+
+
+switchStateM :: forall (s::DoorStateM). DoorM s -> SomeDoorM
+switchStateM door@MkDoorM =
+  case sing :: SDoorStateM s of
+    SOpenedM -> SomeDoorM (closeM door)    
+    SClosedM -> SomeDoorM (openM door)    
   
 
 
