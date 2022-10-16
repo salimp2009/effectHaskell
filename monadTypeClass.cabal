@@ -44,10 +44,15 @@ library
       DerivingStrategyBasics
       DestructureValues
       DoNotation
+      Elevators.Floors
       Elevators.LowLevelElev
+      Elevators.Moves
+      Elevators.Operations
+      Elevators.SafeElev
       Elevators.SingGen
       Elevators.SingManual
       Elevators.UnsafeElev
+      Elevators.UseSafeElev
       Elevators.UseUnsafeElev
       ExistentialsForUnsafeIO
       ExistentialTypes
@@ -143,8 +148,10 @@ library
     , connection
     , constraints
     , containers
+    , dec
     , do-notation
     , exceptions
+    , fin
     , first-class-families
     , haskell-src-exts
     , haskell-src-meta
@@ -187,8 +194,10 @@ executable monadTypeClass-exe
     , connection
     , constraints
     , containers
+    , dec
     , do-notation
     , exceptions
+    , fin
     , first-class-families
     , haskell-src-exts
     , haskell-src-meta
@@ -234,8 +243,10 @@ test-suite monadTypeClass-test
     , connection
     , constraints
     , containers
+    , dec
     , do-notation
     , exceptions
+    , fin
     , first-class-families
     , haskell-src-exts
     , haskell-src-meta

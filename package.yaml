@@ -53,7 +53,9 @@ dependencies:
 - servant-server
 - servant-blaze 
 - warp 
-- blaze-html 
+- blaze-html
+- fin
+- dec
 
 library:
   source-dirs: src
