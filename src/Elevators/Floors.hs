@@ -60,9 +60,31 @@ prev MkFloorK =
             snatCur :: SNat cur
             snatCur = case snat :: SNat ('S cur ) of
               SS -> snat
-            
             leCur :: LEProof cur mx
             leCur = leStepL leProof
+
+sameFloorK :: forall mx to from
+           . FloorK mx from -> FloorK mx to -> Maybe (to :~: from)
+sameFloorK MkFloorK  MkFloorK = eqNat @to @from
+
+-- >>> sameFloorK (MkFloorK @Nat5 @Nat3) (MkFloorK @Nat5 @Nat3)
+-- Just Refl
+
+-- >>>sameFloorK (MkFloorK @Nat5 @Nat3) (MkFloorK @Nat5 @Nat5)
+-- Nothing
+
+-- >>>:i (:~:)
+-- type role (:~:) nominal nominal
+-- type (:~:) :: forall {k}. k -> k -> *
+-- data (:~:) a b where
+--   Refl :: forall {k} (a :: k). (:~:) a a
+--   	-- Defined in ‘Data.Type.Equality’
+-- infix 4 :~:
+--   -- Defined in ‘Data.Type.Equality’
+
+-- >>>:i eqNat
+-- eqNat :: (SNatI n, SNatI m) => Maybe (n :~: m)
+--   	-- Defined in ‘Data.Type.Nat’
 
 -- >>>:i leStepL            
 -- leStepL :: LEProof ('S n) m -> LEProof n m
