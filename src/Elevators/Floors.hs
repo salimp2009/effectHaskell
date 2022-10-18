@@ -63,15 +63,33 @@ prev MkFloorK =
             leCur :: LEProof cur mx
             leCur = leStepL leProof
 
-sameFloorK :: forall mx to from
-           . FloorK mx from -> FloorK mx to -> Maybe (to :~: from)
-sameFloorK MkFloorK  MkFloorK = eqNat @to @from
-
 -- >>> sameFloorK (MkFloorK @Nat5 @Nat3) (MkFloorK @Nat5 @Nat3)
 -- Just Refl
 
 -- >>>sameFloorK (MkFloorK @Nat5 @Nat3) (MkFloorK @Nat5 @Nat5)
--- Nothing
+-- Nothing            
+sameFloorK :: forall mx to from
+           . FloorK mx from -> FloorK mx to -> Maybe (to :~: from)
+sameFloorK MkFloorK  MkFloorK = eqNat @to @from
+
+-- | creating a floor using Decidability
+mkFloorK :: forall mx cur . (SNatI mx, SNatI cur) => Maybe (FloorK mx cur)
+mkFloorK =
+  case decideLE :: Dec (LEProof cur mx) of
+    Yes prf -> withLEProof prf $ Just (MkFloorK @mx @cur)
+    No  _    -> Nothing       
+
+-- >>>:i decideLE
+-- decideLE :: (SNatI n, SNatI m) => Dec (LEProof n m)
+--   	-- Defined in ‘Data.Type.Nat.LE’
+
+-- >>>:i Dec
+-- type Dec :: * -> *
+-- data Dec a = Yes a | No (Neg a)
+--   	-- Defined in ‘Data.Type.Dec’
+-- instance [safe] Eq a => Eq (Dec a) -- Defined in ‘Data.Type.Dec’
+-- instance [safe] Ord a => Ord (Dec a) -- Defined in ‘Data.Type.Dec’
+
 
 -- >>>:i (:~:)
 -- type role (:~:) nominal nominal
