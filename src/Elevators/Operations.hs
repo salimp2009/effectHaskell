@@ -14,9 +14,8 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE InstanceSigs #-}
 {-# LANGUAGE StandaloneDeriving #-}
-#if __GLASGOW_HASKELL__ >= 810
 {-# LANGUAGE StandaloneKindSignatures #-}
-#endif
+
 
 module Elevators.Operations where
 
@@ -32,8 +31,8 @@ import Elevators.Floors
 
 singletons [d| 
     data DoorK
-      = Opened
-      | Closed
+      = OpenedK
+      | ClosedK
       deriving (Eq, Show)  
     |]
 
@@ -49,6 +48,29 @@ currentDoor (MkElevatorK _) = fromSing (sing :: Sing doorK)
 instance Show (ElevatorK mx cur doorK) where
   show el = "ElevatorK {currentFloorK = " <> show (currentFloor el) 
             <> ", doorK = " <> show (currentDoor el) <> "}"
-            
-            
-            
+
+up :: (BelowTop mx cur, MonadIO m) 
+   => ElevatorK mx cur 'ClosedK -> m (ElevatorK mx (S cur) 'ClosedK)  
+up (MkElevatorK flr) = do
+    liftIO  LL.up           
+    pure (MkElevatorK $ next flr)
+
+down :: MonadIO m 
+     => ElevatorK mx (S cur) 'ClosedK -> m (ElevatorK mx cur 'ClosedK)
+down (MkElevatorK flr) = do
+    liftIO LL.down
+    pure (MkElevatorK $ prev flr)
+
+open :: MonadIO m 
+     => FloorK mx cur -> ElevatorK mx cur 'ClosedK -> m (ElevatorK mx cur 'OpenedK)
+open _ (MkElevatorK flr) = do
+    liftIO LL.open
+    pure (MkElevatorK flr)
+
+closed :: MonadIO m 
+       => FloorK mx cur -> ElevatorK mx cur 'OpenedK -> m (ElevatorK mx cur 'ClosedK)
+closed _ (MkElevatorK flr) = do
+   liftIO LL.close
+   pure (MkElevatorK flr)    
+
+-- ^^ open close function needs to be refactored to check that we are at same floor   

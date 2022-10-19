@@ -77,7 +77,7 @@ mkFloorK :: forall mx cur . (SNatI mx, SNatI cur) => Maybe (FloorK mx cur)
 mkFloorK =
   case decideLE :: Dec (LEProof cur mx) of
     Yes prf -> withLEProof prf $ Just (MkFloorK @mx @cur)
-    No  _    -> Nothing       
+    No  _   -> Nothing       
 
 -- >>>:i decideLE
 -- decideLE :: (SNatI n, SNatI m) => Dec (LEProof n m)
