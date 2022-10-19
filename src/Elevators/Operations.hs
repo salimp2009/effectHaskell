@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+--{-# LANGUAGE CPP #-}
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -67,10 +67,29 @@ open _ (MkElevatorK flr) = do
     liftIO LL.open
     pure (MkElevatorK flr)
 
-closed :: MonadIO m 
+close :: MonadIO m 
        => FloorK mx cur -> ElevatorK mx cur 'OpenedK -> m (ElevatorK mx cur 'ClosedK)
-closed _ (MkElevatorK flr) = do
+close _ (MkElevatorK flr) = do
    liftIO LL.close
    pure (MkElevatorK flr)    
 
 -- ^^ open close function needs to be refactored to check that we are at same floor   
+ensureClosed :: forall mx cur doorK m. MonadIO m 
+             => ElevatorK mx cur doorK -> m (ElevatorK mx cur 'ClosedK)
+ensureClosed el@(MkElevatorK flr) =
+      case sing :: Sing doorK of  
+        SClosedK -> pure el
+        SOpenedK -> close flr el
+
+-- >>>:i sing      
+-- type SingI :: forall {k}. k -> Constraint
+-- class SingI a where
+--   sing :: Sing a
+--   	-- Defined in ‘Data.Singletons’
+
+ensureOpenedAt :: forall mx cur doorK m. MonadIO m
+               => FloorK mx cur -> ElevatorK mx cur doorK -> m (ElevatorK mx cur 'OpenedK)
+ensureOpenedAt flr el@(MkElevatorK _) =
+  case sing :: Sing doorK of 
+    SOpenedK -> pure el
+    SClosedK -> open flr el
