@@ -5,6 +5,8 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE TypeApplications #-}
+
 module Elevators.Moves where
 
 import Data.Type.Nat
@@ -16,15 +18,29 @@ import Data.Void
 import Elevators.Floors 
 
 data Move mx to from where
-  StandStill :: Move mx to to
-  GoingUp    :: BelowTop mx from => Move mx to from
+  StandStill :: forall mx to. Move mx to to
+  GoingUp    :: forall mx to from.BelowTop mx from => Move mx to from
   GoingDown  :: from ~ S fl => Move mx to from 
 
 
 decideMove :: forall mx to from
             . FloorK mx to -> FloorK mx from -> Move mx to from  
-decideMove = undefined
+decideMove MkFloorK MkFloorK = --- undefined
+   case discreteNat :: Dec (to :~: from) of
+    Yes Refl        -> StandStill @mx @to
+    No to_neq_from  -> 
+      case decideLE :: Dec (LEProof to from) of
+        Yes to_le_from ->
+            withAboveGround to_le_from to_neq_from GoingDown 
+        No  to_gt_from ->
+            withLEProof (belowTop to_gt_from) GoingUp
+  where
+    --belowTop :: LE to mx => Neg (LEProof to from) -> LEProof (S from) mx
+    --belowTop neg = leTrans (leSwap neg) leProof
+    belowTop :: LE  to mx  => Neg (LEProof to from) -> LEProof (S from) mx
+    belowTop = undefined 
 
+    withAboveGround = undefined
 
 -- >>>:i discreteNat
 -- discreteNat :: (SNatI n, SNatI m) => Dec (n :~: m)
@@ -33,6 +49,11 @@ decideMove = undefined
 -- >>>:i Dec
 -- type Dec :: * -> *
 -- data Dec a = Yes a | No (Neg a)
+--   	-- Defined in ‘Data.Type.Dec’
+
+-- >>>:i Neg
+-- type Neg :: * -> *
+-- type Neg a = a -> Void
 --   	-- Defined in ‘Data.Type.Dec’
 
 -- >>>:i decideLE
