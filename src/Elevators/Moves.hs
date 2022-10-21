@@ -38,13 +38,44 @@ decideMove MkFloorK MkFloorK = --- undefined
     --belowTop :: LE to mx => Neg (LEProof to from) -> LEProof (S from) mx
     --belowTop neg = leTrans (leSwap neg) leProof
     belowTop :: LE  to mx  => Neg (LEProof to from) -> LEProof (S from) mx
-    belowTop = undefined 
+    belowTop neg = leTrans (leSwap neg) leProof
 
-    withAboveGround = undefined
-
+    withAboveGround :: LEProof to from
+                    -> Neg (to :~: from) 
+                    -> (forall fl. from ~ S fl => r) -> r
+    withAboveGround (LESucc _) _ r = r
+    withAboveGround LEZero neq r = 
+      case snat :: SNat from of
+        SZ -> absurd $ neq Refl
+        SS -> r
 -- >>>:i discreteNat
 -- discreteNat :: (SNatI n, SNatI m) => Dec (n :~: m)
 --   	-- Defined in ‘Data.Type.Nat’
+
+-- >>>:i leProof
+-- type LE :: Nat -> Nat -> Constraint
+-- class LE n m where
+--   leProof :: LEProof n m
+--   	-- Defined in ‘Data.Type.Nat.LE’
+
+-- >>>:i leTrans
+-- leTrans :: LEProof n m -> LEProof m p -> LEProof n p
+--   	-- Defined in ‘Data.Type.Nat.LE’
+
+-- >>>:i leSwap
+-- leSwap ::
+--   (SNatI n, SNatI m) => Neg (LEProof n m) -> LEProof ('S m) n
+--   	-- Defined in ‘Data.Type.Nat.LE’
+
+-- >>>:i SNatI
+-- type SNatI :: Nat -> Constraint
+-- class SNatI n where
+--   induction :: f 'Z
+--                -> (forall (m :: Nat). SNatI m => f m -> f ('S m)) -> f n
+--   {-# MINIMAL induction #-}
+--   	-- Defined in ‘Data.Type.Nat’
+-- instance SNatI 'Z -- Defined in ‘Data.Type.Nat’
+-- instance SNatI n => SNatI ('S n) -- Defined in ‘Data.Type.Nat’
 
 -- >>>:i Dec
 -- type Dec :: * -> *
