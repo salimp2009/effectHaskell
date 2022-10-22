@@ -87,6 +87,7 @@ ensureClosed el@(MkElevatorK flr) =
 --   sing :: Sing a
 --   	-- Defined in ‘Data.Singletons’
 
+
 ensureOpenedAt :: forall mx cur doorK m. MonadIO m
                => FloorK mx cur -> ElevatorK mx cur doorK -> m (ElevatorK mx cur 'OpenedK)
 ensureOpenedAt flr el@(MkElevatorK _) =
