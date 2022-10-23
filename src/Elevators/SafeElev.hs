@@ -43,14 +43,29 @@ data SomeFloorK (mx::Nat) where
 data SomeElevatorK (mx::Nat) where
  MkSomeElevatorK :: ElevatorK mx from door -> SomeElevatorK mx
 
+-- | using recursion to introduce all the SNatI n instances 
+-- for all n less than S n 
+-- Once we have all SNatI n instances, GHC easily constructs
+-- the requested floor's SNatI instance ->
 mkSomeFloorK :: forall mx. SNatI mx => Natural -> Maybe (SomeFloorK mx)
 mkSomeFloorK cur = reify (fromNatural cur)  (fmap MkSomeFloorK . toMaybeFloor)
   where 
-    -- somefunc :: forall {n :: Nat}. SNatI n => Proxy n -> Maybe (SomeFloorK mx)
-    -- somefunc :: forall {a} {mx :: Nat}. a -> Maybe (SomeFloorK mx)
-    -- somefunc = fmap MkSomeFloorK . toMbFloor
     toMaybeFloor :: forall {flr :: Nat}. SNatI flr => Proxy flr -> Maybe (FloorK mx flr)
     toMaybeFloor (_p :: Proxy flr) = mkFloorK 
+
+callSome :: MonadIO m
+         => SomeFloorK mx -> SomeElevatorK mx -> m (SomeElevatorK mx)    
+callSome (MkSomeFloorK flr)  (MkSomeElevatorK elev) = 
+  MkSomeElevatorK <$> call flr elev  
+  
+-- >>>:t mkSomeFloorK 5  
+-- mkSomeFloorK 5 :: SNatI mx => Maybe (SomeFloorK mx)
+
+-- >>>:t mkFloorK @Nat5 @Nat3
+-- mkFloorK @Nat5 @Nat3 :: Maybe (FloorK Nat5 Nat3)
+
+-- >>>:t MkFloorK @Nat5 @Nat4
+-- MkFloorK @Nat5 @Nat4 :: FloorK Nat5 Nat4
 
 -- >>>reify (fromNatural 3) reflect
 -- 3
@@ -64,8 +79,6 @@ mkSomeFloorK cur = reify (fromNatural cur)  (fmap MkSomeFloorK . toMaybeFloor)
 -- >>>:i reify
 -- reify :: Nat -> (forall (n :: Nat). SNatI n => Proxy n -> r) -> r
 --   	-- Defined in ‘Data.Type.Nat’
-
--- >>>:t 
 
 -- >>>:i fromNatural
 -- fromNatural :: Natural -> Nat 	-- Defined in ‘Data.Nat’
