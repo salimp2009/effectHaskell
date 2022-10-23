@@ -3,6 +3,7 @@
 {-# LANGUAGE KindSignatures #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE PolyKinds #-}
 
 module Elevators.SafeElev 
             ( module X
@@ -41,6 +42,49 @@ data SomeFloorK (mx::Nat) where
 
 data SomeElevatorK (mx::Nat) where
  MkSomeElevatorK :: ElevatorK mx from door -> SomeElevatorK mx
+
+mkSomeFloorK :: forall mx. SNatI mx => Natural -> Maybe (SomeFloorK mx)
+mkSomeFloorK cur = reify (fromNatural cur)  (fmap MkSomeFloorK . toMaybeFloor)
+  where 
+    -- somefunc :: forall {n :: Nat}. SNatI n => Proxy n -> Maybe (SomeFloorK mx)
+    -- somefunc :: forall {a} {mx :: Nat}. a -> Maybe (SomeFloorK mx)
+    -- somefunc = fmap MkSomeFloorK . toMbFloor
+    toMaybeFloor :: forall {flr :: Nat}. SNatI flr => Proxy flr -> Maybe (FloorK mx flr)
+    toMaybeFloor (_p :: Proxy flr) = mkFloorK 
+
+-- >>>reify (fromNatural 3) reflect
+-- 3
+
+-- >>>:i Proxy
+-- type role Proxy phantom
+-- type Proxy :: forall {k}. k -> *
+-- data Proxy t = Proxy
+--   	-- Defined in ‘Data.Proxy’
+
+-- >>>:i reify
+-- reify :: Nat -> (forall (n :: Nat). SNatI n => Proxy n -> r) -> r
+--   	-- Defined in ‘Data.Type.Nat’
+
+-- >>>:t 
+
+-- >>>:i fromNatural
+-- fromNatural :: Natural -> Nat 	-- Defined in ‘Data.Nat’
+
+-- >>>:t fromNatural 56
+-- fromNatural 56 :: Nat
+
+-- >>> explicitShow (fromNatural 11)
+-- "S (S (S (S (S (S (S (S (S (S (S Z))))))))))"
+
+-- >>>:i Natural
+-- type Natural :: *
+-- data Natural = NS Word# | NB ByteArray#
+--   	-- Defined in ‘GHC.Num.Natural’
+
+-- >>>:i Nat
+-- type Nat :: *
+-- data Nat = Z | S Nat
+--   	-- Defined in ‘Data.Nat’
 
 -- >>>:t (MkFloorK @Nat5 @Nat3)
 -- (MkFloorK @Nat5 @Nat3) :: FloorK Nat5 Nat3
