@@ -165,6 +165,7 @@ mkFloorK =
 -- data Nat = ... | S Nat
 --   	-- Defined in ‘Data.Nat’
 
+
 -- >>>:t snatToNat
 -- snatToNat :: SNat n -> Nat
 

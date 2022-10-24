@@ -7,7 +7,11 @@
 
 module Elevators.SafeElev 
             ( module X
-
+            , call
+            , callSome
+            , SomeFloorK(..)
+            , SomeElevatorK(..)
+            , mkSomeFloorK
             )
             where
 
@@ -42,6 +46,9 @@ data SomeFloorK (mx::Nat) where
 
 data SomeElevatorK (mx::Nat) where
  MkSomeElevatorK :: ElevatorK mx from door -> SomeElevatorK mx
+
+instance Show (SomeElevatorK mx) where
+  show (MkSomeElevatorK el) = show el
 
 -- | using recursion to introduce all the SNatI n instances 
 -- for all n less than S n 
